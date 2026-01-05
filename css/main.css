@@ -7734,13 +7734,13 @@ details.toc[open] >div.body section .header+.doc_tree {
   list-style: none;
 }
 .widget-wrapper.toc .toc li {
-  margin: 0;
+  margin: 0 0 6px 0;
   list-style: none;
 }
 .widget-wrapper.toc .toc a {
   --padding: calc(var(--gap-padding) / 2);
   --padding-offset: calc(0 - var(--padding));
-  padding: 4px var(--padding);
+  padding: 8px var(--padding);
   margin: 0 var(--padding);
   color: var(--text-p3);
   display: block;
