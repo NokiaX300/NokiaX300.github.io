@@ -1,0 +1,1133 @@
+
+<!DOCTYPE html><html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.33.1" theme-name="Stellar" theme-version="1.33.1">
+  
+  
+  <meta name="generator" content="Hexo 8.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000">
+  <meta name="theme-color" content="#f9fafb">
+  <title>LaTeX 快速入门 - Nokia's Blog</title>
+
+  
+    <meta name="description" content="零基础也能懂的 LaTeX 入门指南，帮你快速上手轻松搞定记笔记和写论文。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LaTeX 快速入门">
+<meta property="og:url" content="https://nokiax300.github.io/2026/01/05/LaTeX%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/">
+<meta property="og:site_name" content="Nokia&#39;s Blog">
+<meta property="og:description" content="零基础也能懂的 LaTeX 入门指南，帮你快速上手轻松搞定记笔记和写论文。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://github.githubassets.com/images/icons/emoji/unicode/1f349.png?v8">
+<meta property="og:image" content="https://github.githubassets.com/images/icons/emoji/unicode/1f349.png?v8">
+<meta property="og:image" content="https://github.githubassets.com/images/icons/emoji/unicode/1f349.png?v8">
+<meta property="og:image" content="https://github.githubassets.com/images/icons/emoji/unicode/1f349.png?v8">
+<meta property="og:image" content="https://github.githubassets.com/images/icons/emoji/unicode/1f349.png?v8">
+<meta property="og:image" content="https://github.githubassets.com/images/icons/emoji/unicode/26a1.png?v8">
+<meta property="og:image" content="https://github.githubassets.com/images/icons/emoji/unicode/26a1.png?v8">
+<meta property="og:image" content="https://github.githubassets.com/images/icons/emoji/unicode/26a1.png?v8">
+<meta property="og:image" content="https://github.githubassets.com/images/icons/emoji/unicode/26a1.png?v8">
+<meta property="og:image" content="https://github.githubassets.com/images/icons/emoji/unicode/26a1.png?v8">
+<meta property="og:image" content="https://github.githubassets.com/images/icons/emoji/unicode/26a1.png?v8">
+<meta property="og:image" content="https://github.githubassets.com/images/icons/emoji/unicode/26a1.png?v8">
+<meta property="og:image" content="https://github.githubassets.com/images/icons/emoji/unicode/26a1.png?v8">
+<meta property="og:image" content="https://github.githubassets.com/images/icons/emoji/unicode/26a1.png?v8">
+<meta property="og:image" content="https://github.githubassets.com/images/icons/emoji/unicode/26a1.png?v8">
+<meta property="og:image" content="https://github.githubassets.com/images/icons/emoji/unicode/26a1.png?v8">
+<meta property="article:published_time" content="2026-01-04T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-01-07T02:47:13.156Z">
+<meta property="article:author" content="Nokia">
+<meta property="article:tag" content="LaTeX">
+<meta property="article:tag" content="教程">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.githubassets.com/images/icons/emoji/unicode/1f349.png?v8">
+  
+  
+  
+  <meta name="keywords" content="LaTeX,教程">
+
+  <!-- feed -->
+  
+
+  <link rel="stylesheet" href="/css/main.css?v=1.33.1">
+
+
+  
+
+  
+
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nokia","sameAs":[]},"dateCreated":"2026-01-05T00:00:00+08:00","dateModified":"2026-01-07T10:47:13+08:00","datePublished":"2026-01-05T00:00:00+08:00","description":"","headline":"LaTeX 快速入门","mainEntityOfPage":{"@type":"WebPage","@id":"https://nokiax300.github.io/2026/01/05/LaTeX%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/"},"publisher":{"@type":"Organization","name":"Nokia","sameAs":[]},"url":"https://nokiax300.github.io/2026/01/05/LaTeX%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/","keywords":"LaTeX, 教程","image":[]}</script>
+  
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+</head>
+<body>
+
+<div class="l_body content" id="start" layout="post" type="tech" ><aside class="l_left"><div class="sidebg"></div><div class="leftbar-container">
+
+
+<header class="header"><div class="logo-wrap"><a class="avatar" target="_blank" rel="noopener" href="https://github.com/NokiaX300"><div class="bg" style="opacity:0;background-image:url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="/images/avatar.jpg" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="title" href="/"><div class="main">Nokia's Blog</div></a></div></header>
+
+<div class="nav-area">
+
+<nav class="menu dis-select"></nav>
+</div>
+<div class="widgets">
+<div class="search-wrapper" id="search-wrapper"><form class="search-form"><a class="search-button" onclick="document.getElementById(&quot;search-input&quot;).focus();"><svg t="1705074644177" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></a><input type="text" class="search-input" id="search-input" placeholder="站内搜索"></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div>
+
+
+
+<widget class="widget-wrapper recent post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2026/01/05/LaTeX%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/"><span class="title">LaTeX 快速入门</span></a><a class="item title" href="/2026/01/05/Emoji%E5%91%BD%E4%BB%A4%E5%90%88%E9%9B%86/"><span class="title">Emoji 命令合集</span></a></div></widget>
+</div>
+
+</div></aside><div class="l_main" id="main">
+
+
+
+
+
+<div class="article banner top">
+  <div class="content">
+    <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
+<span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/CS/">CS</a></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2026-01-04T16:00:00.000Z">2026-01-05</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2026-01-07T02:47:13.156Z">2026-01-07</time></span></div></div></div>
+    
+    <div class="bottom only-title">
+      
+      <div class="text-area">
+        <h1 class="text title"><span>LaTeX 快速入门</span></h1>
+        
+      </div>
+    </div>
+    
+  </div>
+  </div><article class="md-text content"><p>本文不定时更新，记录我在学习使用 <a target="_blank" rel="noopener" href="https://www.tug.org/texlive/">LaTeX</a> 来 <strong>记笔记</strong>、<strong>写论文</strong> 时遇到的一些困难与思考。<br>希望能给刚接触 LaTeX 的同学一条「能尽快跑通、自己生成一份完整 PDF」的路线。<br>遇到问题时，我优先查阅的是《<a target="_blank" rel="noopener" href="https://mirrors.cloud.tencent.com/CTAN/info/lshort/chinese/lshort-zh-cn.pdf">一份（不太）简短的 LATEX 2ε 介绍</a>》，这里也强烈推荐。<br>文中很多做法只是我的个人选择，不一定是唯一方案。</p>
+<hr>
+<h4 id="TeX、LaTeX、TeX-Live、TeXworks-的区别"><a href="#TeX、LaTeX、TeX-Live、TeXworks-的区别" class="headerlink" title="TeX、LaTeX、TeX Live、TeXworks 的区别"></a>TeX、LaTeX、TeX Live、TeXworks 的区别</h4><p><strong>结论：下载 <em>TeX Live</em>（本体）和 <em>VS Code</em>（写作用的编辑器）即可。</strong></p>
+<ul>
+<li><strong>TeX</strong>：最底层的排版语言。</li>
+<li><strong>LaTeX</strong>：对 TeX 的一层封装，让写文档更方便。</li>
+<li><strong>TeX Live</strong>：把 TeX、LaTeX 以及常用宏包、工具都打包在一起的「大合集」，一般直接装它。</li>
+<li><strong>TeXworks / 其他编辑器</strong>：写 <code>.tex</code> 源码的工具，可以用记事本、TeXworks，也可以像我一样用 VS Code。</li>
+</ul>
+<p>我个人推荐：<strong>TeX Live + VS Code</strong>，界面友好、插件丰富。</p>
+<hr>
+<h4 id="TeX-Live-的下载与安装"><a href="#TeX-Live-的下载与安装" class="headerlink" title="TeX Live 的下载与安装"></a>TeX Live 的下载与安装</h4><p>详细步骤可以参考这篇文章：<br><a target="_blank" rel="noopener" href="https://www.bilibili.com/read/cv10635025?spm_id_from=333.788.b_636f6d6d656e74.64">TexLive 2021 安装指南</a></p>
+<p>这里简单总结一下：</p>
+<ol>
+<li>从镜像站下载 TeX Live 2021 安装包（下载本身速度很快）。</li>
+<li>运行安装程序（时间可能比较久，我当时装了大约 4 个小时，和电脑性能、磁盘读写都有关系）。</li>
+<li><strong>注意磁盘空间</strong>：安装前一定确认目标盘有足够空间，我第一次装在快满的 C 盘上，白白浪费了 3 个小时。</li>
+</ol>
+<p>安装完成后你应该能在开始菜单里看到一堆 TeX Live 相关程序。</p>
+<p>再做一次命令行校验：</p>
+<ol>
+<li><code>Win + R</code> → 输入 <code>cmd</code> → 回车。</li>
+<li>在命令行里输入：</li>
+</ol>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tex -v</span><br></pre></td></tr></tbody></table></figure>
+
+<p>如果能正常输出版本信息，说明环境已经就绪。</p>
+<blockquote>
+<p>注意：是 <code>tex -v</code>（中间有空格），不是 <code>tex-v</code>。</p>
+</blockquote>
+<hr>
+<h4 id="VS-Code-作为-LaTeX-编辑器"><a href="#VS-Code-作为-LaTeX-编辑器" class="headerlink" title="VS Code 作为 LaTeX 编辑器"></a>VS Code 作为 LaTeX 编辑器</h4><p>这部分在前面那篇 <a target="_blank" rel="noopener" href="https://www.bilibili.com/read/cv10635025?spm_id_from=333.788.b_636f6d6d656e74.64">TexLive 2021 安装指南</a> 里也有详细说明，这里只列关键步骤：</p>
+<ol>
+<li>去官网下载安装 <a target="_blank" rel="noopener" href="https://code.visualstudio.com/">Visual Studio Code</a>。</li>
+<li>打开 VS Code，左边「扩展」中搜索并安装 <strong>LaTeX Workshop</strong>。</li>
+<li>如果习惯中文界面，可以再安装扩展 <strong>Chinese (Simplified)</strong>。</li>
+<li>按照教程把推荐的配置粘贴到 <code>settings.json</code> 中并保存，方便一键编译 &amp; 预览。</li>
+</ol>
+<hr>
+<h4 id="日常如何新建-打开-LaTeX-文件"><a href="#日常如何新建-打开-LaTeX-文件" class="headerlink" title="日常如何新建 / 打开 LaTeX 文件"></a>日常如何新建 / 打开 LaTeX 文件</h4><p>我个人的习惯：</p>
+<ol>
+<li>在 VS Code 里点击 <strong>「文件 → 打开文件夹」</strong>，选一个用来放 LaTeX 工程的空目录。</li>
+<li>在资源管理器里 <strong>新建文件</strong>，命名时以 <code>.tex</code> 结尾，例如 <code>notes.tex</code>。</li>
+</ol>
+<p>之后光标就会跳到编辑区域，可以开始写代码。写完后，点击右上角绿色小三角（或用 LaTeX Workshop 的快捷键）进行编译。</p>
+<ul>
+<li>左下角会显示「building」等状态，完成后变成对勾，出错会显示叉号。</li>
+<li>目录里会自动生成一堆辅助文件，其中 <code>.pdf</code> 就是最终文档。</li>
+<li>通常可以用 <code>Ctrl + Alt + V</code> 在 VS Code 右侧打开 PDF 预览（具体快捷键以插件设置为准）。</li>
+</ul>
+<p>以后要打开旧文档，只要在 VS Code 里点「文件 → 打开文件」，选择你的 <code>.tex</code> 文件即可。</p>
+<hr>
+<h4 id="一些与-LaTeX-相关的网站推荐"><a href="#一些与-LaTeX-相关的网站推荐" class="headerlink" title="一些与 LaTeX 相关的网站推荐"></a>一些与 LaTeX 相关的网站推荐</h4><ul>
+<li><p><a target="_blank" rel="noopener" href="https://www.overleaf.com/">Overleaf</a><br>在线 LaTeX 编辑平台，不需要本地安装 TeX，支持多人协作。</p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://mirrors.cloud.tencent.com/CTAN/info/lshort/chinese/lshort-zh-cn.pdf">一份（不太）简短的 LATEX 2ε 介绍</a><br>非常经典的中文手册，查命令、宏包时非常好用。</p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://tex.stackexchange.com/">Stack Exchange（TeX 版）</a><br>英文问答社区，质量很高，许多问题都能在这里搜到现成解答。</p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.latexstudio.net/">LaTeX 工作室</a><br>中文社区，模板多、资源丰富。</p>
+</li>
+</ul>
+<blockquote>
+<p>准备工作到这里基本就绪，下面开始进入代码部分。</p>
+</blockquote>
+<hr>
+<h4 id="最小示例：一份能编译的-LaTeX-文档"><a href="#最小示例：一份能编译的-LaTeX-文档" class="headerlink" title="最小示例：一份能编译的 LaTeX 文档"></a>最小示例：一份能编译的 LaTeX 文档</h4><p>下面是一个最简单的 LaTeX 样例，你可以先复制到 VS Code 里试试：</p>
+<figure class="highlight tex"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">\documentclass</span>{ctexart}</span><br><span class="line"></span><br><span class="line"><span class="keyword">\begin</span>{document}</span><br><span class="line">愿世界和平</span><br><span class="line"><span class="keyword">\end</span>{document}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>保存后编译，应该就能生成一份包含「愿世界和平」的 PDF 文档。</p>
+<p>简单拆开看：</p>
+<ul>
+<li><code>\documentclass{}</code>：指定 <strong>文档类</strong>（文章、书籍、幻灯片等）。</li>
+<li><code>\documentclass{}</code> 和 <code>\begin{document}</code> 之间叫 <strong>导言区</strong>，用来：<ul>
+<li>设置全局选项；</li>
+<li>通过 <code>\usepackage{...}</code> 引入各种 <strong>宏包</strong>。</li>
+</ul>
+</li>
+<li><code>\begin{document}</code> 和 <code>\end{document}</code> 之间就是 <strong>正文内容</strong>。</li>
+</ul>
+<p>到这里，你已经写完了一篇最小可运行的 LaTeX 文档。</p>
+<hr>
+<h4 id="关键概念：命令-环境"><a href="#关键概念：命令-环境" class="headerlink" title="关键概念：命令 &amp; 环境"></a>关键概念：命令 &amp; 环境</h4><p> <span class="github-emoji"><span>🍉</span><img src="https://github.githubassets.com/images/icons/emoji/unicode/1f349.png?v8" aria-hidden="true" onerror="this.parent.classList.add('github-emoji-fallback')"></span> 命令（Command）</p>
+<p>命令的基本形式是：<strong>反斜杠 <code>\</code> + 一串英文字母</strong>。</p>
+<p>例如：</p>
+<ul>
+<li><code>\large</code>：把它后面的文本字号放大一点点。</li>
+<li><code>\usepackage{amsmath}</code>：在导言区调用 <code>amsmath</code> 宏包，用于数学公式排版。</li>
+</ul>
+<p>有时我们会把复杂的组合封装成一个新命令，例如想要「加粗 + 斜体」的效果：</p>
+<ul>
+<li>已知：<code>\textbf{}</code> 是加粗，<code>\emph{}</code> 是强调（一般是斜体）</li>
+<li>可以组合成：<code>\emph{\textbf{...}}</code></li>
+<li>为了以后少打字，可以自己定义一个命令：</li>
+</ul>
+<figure class="highlight tex"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">\newcommand</span>{<span class="keyword">\hhh</span>}[1]{{<span class="keyword">\emph</span>{<span class="keyword">\textbf</span>{<span class="params">#1</span>}}}}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这里：</p>
+<ul>
+<li><code>[1]</code> 表示这个命令接收 1 个参数；</li>
+<li><code>#1</code> 就是这个参数的占位符。</li>
+</ul>
+<p>以后在文中只要写 <code>\hhh{重要内容}</code>，就等价于 <code>\emph{\textbf{重要内容}}</code>。</p>
+<p>当你在论文里需要反复用到某些复杂格式时，<strong>学会自定义命令可以大幅减少重复工作</strong>。</p>
+<p> <span class="github-emoji"><span>🍉</span><img src="https://github.githubassets.com/images/icons/emoji/unicode/1f349.png?v8" aria-hidden="true" onerror="this.parent.classList.add('github-emoji-fallback')"></span> 环境（Environment）</p>
+<p>环境可以理解为「在某个范围内应用一套规则」，基本形式是：</p>
+<figure class="highlight tex"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">\begin</span>{环境名}</span><br><span class="line">愿世界和平</span><br><span class="line"><span class="keyword">\end</span>{环境名}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>比如常见的 <code>itemize</code>、<code>enumerate</code>、<code>equation</code>、<code>align</code> 等。<br>环境同样可以用 <code>\newenvironment</code> 来自定义。</p>
+<hr>
+<h4 id="一些基础概念回顾"><a href="#一些基础概念回顾" class="headerlink" title="一些基础概念回顾"></a>一些基础概念回顾</h4><p> <span class="github-emoji"><span>🍉</span><img src="https://github.githubassets.com/images/icons/emoji/unicode/1f349.png?v8" aria-hidden="true" onerror="this.parent.classList.add('github-emoji-fallback')"></span> 宏包（Package）</p>
+<p>前文已经多次提到，宏包就是一个个功能扩展模块。<br>调用方式类似：</p>
+<figure class="highlight tex"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">\usepackage</span>{amsmath}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>常用宏包可以参考《<a target="_blank" rel="noopener" href="https://mirrors.cloud.tencent.com/CTAN/info/lshort/chinese/lshort-zh-cn.pdf">一份（不太）简短的 LATEX 2ε 介绍</a>》的第 110 页。</p>
+<p> <span class="github-emoji"><span>🍉</span><img src="https://github.githubassets.com/images/icons/emoji/unicode/1f349.png?v8" aria-hidden="true" onerror="this.parent.classList.add('github-emoji-fallback')"></span> 文档类（Document Class）</p>
+<p>每个 LaTeX 源文件开头都要用 <code>\documentclass{...}</code> 指定文档类型，<br>比如 <code>article</code>、<code>report</code>、<code>book</code>、<code>beamer</code> 等。</p>
+<p> <span class="github-emoji"><span>🍉</span><img src="https://github.githubassets.com/images/icons/emoji/unicode/1f349.png?v8" aria-hidden="true" onerror="this.parent.classList.add('github-emoji-fallback')"></span> 引擎（Engine）</p>
+<p>负责把 <strong>源代码</strong> 编译成 <strong>最终文档</strong> 的「后端程序」，比如 <code>pdfLaTeX</code>、<code>XeLaTeX</code>、<code>LuaLaTeX</code> 等。<br>中文排版一般推荐使用 <strong>XeLaTeX</strong>。</p>
+<hr>
+<h4 id="各种后缀的文件都是什么？"><a href="#各种后缀的文件都是什么？" class="headerlink" title="各种后缀的文件都是什么？"></a>各种后缀的文件都是什么？</h4><p>第一次编译时，目录里会出现一堆新文件，大致含义如下（更详细的说明见手册第 7 页）：</p>
+<table>
+<thead>
+<tr>
+<th>后缀</th>
+<th>含义说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>.tex</code></td>
+<td>源代码文件</td>
+</tr>
+<tr>
+<td><code>.pdf</code></td>
+<td>编译生成的最终文档</td>
+</tr>
+<tr>
+<td><code>.aux</code></td>
+<td>主辅助文件，记录交叉引用、目录、参考文献等信息</td>
+</tr>
+<tr>
+<td><code>.log</code></td>
+<td>编译时生成的日志，排错时非常有用</td>
+</tr>
+<tr>
+<td><code>.cls</code></td>
+<td>文档类文件，文档类名称与文件名通常是一一对应的</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>上面基本概念介绍到这，下面是自己实际写作过程中遇到的一些问题和小技巧。</p>
+</blockquote>
+<hr>
+<h4 id="实践中的常见问题与技巧"><a href="#实践中的常见问题与技巧" class="headerlink" title="实践中的常见问题与技巧"></a>实践中的常见问题与技巧</h4><p> <span class="github-emoji"><span>⚡</span><img src="https://github.githubassets.com/images/icons/emoji/unicode/26a1.png?v8" aria-hidden="true" onerror="this.parent.classList.add('github-emoji-fallback')"></span> <strong>笔记的文档类怎么选？</strong></p>
+<p>一个比较通用的选择是：</p>
+<figure class="highlight tex"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">\documentclass</span>[12pt, UTF8]{ctexart}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>既支持中文，又适合作为日常笔记/短文档的模板。</p>
+<p> <span class="github-emoji"><span>⚡</span><img src="https://github.githubassets.com/images/icons/emoji/unicode/26a1.png?v8" aria-hidden="true" onerror="this.parent.classList.add('github-emoji-fallback')"></span> <strong>如何使用自己喜欢的中英文字体？</strong></p>
+<p>在导言区可以这样写：</p>
+<figure class="highlight tex"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">\setmainfont</span>{Comic Sans MS}      <span class="comment">% 英文字体</span></span><br><span class="line"><span class="keyword">\setCJKmainfont</span>{FZSJ-ODZKJW}     <span class="comment">% 中文字体</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>如果是自己从网上下载的字体：</p>
+<ol>
+<li>在 <code>C:\Windows\Fonts</code> 中找到对应的 <code>.ttf</code> / <code>.otf</code> 文件；</li>
+<li>把它复制到 TeX Live 的字体目录中（示例路径）：</li>
+</ol>
+<figure class="highlight tex"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">D:<span class="keyword">\Texlive</span><span class="keyword">\2</span>021<span class="keyword">\texmf</span>-dist<span class="keyword">\fonts</span><span class="keyword">\opentype</span><span class="keyword">\adobe</span><span class="keyword">\sourcecodepro</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>然后在 <code>\setmainfont{}</code> / <code>\setCJKmainfont{}</code> 中使用对应的字体名称。</p>
+<p> <span class="github-emoji"><span>⚡</span><img src="https://github.githubassets.com/images/icons/emoji/unicode/26a1.png?v8" aria-hidden="true" onerror="this.parent.classList.add('github-emoji-fallback')"></span> <strong>关于空格和行距</strong></p>
+<p>常用的一些空格与换行方式：</p>
+<ul>
+<li><code>\\</code>：换行，不缩进。可以加可选参数控制行距，例如 <code>\\[15pt]</code>。</li>
+<li><code>\par</code>：换段，有缩进。</li>
+<li><code>\noindent</code>：取消当前段落的首行缩进。</li>
+</ul>
+<p> <span class="github-emoji"><span>⚡</span><img src="https://github.githubassets.com/images/icons/emoji/unicode/26a1.png?v8" aria-hidden="true" onerror="this.parent.classList.add('github-emoji-fallback')"></span> <strong>多行公式 / 对比句想要左边一个大括号？</strong></p>
+<p>普通的大括号可以直接写 <code>\{</code>，想要更大一点可以用 <code>\Biggr\{</code> 等命令。<br>在做多个句子对比时，我比较喜欢用 <strong>cases 环境</strong>：</p>
+<figure class="highlight tex"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">\begin</span>{cases}</span><br><span class="line">    aaa<span class="keyword">\\</span></span><br><span class="line">    bbb<span class="keyword">\\</span></span><br><span class="line">    ccc</span><br><span class="line"><span class="keyword">\end</span>{cases} </span><br></pre></td></tr></tbody></table></figure>
+
+<p>再举一个和英语词汇辨析相关的例子：</p>
+<figure class="highlight tex"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">\[</span></span><br><span class="line">    <span class="keyword">\begin</span>{cases}</span><br><span class="line">        <span class="keyword">\text</span>{classic a./n.}</span><br><span class="line">        <span class="keyword">\\</span><span class="keyword">\centering</span> <span class="built_in">&amp;</span><span class="keyword">\text</span>{It's a classic motorbike from the 1940s.} </span><br><span class="line">        <span class="keyword">\\</span>  <span class="built_in">&amp;</span><span class="keyword">\text</span>{I always prefer the classics, such as Dickens and Jane Austen.}</span><br><span class="line">        <span class="keyword">\\</span><span class="keyword">\text</span>{classical a.}</span><br><span class="line">        <span class="keyword">\\</span>  <span class="built_in">&amp;</span><span class="keyword">\text</span>{Mozart is probably the best-known classical composer.}</span><br><span class="line">    <span class="keyword">\end</span>{cases}</span><br><span class="line"><span class="keyword">\]</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p> <span class="github-emoji"><span>⚡</span><img src="https://github.githubassets.com/images/icons/emoji/unicode/26a1.png?v8" aria-hidden="true" onerror="this.parent.classList.add('github-emoji-fallback')"></span> <strong>写数学公式要做哪些准备？</strong></p>
+<ol>
+<li>在导言区载入数学宏包：</li>
+</ol>
+<figure class="highlight tex"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">\usepackage</span>{amsmath}</span><br></pre></td></tr></tbody></table></figure>
+
+<ol start="2">
+<li>常见公式写法：<ul>
+<li><p><strong>行内公式</strong>：用两个 <code>$</code> 把公式包起来，比如 <code>$\alpha + \beta$</code>。</p>
+</li>
+<li><p><strong>行间公式（不编号）</strong>：用 <code>\[</code> 和 <code>\]</code> 包裹：</p>
+<figure class="highlight tex"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">\[</span></span><br><span class="line">    a<span class="built_in">^</span>2 + b<span class="built_in">^</span>2 = c<span class="built_in">^</span>2</span><br><span class="line"><span class="keyword">\]</span></span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p><strong>行间公式（自动编号）</strong>：使用 <code>equation</code> 环境：</p>
+<figure class="highlight tex"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">\begin</span>{equation}</span><br><span class="line">    a<span class="built_in">^</span>2 + b<span class="built_in">^</span>2 = c<span class="built_in">^</span>2</span><br><span class="line"><span class="keyword">\end</span>{equation}</span><br></pre></td></tr></tbody></table></figure></li>
+</ul>
+</li>
+</ol>
+<p> <span class="github-emoji"><span>⚡</span><img src="https://github.githubassets.com/images/icons/emoji/unicode/26a1.png?v8" aria-hidden="true" onerror="this.parent.classList.add('github-emoji-fallback')"></span> <strong>如何插入图片？</strong></p>
+<ol>
+<li>在导言区载入：</li>
+</ol>
+<figure class="highlight tex"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">\usepackage</span>{graphicx}</span><br></pre></td></tr></tbody></table></figure>
+
+<ol start="2">
+<li>在正文中使用：</li>
+</ol>
+<figure class="highlight tex"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">\includegraphics</span>{文件名}</span><br></pre></td></tr></tbody></table></figure>
+
+<ul>
+<li>图片可以与 <code>.tex</code> 文件放在同一目录，这样只写文件名即可；</li>
+<li>如果放在子目录，需要在大括号里写相对或绝对路径；</li>
+<li>文件扩展名可以省略，也可以写全。</li>
+</ul>
+<p> <span class="github-emoji"><span>⚡</span><img src="https://github.githubassets.com/images/icons/emoji/unicode/26a1.png?v8" aria-hidden="true" onerror="this.parent.classList.add('github-emoji-fallback')"></span> <strong>想要清晰的章节结构？</strong></p>
+<p>常用命令：</p>
+<figure class="highlight tex"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">\section</span>{不定积分} </span><br><span class="line">    <span class="keyword">\subsection</span>{不定积分概念与基本积分公式}</span><br></pre></td></tr></tbody></table></figure>
+
+<p><code>ctexart</code> 等类文档下会自动生成适合中文的标题样式。</p>
+<p> <span class="github-emoji"><span>⚡</span><img src="https://github.githubassets.com/images/icons/emoji/unicode/26a1.png?v8" aria-hidden="true" onerror="this.parent.classList.add('github-emoji-fallback')"></span> <strong>让某一行从新的一页开始？</strong></p>
+<p>在需要分页的地方插入：</p>
+<figure class="highlight tex"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">\clearpage</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>或者使用 <code>\newpage</code>，效果略有差别，一般笔记场景下都够用。</p>
+<p> <span class="github-emoji"><span>⚡</span><img src="https://github.githubassets.com/images/icons/emoji/unicode/26a1.png?v8" aria-hidden="true" onerror="this.parent.classList.add('github-emoji-fallback')"></span> <strong>用方框把一段文字框起来？</strong></p>
+<p>可以组合使用 <strong>垂直盒子（<code>parbox</code>）</strong> 和 <strong>方框（<code>fbox</code>）</strong>：</p>
+<figure class="highlight tex"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">\paragraph</span>*{住进城市[玖]}</span><br><span class="line"><span class="keyword">\fbox</span>{</span><br><span class="line">  <span class="keyword">\parbox</span>{25em}{</span><br><span class="line">    <span class="keyword">\noindent</span> Many people are moving from rural areas to big cities. </span><br><span class="line">    Why has this happened? To what extent do you think </span><br><span class="line">    it is a good trend?</span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p> <span class="github-emoji"><span>⚡</span><img src="https://github.githubassets.com/images/icons/emoji/unicode/26a1.png?v8" aria-hidden="true" onerror="this.parent.classList.add('github-emoji-fallback')"></span> <strong>如何让文本对齐得更好看？</strong></p>
+<p>除了在数学环境里用 <code>\text{}</code>，还可以通过 <strong>minipage 环境</strong> 控制一块区域的布局：</p>
+<figure class="highlight tex"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">\begin</span>{minipage}{<span class="keyword">\linewidth</span>}</span><br><span class="line">    aaa<span class="keyword">\\</span></span><br><span class="line">    bbb<span class="keyword">\\</span></span><br><span class="line">    ccc</span><br><span class="line"><span class="keyword">\end</span>{minipage} </span><br></pre></td></tr></tbody></table></figure>
+
+<p>再看一个和英语练习相关的小例子：</p>
+<figure class="highlight tex"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Describe<span class="keyword">\quad</span> </span><br><span class="line"><span class="keyword">\begin</span>{minipage}[t]{<span class="keyword">\linewidth</span>} <span class="comment">% [t] 是可选参数，让 Describe 和右边第一行对齐</span></span><br><span class="line">    a person<span class="keyword">\\</span> a place<span class="keyword">\\</span> an object<span class="keyword">\\</span> an event<span class="keyword">\\</span> an activity<span class="keyword">\\</span> your favourites</span><br><span class="line">    <span class="keyword">\end</span>{minipage}</span><br></pre></td></tr></tbody></table></figure>
+
+<p> <span class="github-emoji"><span>⚡</span><img src="https://github.githubassets.com/images/icons/emoji/unicode/26a1.png?v8" aria-hidden="true" onerror="this.parent.classList.add('github-emoji-fallback')"></span> <strong>一键复制粘贴的「通用导言区」示例</strong></p>
+<p>下面是我自己常用的一个简单导言区模板，可以按需修改：</p>
+<figure class="highlight tex"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">\documentclass</span>[12pt, UTF8]{ctexart}</span><br><span class="line"><span class="keyword">\setmainfont</span>{Comic Sans MS}</span><br><span class="line"><span class="keyword">\setCJKmainfont</span>{FZSJ-ODZKJW}</span><br><span class="line"><span class="keyword">\newcommand</span>{<span class="keyword">\1</span>}{<span class="keyword">\vspace</span>{1<span class="keyword">\baselineskip</span>}} <span class="comment">% 一倍行距空白</span></span><br><span class="line"><span class="keyword">\newcommand</span>{<span class="keyword">\2</span>}[1]{{<span class="keyword">\emph</span>{<span class="keyword">\textbf</span>{<span class="params">#1</span>}}}} <span class="comment">% 强调</span></span><br><span class="line"><span class="keyword">\usepackage</span>[fleqn]{amsmath}</span><br><span class="line"><span class="keyword">\usepackage</span>{graphicx}</span><br><span class="line"><span class="keyword">\usepackage</span>{soul}</span><br><span class="line"><span class="keyword">\usepackage</span>{hyperref}</span><br><span class="line"></span><br><span class="line"><span class="keyword">\begin</span>{document}</span><br><span class="line"><span class="keyword">\end</span>{document}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>可以在此基础上继续添加你喜欢的宏包和自定义命令。</p>
+<hr>
+<blockquote>
+<p>写到这里差不多了，大概</p>
+</blockquote>
+</article>
+
+
+<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/2026/01/05/Emoji%E5%91%BD%E4%BB%A4%E5%90%88%E9%9B%86/">Emoji 命令合集</a></div><div class="item" id="next"></div></section></div>
+
+
+
+
+  <div class="related-wrap md-text" id="comments">
+    <section class='header cmt-title cap theme'>
+      <p>快来参与讨论吧~</p>
+
+    </section>
+    <section class='body cmt-body giscus'>
+      
+
+<svg class="loading" style="vertical-align:middle;fill:currentColor;overflow:hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2709"><path d="M832 512c0-176-144-320-320-320V128c211.2 0 384 172.8 384 384h-64zM192 512c0 176 144 320 320 320v64C300.8 896 128 723.2 128 512h64z" p-id="2710"></path></svg>
+
+<div id="giscus" src="https://giscus.app/client.js" data-repo="NokiaX300/NokiaX300.github.io" data-repo-id="R_kgDOQzv_Qg" data-category="Announcements" data-category-id="DIC_kwDOQzv_Qs4C0lNy" data-mapping="pathname" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="preferred_color_scheme" data-lang="zh-CN" data-loading="lazy" crossorigin="anonymous"></div>
+
+    </section>
+  </div>
+
+
+
+<footer class="page-footer footnote"><hr><div class="text"><p>本站由 <a href="/">Nokia</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.33.1">Stellar 1.33.1</a> 主题创建。<br>本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+<div id="busuanzi_container_site_pv" style="margin-top: 10px;">本站总访问量：<span id="busuanzi_value_site_pv"></span> 次</div></div></footer>
+<div class="main-mask" onclick="sidebar.dismiss()"></div></div><aside class="l_right">
+<div class="widgets">
+
+
+
+<widget class="widget-wrapper toc" id="data-toc" collapse="false"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()" ><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#TeX%E3%80%81LaTeX%E3%80%81TeX-Live%E3%80%81TeXworks-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-text">TeX、LaTeX、TeX Live、TeXworks 的区别</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#TeX-Live-%E7%9A%84%E4%B8%8B%E8%BD%BD%E4%B8%8E%E5%AE%89%E8%A3%85"><span class="toc-text">TeX Live 的下载与安装</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#VS-Code-%E4%BD%9C%E4%B8%BA-LaTeX-%E7%BC%96%E8%BE%91%E5%99%A8"><span class="toc-text">VS Code 作为 LaTeX 编辑器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%97%A5%E5%B8%B8%E5%A6%82%E4%BD%95%E6%96%B0%E5%BB%BA-%E6%89%93%E5%BC%80-LaTeX-%E6%96%87%E4%BB%B6"><span class="toc-text">日常如何新建 &#x2F; 打开 LaTeX 文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E4%BA%9B%E4%B8%8E-LaTeX-%E7%9B%B8%E5%85%B3%E7%9A%84%E7%BD%91%E7%AB%99%E6%8E%A8%E8%8D%90"><span class="toc-text">一些与 LaTeX 相关的网站推荐</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%80%E5%B0%8F%E7%A4%BA%E4%BE%8B%EF%BC%9A%E4%B8%80%E4%BB%BD%E8%83%BD%E7%BC%96%E8%AF%91%E7%9A%84-LaTeX-%E6%96%87%E6%A1%A3"><span class="toc-text">最小示例：一份能编译的 LaTeX 文档</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E6%A6%82%E5%BF%B5%EF%BC%9A%E5%91%BD%E4%BB%A4-%E7%8E%AF%E5%A2%83"><span class="toc-text">关键概念：命令 &amp; 环境</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E4%BA%9B%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E5%9B%9E%E9%A1%BE"><span class="toc-text">一些基础概念回顾</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%84%E7%A7%8D%E5%90%8E%E7%BC%80%E7%9A%84%E6%96%87%E4%BB%B6%E9%83%BD%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-text">各种后缀的文件都是什么？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9E%E8%B7%B5%E4%B8%AD%E7%9A%84%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E4%B8%8E%E6%8A%80%E5%B7%A7"><span class="toc-text">实践中的常见问题与技巧</span></a></li></ol></div><div class="widget-footer"><a class="top" onclick="util.scrollTop()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Solar by 480 Design - https://creativecommons.org/licenses/by/4.0/ --><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"><path stroke-linejoin="round" d="m9 15.5l3-3l3 3m-6-4l3-3l3 3"/><path d="M7 3.338A9.95 9.95 0 0 1 12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12c0-1.821.487-3.53 1.338-5"/></g></svg><span>回到顶部</span></a><a class="buttom" onclick="util.scrollComment()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Solar by 480 Design - https://creativecommons.org/licenses/by/4.0/ --><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5" d="M8 10.5h8M8 14h5.5M17 3.338A9.95 9.95 0 0 0 12 2C6.477 2 2 6.477 2 12c0 1.6.376 3.112 1.043 4.453c.178.356.237.763.134 1.148l-.595 2.226a1.3 1.3 0 0 0 1.591 1.592l2.226-.596a1.63 1.63 0 0 1 1.149.133A9.96 9.96 0 0 0 12 22c5.523 0 10-4.477 10-10c0-1.821-.487-3.53-1.338-5"/></svg><span>参与讨论</span></a></div></widget>
+</div></aside><div class='float-panel'>
+  <button type='button' style='display:none' class='laptop-only rightbar-toggle mobile' onclick='sidebar.rightbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+  </button>
+  <button type='button' style='display:none' class='mobile-only leftbar-toggle mobile' onclick='sidebar.leftbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11c0-3.771 0-5.657 1.172-6.828C4.343 3 6.229 3 10 3h4c3.771 0 5.657 0 6.828 1.172C22 5.343 22 7.229 22 11v2c0 3.771 0 5.657-1.172 6.828C19.657 21 17.771 21 14 21h-4c-3.771 0-5.657 0-6.828-1.172C2 18.657 2 16.771 2 13z"/><path id="sep" stroke-linecap="round" d="M5.5 10h6m-5 4h4m4.5 7V3"/></g></svg>
+  </button>
+</div>
+</div><div class="scripts">
+
+
+<script type="text/javascript">
+  window.canonical = {"originalHost":null,"officialHosts":["localhost"],"encoded":""};
+  const ctx = {
+    date_suffix: {
+      just: `刚刚`,
+      min: `分钟前`,
+      hour: `小时前`,
+      day: `天前`,
+    },
+    root : `/`,
+    tag_plugins: {
+      chat: Object.assign({"api":"https://siteinfo.listentothewind.cn/api/v1"}),
+    }
+  };
+
+  // required plugins (only load if needs)
+  if (`local_search`) {
+    ctx.search = {};
+    ctx.search.service = `local_search`;
+    if (ctx.search.service == 'local_search') {
+      let service_obj = Object.assign({}, `{"field":"all","path":"/search.json","content":true,"skip_search":null,"sort":"-date"}`);
+      ctx.search[ctx.search.service] = service_obj;
+    }
+  }
+  const def = {
+    avatar: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/3442075.svg`,
+    cover: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/cover/76b86c0226ffd.svg`,
+    loading: `https://api.iconify.design/eos-icons:three-dots-loading.svg?color=%231cd0fd`,
+  };
+  const deps = {
+    jquery: `https://gcore.jsdelivr.net/npm/jquery@3.7/dist/jquery.min.js`,
+    marked: `https://gcore.jsdelivr.net/npm/marked@13.0/lib/marked.umd.min.js`,
+    lazyload: `/%5Bobject%20Object%5D`
+  }
+  
+
+</script>
+
+<script type="text/javascript">
+  
+  function RunItem() {
+    this.list = []; // 存放回调函数
+    this.start = () => {
+      for (var i = 0; i < this.list.length; i++) {
+        this.list[i].run();
+      }
+    };
+    this.push = (fn, name, setRequestAnimationFrame = true) => {
+      let myfn = fn
+      if (setRequestAnimationFrame) {
+        myfn = () => {
+          utils.requestAnimationFrame(fn)
+        }
+      }
+      var f = new Item(myfn, name);
+      this.list.push(f);
+    };
+    this.remove = (name) => {
+      for (let index = 0; index < this.list.length; index++) {
+        const e = this.list[index];
+        if (e.name == name) {
+          this.list.splice(index, 1);
+        }
+      }
+    }
+    // 构造一个可以run的对象
+    function Item(fn, name) {
+      // 函数名称
+      this.name = name || fn.name;
+      // run方法
+      this.run = () => {
+        try {
+          fn()
+        } catch (error) {
+          console.log(error);
+        }
+      };
+    }
+  }
+
+  const utils = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    css: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    js: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')) {
+        src = ctx.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function () {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    jq: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        utils.js(deps.jquery).then(fn)
+      } else {
+        fn()
+      }
+    },
+
+    onLoading: (el) => {
+      if (el) {
+        $(el).append('<div class="loading-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" stroke-opacity=".3" d="M12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="1.3s" values="60;0"/></path><path stroke-dasharray="15" stroke-dashoffset="15" d="M12 3C16.9706 3 21 7.02944 21 12"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.3s" values="15;0"/><animateTransform attributeName="transform" dur="1.5s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/></path></g></svg></div>');
+      }
+    },
+    onLoadSuccess: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap').remove();
+      }
+    },
+    onLoadFailure: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap svg').remove();
+        $(el).find('.loading-wrap').append('<svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" d="M12 3L21 20H3L12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.5s" values="60;0"/></path><path stroke-dasharray="6" stroke-dashoffset="6" d="M12 10V14"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.6s" dur="0.2s" values="6;0"/></path></g><circle cx="12" cy="17" r="1" fill="currentColor" fill-opacity="0"><animate fill="freeze" attributeName="fill-opacity" begin="0.8s" dur="0.4s" values="0;1"/></circle></svg>');
+        $(el).find('.loading-wrap').addClass('error');
+      }
+    },
+    request: (el, url, callback, onFailure) => {
+      const maxRetry = 3;
+      let retryCount = 0;
+
+      return new Promise((resolve, reject) => {
+        const load = () => {
+          utils.onLoading?.(el);
+
+          let timedOut = false;
+          const timeout = setTimeout(() => {
+            timedOut = true;
+            console.warn('[request] 超时:', url);
+
+            if (++retryCount >= maxRetry) {
+              utils.onLoadFailure?.(el);
+              onFailure?.();
+              reject('请求超时');
+            } else {
+              setTimeout(load, 1000);
+            }
+          }, 5000);
+
+          fetch(url).then(resp => {
+            if (timedOut) return;
+            clearTimeout(timeout);
+
+            if (!resp.ok) throw new Error('响应失败');
+            return resp;
+          }).then(data => {
+            if (timedOut) return;
+            utils.onLoadSuccess?.(el);
+            callback(data);
+            resolve(data);
+          }).catch(err => {
+            clearTimeout(timeout);
+            console.warn('[request] 错误:', err);
+
+            if (++retryCount >= maxRetry) {
+              utils.onLoadFailure?.(el);
+              onFailure?.();
+              reject(err);
+            } else {
+              setTimeout(load, 1000);
+            }
+          });
+        };
+
+        load();
+      });
+    },
+    requestWithoutLoading: (url, options = {}, maxRetry = 2, timeout = 5000) => {
+      return new Promise((resolve, reject) => {
+        let retryCount = 0;
+
+        const tryRequest = () => {
+          let timedOut = false;
+          const timer = setTimeout(() => {
+            timedOut = true;
+            if (++retryCount > maxRetry) reject('timeout');
+            else tryRequest();
+          }, timeout);
+
+          fetch(url, options)
+            .then(resp => {
+              clearTimeout(timer);
+              if (!resp.ok) throw new Error('bad response');
+              resolve(resp);
+            })
+            .catch(err => {
+              clearTimeout(timer);
+              if (++retryCount > maxRetry) reject(err);
+              else setTimeout(tryRequest, 500);
+            });
+        };
+
+        tryRequest();
+      });
+    },
+    /********************** requestAnimationFrame ********************************/
+    // 1、requestAnimationFrame 会把每一帧中的所有 DOM 操作集中起来，在一次重绘或回流中就完成，并且重绘或回流的时间间隔紧紧跟随浏览器的刷新频率，一般来说，这个频率为每秒60帧。
+    // 2、在隐藏或不可见的元素中，requestAnimationFrame 将不会进行重绘或回流，这当然就意味着更少的的 cpu，gpu 和内存使用量。
+    requestAnimationFrame: (fn) => {
+      if (!window.requestAnimationFrame) {
+        window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame;
+      }
+      window.requestAnimationFrame(fn)
+    },
+    dark: {},
+  };
+
+  // utils.dark.mode 当前模式 dark or light
+  // utils.dark.toggle() 暗黑模式触发器
+  // utils.dark.push(callBack[,"callBackName"]) 传入触发器回调函数
+  utils.dark.method = {
+    toggle: new RunItem(),
+  };
+  utils.dark = Object.assign(utils.dark, {
+    push: utils.dark.method.toggle.push,
+  });
+</script>
+<script>
+  const sidebar = {
+    leftbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    rightbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('rightbar');
+        l_body.removeAttribute('leftbar');
+      }
+    },
+    dismiss: () => {
+      if (l_body) {
+        l_body.removeAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    toggleTOC: () => {
+      document.querySelector('#data-toc').classList.toggle('collapse');
+    }
+  }
+</script>
+<script type="text/javascript">
+  (() => {
+    const tagSwitchers = document.querySelectorAll('.tag-subtree.parent-tag > a > .tag-switcher-wrapper')
+    for (const tagSwitcher of tagSwitchers) {
+      tagSwitcher.addEventListener('click', (e) => {
+        const parent = e.target.closest('.tag-subtree.parent-tag')
+        parent.classList.toggle('expanded')
+        e.preventDefault()
+      })
+    }
+
+    // Get active tag from query string, then activate it.
+    const urlParams = new URLSearchParams(window.location.search)
+    const activeTag = urlParams.get('tag')
+    if (activeTag) {
+      let tag = document.querySelector(`.tag-subtree[data-tag="${activeTag}"]`)
+      if (tag) {
+        tag.querySelector('a').classList.add('active')
+        
+        while (tag) {
+          tag.classList.add('expanded')
+          tag = tag.parentElement.closest('.tag-subtree.parent-tag')
+        }
+      }
+    }
+  })()
+</script>
+
+<script async src="https://gcore.jsdelivr.net/npm/vanilla-lazyload@19.1/dist/lazyload.min.js"></script>
+<script>
+  // https://www.npmjs.com/package/vanilla-lazyload
+  // Set the options globally
+  // to make LazyLoad self-initialize
+  window.lazyLoadOptions = {
+    elements_selector: ".lazy",
+    callback_loaded: (el) => {
+      el.classList.add('loaded');
+      const wrapper = el.closest('.lazy-box');
+      const icon = wrapper?.querySelector('.lazy-icon');
+      if (icon) icon.remove();
+    }
+  };
+  // Listen to the initialization event
+  // and get the instance of LazyLoad
+  window.addEventListener(
+    "LazyLoad::Initialized",
+    function (event) {
+      window.lazyLoadInstance = event.detail.instance;
+    },
+    false
+  );
+  document.addEventListener('DOMContentLoaded', function () {
+    window.lazyLoadInstance?.update();
+  });
+
+  window.wrapLazyloadImages = (container) => {
+    if (typeof container === 'string') {
+      container = document.querySelector(container);
+    }
+    if (!container) return;
+    
+    const images = container.querySelectorAll('img');
+    images.forEach((img) => {
+      if (img.classList.contains('lazy')) return;
+
+      const src = img.getAttribute('src');
+      if (!src) return;
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'lazy-box';
+
+      const newImg = img.cloneNode();
+      newImg.removeAttribute('src');
+      newImg.setAttribute('data-src', src);
+      newImg.classList.add('lazy');
+
+      const icon = document.createElement('div');
+      icon.className = 'lazy-icon';
+      if (def.loading) {
+        icon.style.backgroundImage = `url("${def.loading}")`;
+      }
+
+      wrapper.appendChild(newImg);
+      wrapper.appendChild(icon);
+
+      img.replaceWith(wrapper);
+    });
+
+    // 通知 LazyLoad 更新
+    if (window.lazyLoadInstance?.update) {
+      window.lazyLoadInstance.update();
+    }
+  }
+  
+</script>
+
+<!-- required -->
+<script src="/js/main.js?v=1.33.1" defer></script>
+
+<script type="text/javascript">
+  const applyTheme = (theme) => {
+    if (theme === 'auto') {
+      document.documentElement.removeAttribute('data-theme')
+    } else {
+      document.documentElement.setAttribute('data-theme', theme)
+    }
+
+    // applyThemeToGiscus(theme)
+  }
+
+  // FIXME: 这会导致无法使用 preferred_color_scheme 以外的主题
+  const applyThemeToGiscus = (theme) => {
+    // theme = theme === 'auto' ? 'preferred_color_scheme' : theme
+    const cmt = document.getElementById('giscus')
+    if (cmt) {
+      // This works before giscus load.
+      cmt.setAttribute('data-theme', theme)
+    }
+
+    const iframe = document.querySelector('#comments > section.giscus > iframe')
+    if (iframe) {
+      // This works after giscus loaded.
+      const src = iframe.src
+      const newSrc = src.replace(/theme=[\w]+/, `theme=${theme}`)
+      iframe.src = newSrc
+    }
+  }
+
+  const switchTheme = () => {
+    // light -> dark -> auto -> light -> ...
+    const currentTheme = document.documentElement.getAttribute('data-theme')
+    let newTheme;
+    switch (currentTheme) {
+      case 'light':
+        newTheme = 'dark'
+        break
+      case 'dark':
+        newTheme = 'auto'
+        break
+      default:
+        newTheme = 'light'
+    }
+    applyTheme(newTheme)
+    window.localStorage.setItem('Stellar.theme', newTheme)
+    utils.dark.mode = newTheme === 'auto' ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light") : newTheme;
+    utils.dark.method.toggle.start();
+
+    const messages = {
+      light: `切换到浅色模式`,
+      dark: `切换到深色模式`,
+      auto: `切换到跟随系统配色`,
+    }
+    hud?.toast?.(messages[newTheme])
+  }
+
+  (() => {
+    // Apply user's preferred theme, if any.
+    const theme = window.localStorage.getItem('Stellar.theme')
+    if (theme !== null) {
+      applyTheme(theme)
+    } else {
+      utils.dark.mode = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+    utils.dark.method.toggle.start();
+  })()
+</script>
+
+
+<!-- optional -->
+
+  <script type="module">
+  const el = document.querySelector('#comments #giscus');
+  util.viewportLazyload(el, load_discus, false);
+
+  function load_discus() {
+    if (!el) return;
+    try {
+        el.innerHTML = '';
+      } catch (error) {
+        console.error(error);
+      }
+      const script = document.createElement('script');
+      script.async = true;
+      for (const key of Object.keys(el.attributes)) {
+        const attr = el.attributes[key];
+        if (['class', 'id'].includes(attr.name) === false) {
+          script.setAttribute(attr.name, attr.value);
+        }
+      }
+      el.appendChild(script);
+  }
+</script>
+
+
+
+
+<script defer>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.services = Object.assign({}, JSON.parse(`{"mdrender":{"js":"/js/services/mdrender.js"},"siteinfo":{"js":"/js/services/siteinfo.js","api":null},"ghinfo":{"js":"/js/services/ghinfo.js"},"rating":{"js":"/js/services/rating.js","api":"https://star-vote.xaox.cc/api/rating"},"vote":{"js":"/js/services/vote.js","api":"https://star-vote.xaox.cc/api/vote"},"sites":{"js":"/js/services/sites.js"},"friends":{"js":"/js/services/friends.js"},"friends_and_posts":{"js":"/js/services/friends_and_posts.js"},"timeline":{"js":"/js/services/timeline.js"},"fcircle":{"js":"/js/services/fcircle.js"},"weibo":{"js":"/js/services/weibo.js"},"memos":{"js":"/js/services/memos.js"},"voice":{"js":"/js/plugins/voice.js"},"video":{"js":"/js/plugins/video.js"},"download-file":{"js":"/js/plugins/download-file.js"},"twikoo":{"js":"/js/services/twikoo_latest_comment.js"},"waline":{"js":"/js/services/waline_latest_comment.js"},"artalk":{"js":"/js/services/artalk_latest_comment.js"},"giscus":{"js":"/js/services/giscus_latest_comment.js"},"contributors":{"edit_this_page":{"_posts/":null,"wiki/stellar/":"https://github.com/xaoxuu/hexo-theme-stellar-docs/blob/main/"},"js":"/js/services/contributors.js"}}`));
+    for (let id of Object.keys(ctx.services)) {
+      const js = ctx.services[id].js;
+      if (id == 'siteinfo') {
+        ctx.cardlinks = document.querySelectorAll('a.link-card[cardlink]');
+        if (ctx.cardlinks?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            setCardLink(ctx.cardlinks);
+          });
+        }
+      } else if (id == 'voice') {
+        ctx.voiceAudios = document.querySelectorAll('.voice>audio');
+        if (ctx.voiceAudios?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            createVoiceDom(ctx.voiceAudios);
+          });
+        }
+      } else if (id == 'video') {
+        ctx.videos = document.querySelectorAll('.video>video');
+        if (ctx.videos?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            videoEvents(ctx.videos);
+          });
+        }
+      } else if (id == 'download-file') {
+        ctx.files = document.querySelectorAll('.file');
+        if (ctx.files?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            downloadFileEvent(ctx.files);
+          });
+        }
+      } else {
+        const els = document.getElementsByClassName(`ds-${id}`);
+        if (els?.length > 0) {
+          utils.jq(() => {
+            if (id == 'timeline' || 'memos' || 'marked') {
+              utils.js(deps.marked).then(function () {
+                utils.js(js, { defer: true });
+              });
+            } else {
+              utils.js(js, { defer: true });
+            }
+          });
+        }
+      }
+    }
+
+    // chat iphone time
+    let phoneTimes = document.querySelectorAll('.chat .status-bar .time');
+
+    if (phoneTimes.length > 0) {
+      NowTime();
+      var date = new Date();
+      var sec = date.getSeconds();
+      var firstAdjustInterval = setInterval(firstAdjustTime, 1000 * (60 - sec));
+    }
+
+    function firstAdjustTime() {
+      NowTime();
+      clearInterval(firstAdjustInterval);
+      setInterval(NowTime, 1000 * 60);
+    }
+
+    function NowTime() {
+      for (let i = 0; i < phoneTimes.length; ++i) {
+        var timeSpan = phoneTimes[i];
+        var date = new Date();
+        var hour = date.getHours();
+        var min = date.getMinutes();
+        timeSpan.innerHTML = check(hour) + ":" + check(min);
+      }
+    };
+
+    function check(val) {
+      if (val < 10) {
+        return ("0" + val);
+      }
+      return (val);
+    }
+
+    // chat quote
+    const chat_quote_obverser = new IntersectionObserver((entries, observer) => {
+      entries.filter((entry) => { return entry.isIntersecting }).sort((a, b) => a.intersectionRect.y !== b.intersectionRect.y ? a.intersectionRect.y - b.intersectionRect.y : a.intersectionRect.x - b.intersectionRect.x).forEach((entry, index) => {
+          observer.unobserve(entry.target);
+          setTimeout(() => {
+            entry.target.classList.add('quote-blink');
+            setTimeout(() => {
+              entry.target.classList.remove('quote-blink');
+            }, 1000);
+          }, Math.max(100, 16) * (index + 1));
+        });
+    });
+
+    var chatQuotes = document.querySelectorAll(".chat .talk .quote");
+    chatQuotes.forEach((quote) => {
+      quote.addEventListener('click', function () {
+        var chatCellDom = document.getElementById("quote-" + quote.getAttribute("quotedCellTag"));
+        if (chatCellDom) {
+          var chatDiv = chatCellDom.parentElement;
+          var mid = chatDiv.clientHeight / 2;
+          var offsetTop = chatCellDom.offsetTop;
+          if (offsetTop > mid - chatCellDom.clientHeight / 2) {
+            chatDiv.scrollTo({
+              top: chatCellDom.offsetTop - mid + chatCellDom.clientHeight / 2,
+              behavior: "smooth"
+            });
+          } else {
+            chatDiv.scrollTo({
+              top: 0,
+              behavior: "smooth"
+            });
+          }
+          chat_quote_obverser.observe(chatCellDom);
+        }
+      });
+    });
+  });
+</script>
+
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.search = {
+      path: `/search.json`,
+    }
+    utils.js('/js/search/local-search.js', { defer: true });
+  });
+</script><script>
+  window.FPConfig = {
+    delay: 0,
+    ignoreKeywords: [],
+    maxRPS: 5,
+    hoverDelay: 25
+  };
+</script>
+<script defer src="https://gcore.jsdelivr.net/npm/flying-pages@2/flying-pages.min.js"></script><script>
+  ctx.fancybox = {
+    selector: `.timenode p>img`,
+    css: `https://gcore.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css`,
+    js: `https://gcore.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js`
+  };
+  var selector = '[data-fancybox]:not(.error), .with-fancybox .atk-content img:not([atk-emoticon])';
+  if (ctx.fancybox.selector) {
+    selector += `, ${ctx.fancybox.selector}`
+  }
+  var needFancybox = document.querySelectorAll(selector).length !== 0;
+  if (!needFancybox) {
+    const memos = document.getElementsByClassName('ds-memos');
+    if (memos != undefined && memos.length > 0) {
+      needFancybox = true;
+    }
+    const fancybox = document.getElementsByClassName('with-fancybox');
+    if (fancybox != undefined && fancybox.length > 0) {
+      needFancybox = true;
+    }
+  }
+  if (needFancybox) {
+    utils.css(ctx.fancybox.css);
+    utils.js(ctx.fancybox.js, { defer: true }).then(function () {
+      Fancybox.bind(selector, {
+        hideScrollbar: false,
+        Thumbs: {
+          autoStart: false,
+        },
+        caption: (fancybox, slide) => {
+          return slide.triggerEl.alt || slide.triggerEl.dataset.caption || null
+        }
+      });
+    })
+  }
+</script>
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    const swiper_api = document.getElementById('swiper-api');
+    if (swiper_api != undefined) {
+      utils.css(`https://unpkg.com/swiper@10.3/swiper-bundle.min.css`);
+      utils.js(`https://unpkg.com/swiper@10.3/swiper-bundle.min.js`, { defer: true }).then(function () {
+        const effect = swiper_api.getAttribute('effect') || '';
+        var swiper = new Swiper('.swiper#swiper-api', {
+          slidesPerView: 'auto',
+          spaceBetween: 8,
+          centeredSlides: true,
+          effect: effect,
+          rewind: true,
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+          },
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          },
+        });
+      })
+    }
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    window.codeElements = document.querySelectorAll('.code');
+    if (window.codeElements.length > 0) {
+      ctx.copycode = {
+        default_text: `Copy`,
+        success_text: `Copied`,
+        toast: `复制成功`,
+      };
+      utils.js('/js/plugins/copycode.js');
+    }
+  });
+</script>
+
+
+<!-- inject -->
+
+
+<!-- 不蒜子访问量统计 -->
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</div></body></html>
