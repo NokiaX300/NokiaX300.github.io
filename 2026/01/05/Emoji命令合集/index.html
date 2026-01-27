@@ -135,7 +135,7 @@
 
 
 
-<widget class="widget-wrapper recent post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2026/01/07/%E5%85%8D%E8%B4%B9%E4%B8%AA%E4%BA%BA%E7%BD%91%E7%AB%99%E5%BF%AB%E9%80%9F%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/"><span class="title">搭建免费个人博客网站</span></a><a class="item title" href="/2026/01/05/LaTeX%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/"><span class="title">LaTeX 快速入门</span></a><a class="item title" href="/2026/01/05/Emoji%E5%91%BD%E4%BB%A4%E5%90%88%E9%9B%86/"><span class="title">Emoji 命令合集</span></a></div></widget>
+<widget class="widget-wrapper recent post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2026/01/27/AgentSkills%E5%85%A5%E9%97%A8/"><span class="title">Agent Skills 入门</span></a><a class="item title" href="/2026/01/07/%E5%85%8D%E8%B4%B9%E4%B8%AA%E4%BA%BA%E7%BD%91%E7%AB%99%E5%BF%AB%E9%80%9F%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/"><span class="title">搭建免费个人博客网站</span></a><a class="item title" href="/2026/01/05/LaTeX%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/"><span class="title">LaTeX 快速入门</span></a><a class="item title" href="/2026/01/05/Emoji%E5%91%BD%E4%BB%A4%E5%90%88%E9%9B%86/"><span class="title">Emoji 命令合集</span></a></div></widget>
 </div>
 
 </div></aside><div class="l_main" id="main">
@@ -429,171 +429,10 @@
 
 
 <footer class="page-footer footnote"><hr><div class="text"><p>本站由 <a href="/">Nokia</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.33.1">Stellar 1.33.1</a> 主题创建。<br>本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
-<div style="font-size: 1rem;text-align: center; margin: 1rem 0; color:var(--text-p4);">发表了 3 篇文章 🍉 总计 4.2k 字</div></div></footer>
+<div style="font-size: 1rem;text-align: center; margin: 1rem 0; color:var(--text-p4);">发表了 4 篇文章 🍉 总计 9.9k 字</div></div></footer>
 
 <div class="main-mask" onclick="sidebar.dismiss()"></div></div><aside class="l_right">
-<div class="widgets">
-
-
-
-
-
-<widget class="widget-wrapper daily-fate"><div class="widget-header dis-select"><span class="name">今日黄历</span></div><div class="widget-body fs14"><div class="daily-fate-content" id="daily-fate-content"><div class="fate-loading">加载中...</div></div></div></widget>
-<script>
-// 天行 API 配置（需要替换为你的 API Key）
-const TIANAPI_KEY = '01b6b3603e1ff89d1b9d6e9841703608';
-const TIANAPI_URL = 'https://apis.tianapi.com/lunar/index';
-
-// 使用 CORS 代理（如果直接请求失败）
-const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
-
-// 获取今日黄历数据
-async function loadDailyFate() {
-  const container = document.getElementById('daily-fate-content');
-  if (!container) return;
-  
-  try {
-    // 检查本地存储，如果今天的数据已存在且未过期，直接使用
-    const today = new Date().toISOString().split('T')[0];
-    const cached = localStorage.getItem('daily_fate_data');
-    if (cached) {
-      const data = JSON.parse(cached);
-      if (data.date === today) {
-        renderFateData(container, data);
-        // 后台静默更新，不阻塞显示
-        updateFateDataInBackground();
-        return;
-      }
-    }
-    
-    // 请求新数据
-    await updateFateData(container);
-  } catch (error) {
-    console.error('加载黄历数据失败:', error);
-    // 如果请求失败，尝试使用缓存数据
-    const cached = localStorage.getItem('daily_fate_data');
-    if (cached) {
-      const data = JSON.parse(cached);
-      renderFateData(container, data);
-      container.innerHTML += '<div class="fate-cache-note" style="font-size:10px;color:var(--text-p4);text-align:center;margin-top:0.5rem;">(使用缓存数据)</div>';
-    } else {
-      container.innerHTML = '<div class="fate-empty">加载失败，请稍后刷新</div>';
-    }
-  }
-}
-
-// 更新数据
-async function updateFateData(container) {
-  const formData = new URLSearchParams();
-  formData.append('key', TIANAPI_KEY);
-  
-  let response;
-  try {
-    // 先尝试直接请求
-    response = await fetch(TIANAPI_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: formData
-    });
-  } catch (error) {
-    // 如果直接请求失败（可能是 CORS），尝试使用代理
-    console.warn('直接请求失败，尝试使用 CORS 代理:', error);
-    const proxyUrl = CORS_PROXY + encodeURIComponent(TIANAPI_URL);
-    response = await fetch(proxyUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: formData
-    });
-  }
-  
-  if (!response.ok) {
-    throw new Error('请求失败: ' + response.status);
-  }
-  
-  const result = await response.json();
-  
-  if (result.code === 200 && result.result) {
-    const fateData = {
-      date: result.result.gregoriandate || '',
-      lunar_date: result.result.lunardate || '',
-      fitness: result.result.fitness || '',
-      taboo: result.result.taboo || ''
-    };
-    
-    // 保存到本地存储
-    localStorage.setItem('daily_fate_data', JSON.stringify(fateData));
-    
-    if (container) {
-      renderFateData(container, fateData);
-    }
-    
-    return fateData;
-  } else {
-    throw new Error(result.msg || '获取数据失败');
-  }
-}
-
-// 后台静默更新
-async function updateFateDataInBackground() {
-  try {
-    await updateFateData(null);
-  } catch (error) {
-    console.warn('后台更新失败:', error);
-  }
-}
-
-// 渲染黄历数据
-function renderFateData(container, fateData) {
-  if (!fateData || (!fateData.fitness && !fateData.taboo)) {
-    container.innerHTML = '<div class="fate-empty">暂无数据</div>';
-    return;
-  }
-  
-  let html = '';
-  
-  if (fateData.fitness) {
-    html += '<div class="fate-item fitness">';
-    html += '<div class="fate-label">宜</div>';
-    html += '<div class="fate-content">' + fateData.fitness.replace(/\./g, ' · ') + '</div>';
-    html += '</div>';
-  }
-  
-  if (fateData.taboo) {
-    html += '<div class="fate-item taboo">';
-    html += '<div class="fate-label">忌</div>';
-    html += '<div class="fate-content">' + fateData.taboo.replace(/\./g, ' · ') + '</div>';
-    html += '</div>';
-  }
-  
-  container.innerHTML = html;
-}
-
-// 页面加载完成后执行
-(function() {
-  function initDailyFate() {
-    const container = document.getElementById('daily-fate-content');
-    if (container) {
-      loadDailyFate();
-    } else {
-      // 如果容器还没加载，等待一下再试
-      setTimeout(initDailyFate, 100);
-    }
-  }
-  
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initDailyFate);
-  } else {
-    // 延迟一点执行，确保 DOM 完全渲染
-    setTimeout(initDailyFate, 100);
-  }
-})();
-</script>
-
-</div></aside><div class='float-panel'>
+</aside><div class='float-panel'>
   <button type='button' style='display:none' class='laptop-only rightbar-toggle mobile' onclick='sidebar.rightbar()'>
     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
   </button>
