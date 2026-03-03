@@ -8115,6 +8115,47 @@ details.toc[open] >div.body section .header+.doc_tree {
   font-size: 0.75rem;
   padding: 1rem;
 }
+.widget-wrapper.poem-widget .widget-body {
+  padding: var(--gap-padding);
+}
+.widget-wrapper.poem-widget .widget-body .poem-title {
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  margin-bottom: 0.5rem;
+}
+.widget-wrapper.poem-widget .widget-body .poem-meta {
+  text-align: right;
+  font-size: 0.75rem;
+  color: var(--text-p3);
+  margin-bottom: 0.75rem;
+}
+.widget-wrapper.poem-widget .widget-body .poem-content {
+  text-align: center;
+}
+.widget-wrapper.poem-widget .widget-body .poem-content p {
+  margin: 0.25rem 0;
+}
+.widget-wrapper.poem-widget .widget-body .poem-empty,
+.widget-wrapper.poem-widget .widget-body .poem-loading {
+  text-align: center;
+  color: var(--text-p3);
+  font-size: 0.75rem;
+  padding: 0.75rem 0;
+}
+.widget-wrapper.poem-widget .widget-body .poem-widget-actions .poem-next-btn {
+  background: var(--bg-a25);
+  color: var(--text-p2);
+  border: none;
+  border-radius: 5px;
+  padding: 0.2rem 0.6rem;
+  box-shadow: 0 0 12px var(--bg-a75);
+  backdrop-filter: blur(6px);
+  transition: background box-shadow ease-out, color box-shadow ease-out;
+  -moz-transition: background box-shadow ease-out, color box-shadow ease-out;
+  -webkit-transition: background box-shadow ease-out, color box-shadow ease-out;
+  -o-transition: background box-shadow ease-out, color box-shadow ease-out;
+}
 .post-list #archive {
   padding: 1rem;
 }
