@@ -70,13 +70,17 @@
 
 <widget class="widget-wrapper recent post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2026/01/27/AgentSkills%E5%85%A5%E9%97%A8/"><span class="title">Agent Skills 入门</span></a><a class="item title" href="/2026/01/07/%E5%85%8D%E8%B4%B9%E4%B8%AA%E4%BA%BA%E7%BD%91%E7%AB%99%E5%BF%AB%E9%80%9F%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/"><span class="title">搭建免费个人博客网站</span></a><a class="item title" href="/2026/01/05/LaTeX%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/"><span class="title">LaTeX 快速入门</span></a><a class="item title" href="/2026/01/05/Emoji%E5%91%BD%E4%BB%A4%E5%90%88%E9%9B%86/"><span class="title">Emoji 命令合集</span></a></div></widget>
 
-<widget class="widget-wrapper poem-widget"><div class="widget-header dis-select"><span class="name">今日诗词</span></div><div class="widget-body fs14"><div class="poem-widget-content" id="poem-widget-content"><div class="poem-loading">加载中...</div></div><div class="poem-widget-actions" style="margin-top:0.5rem;text-align:right;"><button id="poem-random-btn" class="btn btn-xs poem-next-btn" type="button" style="cursor:pointer;">下一首</button></div></div></widget>
+<widget class="widget-wrapper poem-widget"><div class="widget-header dis-select"><span class="name">今日诗词</span></div><div class="widget-body fs14"><div class="poem-widget-content" id="poem-widget-content"><div class="poem-loading">加载中...</div></div><div class="poem-widget-actions"><button id="poem-analysis-btn" class="btn btn-xs poem-analysis-btn" type="button">解析</button><button id="poem-random-btn" class="btn btn-xs poem-next-btn" type="button">下一首</button></div></div></widget>
 <script>
 // 诗词数据地址（本地 json 文件）
 const POEM_DATA_URL = '/data/poems.json';
+// 诗词解析地址（本地 json 文件，可选）
+const POEM_APPRECIATION_URL = '/data/poem_appreciations.json';
 
 let __poemsData = null;
 let __poemCurrentIndex = -1;
+let __poemCurrentPoem = null;
+let __poemAppreciations = null;
 
 async function loadPoemsData() {
   if (__poemsData && Array.isArray(__poemsData) && __poemsData.length > 0) {
@@ -99,6 +103,42 @@ async function loadPoemsData() {
   }
 }
 
+async function loadPoemAppreciationsData() {
+  if (__poemAppreciations && typeof __poemAppreciations === 'object') {
+    return __poemAppreciations;
+  }
+  try {
+    const resp = await fetch(POEM_APPRECIATION_URL, { cache: 'no-cache' });
+    if (!resp.ok) {
+      // 解析文件不存在时，不作为错误处理（允许用户暂时不维护该文件）
+      __poemAppreciations = {};
+      return __poemAppreciations;
+    }
+    const data = await resp.json();
+    __poemAppreciations = (data && typeof data === 'object') ? data : {};
+    return __poemAppreciations;
+  } catch (e) {
+    console.warn('[poem] 加载解析数据失败，将使用空数据', e);
+    __poemAppreciations = {};
+    return __poemAppreciations;
+  }
+}
+
+function poemKeyByTitleAuthor(poem) {
+  const t = (poem?.title || '').trim();
+  const a = (poem?.author || '').trim();
+  if (!t && !a) return '';
+  return `${t}|${a}`;
+}
+
+function toast(msg) {
+  if (window.hud && typeof window.hud.toast === 'function') {
+    window.hud.toast(msg, 2500);
+    return;
+  }
+  console.log(msg);
+}
+
 function renderPoem(container, poem) {
   if (!container || !poem) {
     if (container) {
@@ -107,6 +147,7 @@ function renderPoem(container, poem) {
     return;
   }
 
+  __poemCurrentPoem = poem;
   const lines = Array.isArray(poem.content) ? poem.content : (poem.content || '').split(/[\n\r]+/);
 
   let html = '';
@@ -130,6 +171,135 @@ function renderPoem(container, poem) {
   html += '</div>';
 
   container.innerHTML = html;
+}
+
+function ensurePoemAnalysisModal() {
+  let modal = document.getElementById('poem-analysis-modal');
+  if (modal) return modal;
+
+  modal = document.createElement('div');
+  modal.id = 'poem-analysis-modal';
+  modal.className = 'poem-analysis-modal';
+  modal.innerHTML = `
+    <div class="poem-analysis-dialog" role="dialog" aria-modal="true" aria-label="诗词解析">
+      <div class="poem-analysis-header">
+        <div class="poem-analysis-title"></div>
+        <button class="poem-analysis-close" type="button" aria-label="关闭" data-action="close">×</button>
+      </div>
+      <div class="poem-analysis-meta"></div>
+      <div class="poem-analysis-content"></div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  function close() {
+    modal.classList.remove('show');
+  }
+
+  modal.addEventListener('click', function (e) {
+    if (e.target.getAttribute && e.target.getAttribute('data-action') === 'close') {
+      close();
+    } else if (e.target === modal) {
+      close();
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && modal.classList.contains('show')) {
+      close();
+    }
+  });
+
+  return modal;
+}
+
+function openPoemAnalysisModal(payload) {
+  const modal = ensurePoemAnalysisModal();
+  const titleEl = modal.querySelector('.poem-analysis-title');
+  const metaEl = modal.querySelector('.poem-analysis-meta');
+  const contentEl = modal.querySelector('.poem-analysis-content');
+  if (titleEl) titleEl.textContent = payload?.title || '诗词解析';
+  if (metaEl) metaEl.textContent = payload?.meta || '';
+  if (contentEl) {
+    if (payload?.html) {
+      contentEl.innerHTML = payload.html;
+    } else {
+      contentEl.textContent = payload?.content || '暂无解析';
+    }
+  }
+  modal.classList.add('show');
+}
+
+function escapeHtml(str) {
+  return String(str ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+function textToParagraphs(text) {
+  const t = String(text ?? '').trim();
+  if (!t) return '';
+  return t
+    .split(/\r?\n+/)
+    .map(p => p.trim())
+    .filter(Boolean)
+    .map(p => `<p>${escapeHtml(p)}</p>`)
+    .join('');
+}
+
+function renderSection(title, bodyText) {
+  const body = textToParagraphs(bodyText);
+  if (!body) return '';
+  return `
+    <section class="poem-analysis-section">
+      <div class="poem-analysis-section-title">${escapeHtml(title)}</div>
+      <div class="poem-analysis-section-body">${body}</div>
+    </section>
+  `;
+}
+
+async function showPoemAnalysis() {
+  const poem = __poemCurrentPoem;
+  if (!poem) {
+    toast('暂无可解析的诗词');
+    return;
+  }
+
+  const data = await loadPoemAppreciationsData();
+  const byId = poem.id != null ? data[String(poem.id)] : undefined;
+  const byKey = data[poemKeyByTitleAuthor(poem)];
+  const entry = byId ?? byKey;
+
+  let html = '';
+  if (typeof entry === 'string') {
+    html = renderSection('解析', entry);
+  } else if (entry && typeof entry === 'object') {
+    html =
+      renderSection('译文', entry.translation) +
+      renderSection('注释', entry.notes) +
+      renderSection('简析', entry.analysis ?? entry.text) +
+      renderSection('作者介绍', entry.authorIntro);
+  }
+  if (!html) {
+    const hintKey = poem.id != null ? `id=${poem.id}` : poemKeyByTitleAuthor(poem);
+    html = renderSection(
+      '提示',
+      `暂无解析。\n\n你可以在 /themes/stellar/source/data/poem_appreciations.json 中补充对应条目（建议用 ${hintKey} 做 key）。`
+    );
+  }
+
+  const metaParts = [];
+  if (poem.dynasty) metaParts.push(poem.dynasty);
+  if (poem.author) metaParts.push(poem.author);
+
+  openPoemAnalysisModal({
+    title: poem.title || '诗词解析',
+    meta: metaParts.join(' · '),
+    html
+  });
 }
 
 async function showRandomPoem() {
@@ -161,7 +331,8 @@ async function showRandomPoem() {
   function initPoemWidget() {
     const container = document.getElementById('poem-widget-content');
     const btn = document.getElementById('poem-random-btn');
-    if (!container || !btn) {
+    const analysisBtn = document.getElementById('poem-analysis-btn');
+    if (!container || !btn || !analysisBtn) {
       setTimeout(initPoemWidget, 100);
       return;
     }
@@ -172,6 +343,9 @@ async function showRandomPoem() {
     // 绑定按钮事件
     btn.addEventListener('click', function () {
       showRandomPoem();
+    });
+    analysisBtn.addEventListener('click', function () {
+      showPoemAnalysis();
     });
   }
 
@@ -350,19 +524,18 @@ function renderFateData(container, fateData) {
 
 <div class="navbar top"><div class="navbar-blur"><div class="navbar-container"><nav class="post"><a class="active" href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></nav></div></div></div>
 <div class="post-list post"><a class="post-card post" href="/2026/01/27/AgentSkills%E5%85%A5%E9%97%A8/">
-<article class="md-text"><h2 class="post-title">Agent Skills 入门</h2><div class="excerpt"><p>这是一篇加密文档</p></div><div class="meta cap"><span class="cap" id="post-meta"><svg style="margin-bottom:2px" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M6.94 2c.416 0 .753.324.753.724v1.46c.668-.012 1.417-.012 2.26-.012h4.015c.842 0 1.591 0 2.259.013v-1.46c0-.4.337-.725.753-.725s.753.324.753.724V4.25c1.445.111 2.394.384 3.09 1.055c.698.67.982 1.582 1.097 2.972L22 9H2v-.724c.116-1.39.4-2.302 1.097-2.972c.697-.67 1.645-.944 3.09-1.055V2.724c0-.4.337-.724.753-.724"/><path fill="currentColor" d="M22 14v-2c0-.839-.004-2.335-.017-3H2.01c-.013.665-.01 2.161-.01 3v2c0 3.771 0 5.657 1.172 6.828C4.343 22 6.228 22 10 22h4c3.77 0 5.656 0 6.828-1.172C22 19.658 22 17.772 22 14" opacity=".5"/><path fill="currentColor" d="M18 17a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><time datetime="2026-01-26T16:00:00.000Z">2026-01-27</time></span><span class="cap breadcrumb"><svg style="margin-bottom:1px" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M2 6.95c0-.883 0-1.324.07-1.692A4 4 0 0 1 5.257 2.07C5.626 2 6.068 2 6.95 2c.386 0 .58 0 .766.017a4 4 0 0 1 2.18.904c.144.119.28.255.554.529L11 4c.816.816 1.224 1.224 1.712 1.495a4 4 0 0 0 .848.352C14.098 6 14.675 6 15.828 6h.374c2.632 0 3.949 0 4.804.77c.079.07.154.145.224.224c.77.855.77 2.172.77 4.804V14c0 3.771 0 5.657-1.172 6.828C19.657 22 17.771 22 14 22h-4c-3.771 0-5.657 0-6.828-1.172C2 19.657 2 17.771 2 14z" opacity=".5"/><path fill="currentColor" d="M20 6.238c0-.298-.005-.475-.025-.63a3 3 0 0 0-2.583-2.582C17.197 3 16.965 3 16.5 3H9.988c.116.104.247.234.462.45L11 4c.816.816 1.224 1.224 1.712 1.495a4 4 0 0 0 .849.352C14.098 6 14.675 6 15.829 6h.373c1.78 0 2.957 0 3.798.238"/><path fill="currentColor" fill-rule="evenodd" d="M12.25 10a.75.75 0 0 1 .75-.75h5a.75.75 0 0 1 0 1.5h-5a.75.75 0 0 1-.75-.75" clip-rule="evenodd"/></svg><span>CS</span></span></div></article>
+<article class="md-text"><h2 class="post-title">Agent Skills 入门</h2><div class="excerpt"><p>Agent Skills 体系的核心定义、工作原理与开发实践</p></div><div class="meta cap"><span class="cap" id="post-meta"><svg style="margin-bottom:2px" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M6.94 2c.416 0 .753.324.753.724v1.46c.668-.012 1.417-.012 2.26-.012h4.015c.842 0 1.591 0 2.259.013v-1.46c0-.4.337-.725.753-.725s.753.324.753.724V4.25c1.445.111 2.394.384 3.09 1.055c.698.67.982 1.582 1.097 2.972L22 9H2v-.724c.116-1.39.4-2.302 1.097-2.972c.697-.67 1.645-.944 3.09-1.055V2.724c0-.4.337-.724.753-.724"/><path fill="currentColor" d="M22 14v-2c0-.839-.004-2.335-.017-3H2.01c-.013.665-.01 2.161-.01 3v2c0 3.771 0 5.657 1.172 6.828C4.343 22 6.228 22 10 22h4c3.77 0 5.656 0 6.828-1.172C22 19.658 22 17.772 22 14" opacity=".5"/><path fill="currentColor" d="M18 17a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><time datetime="2026-01-26T16:00:00.000Z">2026-01-27</time></span><span class="cap breadcrumb"><svg style="margin-bottom:1px" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M2 6.95c0-.883 0-1.324.07-1.692A4 4 0 0 1 5.257 2.07C5.626 2 6.068 2 6.95 2c.386 0 .58 0 .766.017a4 4 0 0 1 2.18.904c.144.119.28.255.554.529L11 4c.816.816 1.224 1.224 1.712 1.495a4 4 0 0 0 .848.352C14.098 6 14.675 6 15.828 6h.374c2.632 0 3.949 0 4.804.77c.079.07.154.145.224.224c.77.855.77 2.172.77 4.804V14c0 3.771 0 5.657-1.172 6.828C19.657 22 17.771 22 14 22h-4c-3.771 0-5.657 0-6.828-1.172C2 19.657 2 17.771 2 14z" opacity=".5"/><path fill="currentColor" d="M20 6.238c0-.298-.005-.475-.025-.63a3 3 0 0 0-2.583-2.582C17.197 3 16.965 3 16.5 3H9.988c.116.104.247.234.462.45L11 4c.816.816 1.224 1.224 1.712 1.495a4 4 0 0 0 .849.352C14.098 6 14.675 6 15.829 6h.373c1.78 0 2.957 0 3.798.238"/><path fill="currentColor" fill-rule="evenodd" d="M12.25 10a.75.75 0 0 1 .75-.75h5a.75.75 0 0 1 0 1.5h-5a.75.75 0 0 1-.75-.75" clip-rule="evenodd"/></svg><span>CS</span></span></div></article>
 </a><a class="post-card post" href="/2026/01/07/%E5%85%8D%E8%B4%B9%E4%B8%AA%E4%BA%BA%E7%BD%91%E7%AB%99%E5%BF%AB%E9%80%9F%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/">
 <article class="md-text"><h2 class="post-title">搭建免费个人博客网站</h2><div class="excerpt"><p>用 Hexo+Stellar 主题 + GitHub Pages 搭建免费、免服务器的个人博客</p></div><div class="meta cap"><span class="cap" id="post-meta"><svg style="margin-bottom:2px" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M6.94 2c.416 0 .753.324.753.724v1.46c.668-.012 1.417-.012 2.26-.012h4.015c.842 0 1.591 0 2.259.013v-1.46c0-.4.337-.725.753-.725s.753.324.753.724V4.25c1.445.111 2.394.384 3.09 1.055c.698.67.982 1.582 1.097 2.972L22 9H2v-.724c.116-1.39.4-2.302 1.097-2.972c.697-.67 1.645-.944 3.09-1.055V2.724c0-.4.337-.724.753-.724"/><path fill="currentColor" d="M22 14v-2c0-.839-.004-2.335-.017-3H2.01c-.013.665-.01 2.161-.01 3v2c0 3.771 0 5.657 1.172 6.828C4.343 22 6.228 22 10 22h4c3.77 0 5.656 0 6.828-1.172C22 19.658 22 17.772 22 14" opacity=".5"/><path fill="currentColor" d="M18 17a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><time datetime="2026-01-06T16:00:00.000Z">2026-01-07</time></span><span class="cap breadcrumb"><svg style="margin-bottom:1px" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M2 6.95c0-.883 0-1.324.07-1.692A4 4 0 0 1 5.257 2.07C5.626 2 6.068 2 6.95 2c.386 0 .58 0 .766.017a4 4 0 0 1 2.18.904c.144.119.28.255.554.529L11 4c.816.816 1.224 1.224 1.712 1.495a4 4 0 0 0 .848.352C14.098 6 14.675 6 15.828 6h.374c2.632 0 3.949 0 4.804.77c.079.07.154.145.224.224c.77.855.77 2.172.77 4.804V14c0 3.771 0 5.657-1.172 6.828C19.657 22 17.771 22 14 22h-4c-3.771 0-5.657 0-6.828-1.172C2 19.657 2 17.771 2 14z" opacity=".5"/><path fill="currentColor" d="M20 6.238c0-.298-.005-.475-.025-.63a3 3 0 0 0-2.583-2.582C17.197 3 16.965 3 16.5 3H9.988c.116.104.247.234.462.45L11 4c.816.816 1.224 1.224 1.712 1.495a4 4 0 0 0 .849.352C14.098 6 14.675 6 15.829 6h.373c1.78 0 2.957 0 3.798.238"/><path fill="currentColor" fill-rule="evenodd" d="M12.25 10a.75.75 0 0 1 .75-.75h5a.75.75 0 0 1 0 1.5h-5a.75.75 0 0 1-.75-.75" clip-rule="evenodd"/></svg><span>CS</span></span></div></article>
-</a><a class="post-card post" href="/2026/01/05/Emoji%E5%91%BD%E4%BB%A4%E5%90%88%E9%9B%86/">
-<article class="md-text"><h2 class="post-title">Emoji 命令合集</h2><div class="excerpt"><p>Github 常用表情包合集</p></div><div class="meta cap"><span class="cap" id="post-meta"><svg style="margin-bottom:2px" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M6.94 2c.416 0 .753.324.753.724v1.46c.668-.012 1.417-.012 2.26-.012h4.015c.842 0 1.591 0 2.259.013v-1.46c0-.4.337-.725.753-.725s.753.324.753.724V4.25c1.445.111 2.394.384 3.09 1.055c.698.67.982 1.582 1.097 2.972L22 9H2v-.724c.116-1.39.4-2.302 1.097-2.972c.697-.67 1.645-.944 3.09-1.055V2.724c0-.4.337-.724.753-.724"/><path fill="currentColor" d="M22 14v-2c0-.839-.004-2.335-.017-3H2.01c-.013.665-.01 2.161-.01 3v2c0 3.771 0 5.657 1.172 6.828C4.343 22 6.228 22 10 22h4c3.77 0 5.656 0 6.828-1.172C22 19.658 22 17.772 22 14" opacity=".5"/><path fill="currentColor" d="M18 17a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><time datetime="2026-01-04T16:00:00.000Z">2026-01-05</time></span><span class="cap breadcrumb"><svg style="margin-bottom:1px" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M2 6.95c0-.883 0-1.324.07-1.692A4 4 0 0 1 5.257 2.07C5.626 2 6.068 2 6.95 2c.386 0 .58 0 .766.017a4 4 0 0 1 2.18.904c.144.119.28.255.554.529L11 4c.816.816 1.224 1.224 1.712 1.495a4 4 0 0 0 .848.352C14.098 6 14.675 6 15.828 6h.374c2.632 0 3.949 0 4.804.77c.079.07.154.145.224.224c.77.855.77 2.172.77 4.804V14c0 3.771 0 5.657-1.172 6.828C19.657 22 17.771 22 14 22h-4c-3.771 0-5.657 0-6.828-1.172C2 19.657 2 17.771 2 14z" opacity=".5"/><path fill="currentColor" d="M20 6.238c0-.298-.005-.475-.025-.63a3 3 0 0 0-2.583-2.582C17.197 3 16.965 3 16.5 3H9.988c.116.104.247.234.462.45L11 4c.816.816 1.224 1.224 1.712 1.495a4 4 0 0 0 .849.352C14.098 6 14.675 6 15.829 6h.373c1.78 0 2.957 0 3.798.238"/><path fill="currentColor" fill-rule="evenodd" d="M12.25 10a.75.75 0 0 1 .75-.75h5a.75.75 0 0 1 0 1.5h-5a.75.75 0 0 1-.75-.75" clip-rule="evenodd"/></svg><span>CS</span></span></div></article>
 </a><a class="post-card post" href="/2026/01/05/LaTeX%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/">
 <article class="md-text"><h2 class="post-title">LaTeX 快速入门</h2><div class="excerpt"><p>零基础也能懂的 LaTeX 入门指南，帮你快速上手轻松搞定记笔记和写论文</p></div><div class="meta cap"><span class="cap" id="post-meta"><svg style="margin-bottom:2px" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M6.94 2c.416 0 .753.324.753.724v1.46c.668-.012 1.417-.012 2.26-.012h4.015c.842 0 1.591 0 2.259.013v-1.46c0-.4.337-.725.753-.725s.753.324.753.724V4.25c1.445.111 2.394.384 3.09 1.055c.698.67.982 1.582 1.097 2.972L22 9H2v-.724c.116-1.39.4-2.302 1.097-2.972c.697-.67 1.645-.944 3.09-1.055V2.724c0-.4.337-.724.753-.724"/><path fill="currentColor" d="M22 14v-2c0-.839-.004-2.335-.017-3H2.01c-.013.665-.01 2.161-.01 3v2c0 3.771 0 5.657 1.172 6.828C4.343 22 6.228 22 10 22h4c3.77 0 5.656 0 6.828-1.172C22 19.658 22 17.772 22 14" opacity=".5"/><path fill="currentColor" d="M18 17a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><time datetime="2026-01-04T16:00:00.000Z">2026-01-05</time></span><span class="cap breadcrumb"><svg style="margin-bottom:1px" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M2 6.95c0-.883 0-1.324.07-1.692A4 4 0 0 1 5.257 2.07C5.626 2 6.068 2 6.95 2c.386 0 .58 0 .766.017a4 4 0 0 1 2.18.904c.144.119.28.255.554.529L11 4c.816.816 1.224 1.224 1.712 1.495a4 4 0 0 0 .848.352C14.098 6 14.675 6 15.828 6h.374c2.632 0 3.949 0 4.804.77c.079.07.154.145.224.224c.77.855.77 2.172.77 4.804V14c0 3.771 0 5.657-1.172 6.828C19.657 22 17.771 22 14 22h-4c-3.771 0-5.657 0-6.828-1.172C2 19.657 2 17.771 2 14z" opacity=".5"/><path fill="currentColor" d="M20 6.238c0-.298-.005-.475-.025-.63a3 3 0 0 0-2.583-2.582C17.197 3 16.965 3 16.5 3H9.988c.116.104.247.234.462.45L11 4c.816.816 1.224 1.224 1.712 1.495a4 4 0 0 0 .849.352C14.098 6 14.675 6 15.829 6h.373c1.78 0 2.957 0 3.798.238"/><path fill="currentColor" fill-rule="evenodd" d="M12.25 10a.75.75 0 0 1 .75-.75h5a.75.75 0 0 1 0 1.5h-5a.75.75 0 0 1-.75-.75" clip-rule="evenodd"/></svg><span>CS</span></span></div></article>
+</a><a class="post-card post" href="/2026/01/05/Emoji%E5%91%BD%E4%BB%A4%E5%90%88%E9%9B%86/">
+<article class="md-text"><h2 class="post-title">Emoji 命令合集</h2><div class="excerpt"><p>Github 常用表情包合集</p></div><div class="meta cap"><span class="cap" id="post-meta"><svg style="margin-bottom:2px" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M6.94 2c.416 0 .753.324.753.724v1.46c.668-.012 1.417-.012 2.26-.012h4.015c.842 0 1.591 0 2.259.013v-1.46c0-.4.337-.725.753-.725s.753.324.753.724V4.25c1.445.111 2.394.384 3.09 1.055c.698.67.982 1.582 1.097 2.972L22 9H2v-.724c.116-1.39.4-2.302 1.097-2.972c.697-.67 1.645-.944 3.09-1.055V2.724c0-.4.337-.724.753-.724"/><path fill="currentColor" d="M22 14v-2c0-.839-.004-2.335-.017-3H2.01c-.013.665-.01 2.161-.01 3v2c0 3.771 0 5.657 1.172 6.828C4.343 22 6.228 22 10 22h4c3.77 0 5.656 0 6.828-1.172C22 19.658 22 17.772 22 14" opacity=".5"/><path fill="currentColor" d="M18 17a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-5 4a1 1 0 1 1-2 0a1 1 0 0 1 2 0m0-4a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><time datetime="2026-01-04T16:00:00.000Z">2026-01-05</time></span><span class="cap breadcrumb"><svg style="margin-bottom:1px" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M2 6.95c0-.883 0-1.324.07-1.692A4 4 0 0 1 5.257 2.07C5.626 2 6.068 2 6.95 2c.386 0 .58 0 .766.017a4 4 0 0 1 2.18.904c.144.119.28.255.554.529L11 4c.816.816 1.224 1.224 1.712 1.495a4 4 0 0 0 .848.352C14.098 6 14.675 6 15.828 6h.374c2.632 0 3.949 0 4.804.77c.079.07.154.145.224.224c.77.855.77 2.172.77 4.804V14c0 3.771 0 5.657-1.172 6.828C19.657 22 17.771 22 14 22h-4c-3.771 0-5.657 0-6.828-1.172C2 19.657 2 17.771 2 14z" opacity=".5"/><path fill="currentColor" d="M20 6.238c0-.298-.005-.475-.025-.63a3 3 0 0 0-2.583-2.582C17.197 3 16.965 3 16.5 3H9.988c.116.104.247.234.462.45L11 4c.816.816 1.224 1.224 1.712 1.495a4 4 0 0 0 .849.352C14.098 6 14.675 6 15.829 6h.373c1.78 0 2.957 0 3.798.238"/><path fill="currentColor" fill-rule="evenodd" d="M12.25 10a.75.75 0 0 1 .75-.75h5a.75.75 0 0 1 0 1.5h-5a.75.75 0 0 1-.75-.75" clip-rule="evenodd"/></svg><span>CS</span></span></div></article>
 </a></div>
 
 
 <footer class="page-footer footnote"><hr><div class="text"><p>本站由 <a href="/">Nokia</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.33.1">Stellar 1.33.1</a> 主题创建。<br>本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
-<div style="font-size: 1rem;text-align: center; margin: 1rem 0; color:var(--text-p4);">发表了 4 篇文章 🍉 总计 4.2k 字</div></div></footer>
-
+<div style="font-size: 1rem;text-align: center; margin: 1rem 0; color:var(--text-p4);">发表了 4 篇文章 🍉 总计 9.9k 字<br>本站总访问量：<span id="busuanzi_value_site_pv"></span>次</div></footer>
 <div class="main-mask" onclick="sidebar.dismiss()"></div></div><aside class="l_right">
 </aside><div class='float-panel'>
   <button type='button' style='display:none' class='laptop-only rightbar-toggle mobile' onclick='sidebar.rightbar()'>

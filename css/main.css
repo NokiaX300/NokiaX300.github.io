@@ -8143,7 +8143,14 @@ details.toc[open] >div.body section .header+.doc_tree {
   font-size: 0.75rem;
   padding: 0.75rem 0;
 }
-.widget-wrapper.poem-widget .widget-body .poem-widget-actions .poem-next-btn {
+.widget-wrapper.poem-widget .widget-body .poem-widget-actions {
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+.widget-wrapper.poem-widget .widget-body .poem-widget-actions .poem-next-btn,
+.widget-wrapper.poem-widget .widget-body .poem-widget-actions .poem-analysis-btn {
   background: var(--bg-a25);
   color: var(--text-p2);
   border: none;
@@ -8155,6 +8162,101 @@ details.toc[open] >div.body section .header+.doc_tree {
   -moz-transition: background box-shadow ease-out, color box-shadow ease-out;
   -webkit-transition: background box-shadow ease-out, color box-shadow ease-out;
   -o-transition: background box-shadow ease-out, color box-shadow ease-out;
+  cursor: pointer;
+}
+.widget-wrapper.poem-widget .widget-body .poem-widget-actions .poem-next-btn:hover,
+.widget-wrapper.poem-widget .widget-body .poem-widget-actions .poem-analysis-btn:hover {
+  background: var(--bg-a100);
+  color: var(--text-p1);
+  box-shadow: 0 0 14px var(--bg-a100);
+}
+.poem-analysis-modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+}
+.poem-analysis-modal.show {
+  display: flex;
+}
+.poem-analysis-modal .poem-analysis-dialog {
+  position: relative;
+  width: 33.33vw;
+  max-height: 90vh;
+  overflow: auto;
+  border-radius: 10px;
+  border: 1px solid var(--block-border);
+  background: #fff;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  padding: 1.1rem 1.2rem;
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.75;
+}
+.poem-analysis-modal :root[data-theme="dark"] .poem-analysis-dialog {
+  background: #1e1e1e;
+}
+@media (prefers-color-scheme: dark) {
+  .poem-analysis-modal :root:not([data-theme]) .poem-analysis-dialog {
+    background: #1e1e1e;
+  }
+}
+.poem-analysis-modal .poem-analysis-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+.poem-analysis-modal .poem-analysis-title {
+  font-weight: 600;
+  color: var(--text-p1);
+  line-height: 1.4;
+}
+.poem-analysis-modal .poem-analysis-close {
+  border: none;
+  background: transparent;
+  color: var(--text-p2);
+  font-size: 1.25rem;
+  line-height: 1;
+  padding: 0.25rem 0.4rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.poem-analysis-modal .poem-analysis-close:hover {
+  background: var(--bg-a100);
+  color: var(--text-p1);
+}
+.poem-analysis-modal .poem-analysis-meta {
+  color: var(--text-p3);
+  font-size: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.poem-analysis-modal .poem-analysis-content {
+  color: var(--text-p2);
+  font-size: inherit;
+  line-height: inherit;
+}
+.poem-analysis-modal .poem-analysis-content .poem-analysis-section + .poem-analysis-section {
+  margin-top: 0.9rem;
+  padding-top: 0.9rem;
+  border-top: 1px dashed var(--block-border);
+}
+.poem-analysis-modal .poem-analysis-content .poem-analysis-section-title {
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: var(--text-p3);
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.02em;
+}
+.poem-analysis-modal .poem-analysis-content .poem-analysis-section-body {
+  color: var(--text-p2);
+}
+.poem-analysis-modal .poem-analysis-content .poem-analysis-section-body p {
+  margin: 0.45em 0;
 }
 .post-list #archive {
   padding: 1rem;
