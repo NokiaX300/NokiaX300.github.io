@@ -8196,11 +8196,11 @@ details.toc[open] >div.body section .header+.doc_tree {
   font-size: 0.875rem;
   line-height: 1.75;
 }
-.poem-analysis-modal :root[data-theme="dark"] .poem-analysis-dialog {
+:root[data-theme="dark"] .poem-analysis-modal .poem-analysis-dialog {
   background: #1e1e1e;
 }
 @media (prefers-color-scheme: dark) {
-  .poem-analysis-modal :root:not([data-theme]) .poem-analysis-dialog {
+  :root:not([data-theme]) .poem-analysis-modal .poem-analysis-dialog {
     background: #1e1e1e;
   }
 }
