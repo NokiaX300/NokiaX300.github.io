@@ -1,0 +1,395 @@
+
+<!doctype html>
+<html lang="zh-CN">
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5f5f2">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111211">
+  <meta name="color-scheme" content="light dark">
+  <title>把 Agent 做成工程：从 Spec、Ticket、TDD 到可验证交付 · NokiaX300</title>
+  <meta name="description" content="用规则、规格、测试、Provider 隔离和确定性裁决，把模糊想法推进为可交付的 Agent 系统">
+  <script>
+    (() => {
+      try {
+        const selected = localStorage.getItem('x300-theme');
+        if (selected === 'light' || selected === 'dark') {
+          document.documentElement.dataset.theme = selected;
+        }
+      } catch (_) {}
+    })();
+  </script>
+  
+    <meta name="description" content="用规则、规格、测试、Provider 隔离和确定性裁决，把模糊想法推进为可交付的 Agent 系统">
+<meta property="og:type" content="article">
+<meta property="og:title" content="把 Agent 做成工程：从 Spec、Ticket、TDD 到可验证交付">
+<meta property="og:url" content="https://nokiax300.github.io/2026/02/22/AgentSkills%E9%A1%B9%E7%9B%AE%E5%8C%96%E5%AE%9E%E8%B7%B5/">
+<meta property="og:site_name" content="NokiaX300">
+<meta property="og:description" content="用规则、规格、测试、Provider 隔离和确定性裁决，把模糊想法推进为可交付的 Agent 系统">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://nokiax300.github.io/images/avatar.jpg">
+<meta property="article:published_time" content="2026-02-21T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-08-12T02:48:16.789Z">
+<meta property="article:author" content="Nokia">
+<meta property="article:tag" content="Agent">
+<meta property="article:tag" content="Skills">
+<meta property="article:tag" content="TDD">
+<meta property="article:tag" content="软件工程">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nokiax300.github.io/images/avatar.jpg">
+  
+  <link rel="stylesheet" href="/css/x300.css">
+  <link rel="shortcut icon" href="/images/%E4%B8%89%E8%8A%B1%E7%8C%AB.svg">
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+  <body class="page-post">
+    <a class="skip-link" href="#main-content">跳到正文</a>
+    <div class="reading-progress" aria-hidden="true"><span data-reading-progress></span></div>
+    
+<header class="site-header" data-site-header>
+  <div class="site-header__inner">
+    <a class="brand" href="/" aria-label="NokiaX300 首页">
+      <img src="/images/avatar.jpg" width="460" height="460" alt="">
+      <span>NokiaX300</span>
+    </a>
+
+    <nav class="primary-nav" aria-label="主导航">
+      
+        <a href="/posts/">文章</a>
+      
+        <a href="/categories/">分类</a>
+      
+        <a href="/archives/">归档</a>
+      
+    </nav>
+
+    <div class="header-actions">
+      <button class="icon-button" type="button" data-search-open aria-label="搜索">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+      </button>
+      <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="切换明暗模式">
+        <span class="theme-toggle__sun"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></span>
+        <span class="theme-toggle__moon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.5A8.5 8.5 0 0 1 8.5 4 8.5 8.5 0 1 0 20 15.5Z"/></svg></span>
+      </button>
+      <button class="icon-button nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="mobile-navigation" aria-label="打开导航">
+        <span data-nav-icon-open><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span>
+        <span data-nav-icon-close hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></span>
+      </button>
+    </div>
+  </div>
+
+  <nav class="mobile-nav" id="mobile-navigation" data-mobile-nav aria-label="移动端导航" hidden>
+    
+      <a href="/posts/">文章</a>
+    
+      <a href="/categories/">分类</a>
+    
+      <a href="/archives/">归档</a>
+    
+  </nav>
+</header>
+
+    <main class="site-main" id="main-content">
+      
+<article class="article-page">
+  <header class="article-header">
+    
+      <a class="article-header__category" href="/categories/AI-%E4%B8%8E-Agent/">AI 与 Agent</a>
+    
+    <h1>把 Agent 做成工程：从 Spec、Ticket、TDD 到可验证交付</h1>
+    <p class="article-header__summary">用规则、规格、测试、Provider 隔离和确定性裁决，把模糊想法推进为可交付的 Agent 系统</p>
+    <div class="article-meta">
+      <time datetime="2026-02-21T16:00:00.000Z">发布于 2026.02.22</time>
+      
+        <time datetime="2026-08-12T02:48:16.789Z">更新于 2026.08.12</time>
+      
+      <span>约 5 分钟</span>
+      
+        <button type="button" class="toc-trigger" data-toc-open><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4" cy="6" r=".8"/><circle cx="4" cy="12" r=".8"/><circle cx="4" cy="18" r=".8"/></svg>文章目录</button>
+      
+    </div>
+  </header>
+
+  <div class="reading-layout reading-layout--with-toc">
+    <div class="article-content"><p>上一篇介绍了 <a href="/2026/01/27/AgentSkills%E5%85%A5%E9%97%A8/">Agent Skills 的结构、渐进式披露和能力边界</a>。可当 Agent 真正进入项目，问题很快就会从「如何写一个 Skill」升级为：</p>
+<ul>
+<li>模糊需求怎样变成可验收规格？</li>
+<li>Agent 生成的建议能否直接修改业务状态？</li>
+<li>多个 Agent 发生冲突时由谁裁决？</li>
+<li>外部模型不可用时，测试和核心流程还能不能运行？</li>
+<li>下一位开发者或 Agent 如何接着工作？</li>
+</ul>
+<p>这些问题无法靠一段更长的 Prompt 解决。要让 Agent 从演示走向交付，软件工程必须进入系统设计。</p>
+<hr>
+<h4 id="一、Agent-不是一个模型，而是一套反馈系统"><a href="#一、Agent-不是一个模型，而是一套反馈系统" class="headerlink" title="一、Agent 不是一个模型，而是一套反馈系统"></a>一、Agent 不是一个模型，而是一套反馈系统</h4><p>一个可工作的 Agent 至少包含五个部分：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">目标 → 上下文 → 模型推理 → 工具行动 → 结果反馈</span><br></pre></td></tr></tbody></table></figure>
+
+<p>模型主要负责其中的推理与表达。真正决定系统是否可靠的，是上下文是否权威、工具权限是否受控、输出是否经过校验，以及失败后能否恢复。</p>
+<p><strong>让 LLM 提出意图和解释理由，让确定性规则修改权威状态。</strong></p>
+<p>例如，一个模拟系统中的「建议」和「已经发生的事实」不能混在一起：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ActionProposal → Validation → ProposalDecision</span><br><span class="line">                                      ↓ accepted</span><br><span class="line">Action → StateTransition → WorldEvent</span><br></pre></td></tr></tbody></table></figure>
+
+<p><code>ActionProposal</code> 只是想做什么；通过校验和裁决后才能变成 <code>Action</code>；确定性执行产生 <code>StateTransition</code>，最终再记录为可审计的 <code>WorldEvent</code>。</p>
+<hr>
+<h4 id="二、不同规则载体各自负责什么"><a href="#二、不同规则载体各自负责什么" class="headerlink" title="二、不同规则载体各自负责什么"></a>二、不同规则载体各自负责什么</h4><p>项目里经常同时存在 <code>AGENTS.md</code>、Rules、Skills 和 Prompt。若职责没有划清，它们很容易复制出多套彼此冲突的规则。</p>
+<table>
+<thead>
+<tr>
+<th>载体</th>
+<th>主要职责</th>
+<th>不适合承载</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>AGENTS.md</code></td>
+<td>项目背景、架构原则、协作入口、权威资料位置</td>
+<td>临时需求和完整业务规则表</td>
+</tr>
+<tr>
+<td>Rules</td>
+<td>长期编码规范、测试要求和禁止事项</td>
+<td>一次性任务步骤</td>
+</tr>
+<tr>
+<td>Skill</td>
+<td>可复用工作流、读取顺序、停止条件和验证方法</td>
+<td>复制整份 Spec 或领域规则</td>
+</tr>
+<tr>
+<td>Prompt</td>
+<td>当前目标、范围、验收标准和临时限制</td>
+<td>长期稳定约束</td>
+</tr>
+</tbody></table>
+<p><strong>项目只能有一套权威业务规则。Skill 应引用它，而不是复制它。</strong></p>
+<hr>
+<h4 id="三、从模糊想法到可验收-Spec"><a href="#三、从模糊想法到可验收-Spec" class="headerlink" title="三、从模糊想法到可验收 Spec"></a>三、从模糊想法到可验收 Spec</h4><p>一条相对稳定的路线是：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">统一资料 → 限定澄清 → 领域建模 → 生成 Spec → 独立审查</span><br></pre></td></tr></tbody></table></figure>
+
+<p><strong>统一资料位置</strong></p>
+<p>先明确产品文档、领域规则、ADR、Spec 和 Tickets 的权威目录，同时统一 <code>ready</code>、<code>in_progress</code>、<code>resolved</code> 等状态含义。</p>
+<p><strong>只追问高杠杆问题</strong></p>
+<p>不要试图一次问完全部需求。只询问会阻塞当前功能切片的问题，并把稳定结论写回仓库，而不是留在聊天记录里。</p>
+<p><strong>先统一领域词汇</strong></p>
+<p>明确对象的所有权、生命周期、状态转换和失败场景。没有领域边界的抽象，只会制造更多名字。</p>
+<p><strong>把验收标准写成测试入口</strong></p>
+<p>每项验收标准都应该能够落到一个明确测试；「性能良好」「体验友好」「支持异常情况」都不是可执行标准。</p>
+<hr>
+<h4 id="四、Ticket-应按用户价值纵向切分"><a href="#四、Ticket-应按用户价值纵向切分" class="headerlink" title="四、Ticket 应按用户价值纵向切分"></a>四、Ticket 应按用户价值纵向切分</h4><p>如果把任务横向拆成「先写所有模型、再写所有 API、最后做界面」，系统会长期处于无法演示的状态，集成问题也会被推迟到最后。</p>
+<p>更好的方式是围绕一个用户行为纵向切片：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">一个用户行为</span><br><span class="line">├── 必要的领域逻辑</span><br><span class="line">├── 最小 API</span><br><span class="line">├── 最小界面</span><br><span class="line">└── 对应测试</span><br></pre></td></tr></tbody></table></figure>
+
+<p>一个 Ticket 完成后，应该形成能够独立验收的小闭环，而不只是完成了某一层的代码。</p>
+<hr>
+<h4 id="五、让-Agent-真正执行小步-TDD"><a href="#五、让-Agent-真正执行小步-TDD" class="headerlink" title="五、让 Agent 真正执行小步 TDD"></a>五、让 Agent 真正执行小步 TDD</h4><p>Agent 很容易一次修改许多文件，再补上一批看似合理的测试。要获得可信反馈，仍然要坚持小步 RED-GREEN：</p>
+<ol>
+<li>为一个公开行为编写失败测试；</li>
+<li>运行测试并确认它因预期原因失败；</li>
+<li>只实现让当前测试通过的最小代码；</li>
+<li>运行相关测试和回归测试；</li>
+<li>再进入下一个行为。</li>
+</ol>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Ticket → RED → 最小 GREEN → code review → resolved</span><br></pre></td></tr></tbody></table></figure>
+
+<p><code>resolved</code> 不等于「代码已经写完」，而是验收标准、测试、构建结果和必要文档都有证据支撑。</p>
+<hr>
+<h4 id="六、用-Provider-隔离真实模型"><a href="#六、用-Provider-隔离真实模型" class="headerlink" title="六、用 Provider 隔离真实模型"></a>六、用 Provider 隔离真实模型</h4><p>如果领域逻辑直接依赖某个在线模型，自动化测试就会受到网络、费用、输出波动和限流的共同影响。</p>
+<p>可以先定义统一协议：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">DecisionProvider</span><br><span class="line">├── RuleBasedDecisionProvider  # 稳定实现或降级路径</span><br><span class="line">├── FakeDecisionProvider       # 自动化测试</span><br><span class="line">└── LLMDecisionProvider        # 真实模型</span><br></pre></td></tr></tbody></table></figure>
+
+<p>领域 Agent 与 Provider 不应揉进同一个类。通过统一接口，我们可以稳定覆盖：</p>
+<ul>
+<li>正常结构化输出；</li>
+<li>非法字段和未知枚举值；</li>
+<li>超时、异常和限流；</li>
+<li>降级路径；</li>
+<li>恶意输出是否能越权修改状态。</li>
+</ul>
+<p>Agent 获得的上下文也应是只读快照或深拷贝，而不是可直接修改共享状态的引用。</p>
+<hr>
+<h4 id="七、Prototype-的目标是发现错误，不是提前写生产代码"><a href="#七、Prototype-的目标是发现错误，不是提前写生产代码" class="headerlink" title="七、Prototype 的目标是发现错误，不是提前写生产代码"></a>七、Prototype 的目标是发现错误，不是提前写生产代码</h4><p>不同未知问题需要不同工具：</p>
+<ul>
+<li><code>research</code>：确认 SDK、协议、框架能力等外部事实；</li>
+<li><code>prototype</code>：验证字段、状态和规则组合是否可行；</li>
+<li><code>wayfinder</code>：处理多个相互依赖、路径尚不清楚的未知问题。</li>
+</ul>
+<p>原型最有价值的产物不是代码量，而是经过验证的发现。例如，多条资源规则单独看都合理，组合后却可能让某个行动永远无法触发。</p>
+<p>有效结论应进入 Spec、ADR 或领域文档；原型代码默认可丢弃，生产实现不应偷偷依赖它。</p>
+<hr>
+<h4 id="八、多-Agent-的重点是隔离与确定性裁决"><a href="#八、多-Agent-的重点是隔离与确定性裁决" class="headerlink" title="八、多 Agent 的重点是隔离与确定性裁决"></a>八、多 Agent 的重点是隔离与确定性裁决</h4><p>增加 Agent 数量不会自动提高质量。协作式架构最容易遭遇共享状态污染、部分失败和结果冲突。</p>
+<p>推荐流程是：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">共享只读快照</span><br><span class="line">      ↓</span><br><span class="line">多个 Agent 独立提议</span><br><span class="line">      ↓</span><br><span class="line">分别进行结构与领域校验</span><br><span class="line">      ↓</span><br><span class="line">确定性冲突裁决</span><br><span class="line">      ↓</span><br><span class="line">统一执行与事件记录</span><br></pre></td></tr></tbody></table></figure>
+
+<p>关键规则包括：</p>
+<ul>
+<li>每个 Agent 读取同一份周期快照；</li>
+<li>不读取其他 Agent 本周期的提议和失败原因；</li>
+<li>单个 Provider 失败不拖垮整个周期；</li>
+<li>政策互斥与资源竞争分开处理；</li>
+<li>使用固定优先级和稳定排序；</li>
+<li>随机 ID、时间和返回顺序不能改变裁决结果；</li>
+<li><code>REJECTED</code> 与 <code>FAILED</code> 必须分开记录。</li>
+</ul>
+<p>最终只有通过裁决的 Action 才能修改状态，并生成连续、可回放的事件记录。</p>
+<hr>
+<h4 id="九、维护和交接同样属于交付物"><a href="#九、维护和交接同样属于交付物" class="headerlink" title="九、维护和交接同样属于交付物"></a>九、维护和交接同样属于交付物</h4><p>成熟项目不应该依赖旧聊天才能继续。一次可用的交接至少需要说明：</p>
+<ul>
+<li>项目怎样启动和验证；</li>
+<li>权威文档在哪里；</li>
+<li>当前 Ticket 和完成状态；</li>
+<li>已知限制与失败场景；</li>
+<li>下一项建议工作；</li>
+<li>哪些操作需要人工确认。</li>
+</ul>
+<p>排查问题时则保持：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">症状 → 最小复现 → 证据 → 根因 → 最小修复 → 回归测试</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这种方法前期略慢，却能显著降低后续维护和重复排查的成本。</p>
+<hr>
+<h4 id="十、一个可靠-Agent-项目的检查清单"><a href="#十、一个可靠-Agent-项目的检查清单" class="headerlink" title="十、一个可靠 Agent 项目的检查清单"></a>十、一个可靠 Agent 项目的检查清单</h4><ul>
+<li><input disabled="" type="checkbox"> 权威资料和规则只有一套；</li>
+<li><input disabled="" type="checkbox"> Spec 包含目标、非目标、错误和可执行验收标准；</li>
+<li><input disabled="" type="checkbox"> Ticket 按用户价值纵向切分；</li>
+<li><input disabled="" type="checkbox"> Agent 只能读取状态快照；</li>
+<li><input disabled="" type="checkbox"> 模型输出经过结构和领域校验；</li>
+<li><input disabled="" type="checkbox"> 核心测试不依赖真实外部模型；</li>
+<li><input disabled="" type="checkbox"> 多 Agent 冲突由确定性规则裁决；</li>
+<li><input disabled="" type="checkbox"> 超时和部分失败不会留下半状态；</li>
+<li><input disabled="" type="checkbox"> Timeline 记录事实，Replay 可以恢复；</li>
+<li><input disabled="" type="checkbox"> Handoff 允许新 Agent 脱离旧聊天继续工作。</li>
+</ul>
+<hr>
+<blockquote>
+<p>Agent 工程真正要解决的，不是如何让模型更自由地行动，而是如何让每一次行动都有清晰边界、验证证据和可恢复的结果。</p>
+</blockquote>
+</div>
+    
+      <aside class="desktop-toc" aria-label="文章目录">
+        <div class="desktop-toc__inner" data-desktop-toc>
+          <p>文章目录</p>
+          <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E3%80%81Agent-%E4%B8%8D%E6%98%AF%E4%B8%80%E4%B8%AA%E6%A8%A1%E5%9E%8B%EF%BC%8C%E8%80%8C%E6%98%AF%E4%B8%80%E5%A5%97%E5%8F%8D%E9%A6%88%E7%B3%BB%E7%BB%9F"><span class="toc-text">一、Agent 不是一个模型，而是一套反馈系统</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E4%B8%8D%E5%90%8C%E8%A7%84%E5%88%99%E8%BD%BD%E4%BD%93%E5%90%84%E8%87%AA%E8%B4%9F%E8%B4%A3%E4%BB%80%E4%B9%88"><span class="toc-text">二、不同规则载体各自负责什么</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E4%BB%8E%E6%A8%A1%E7%B3%8A%E6%83%B3%E6%B3%95%E5%88%B0%E5%8F%AF%E9%AA%8C%E6%94%B6-Spec"><span class="toc-text">三、从模糊想法到可验收 Spec</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%9B%E3%80%81Ticket-%E5%BA%94%E6%8C%89%E7%94%A8%E6%88%B7%E4%BB%B7%E5%80%BC%E7%BA%B5%E5%90%91%E5%88%87%E5%88%86"><span class="toc-text">四、Ticket 应按用户价值纵向切分</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E8%AE%A9-Agent-%E7%9C%9F%E6%AD%A3%E6%89%A7%E8%A1%8C%E5%B0%8F%E6%AD%A5-TDD"><span class="toc-text">五、让 Agent 真正执行小步 TDD</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E7%94%A8-Provider-%E9%9A%94%E7%A6%BB%E7%9C%9F%E5%AE%9E%E6%A8%A1%E5%9E%8B"><span class="toc-text">六、用 Provider 隔离真实模型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%83%E3%80%81Prototype-%E7%9A%84%E7%9B%AE%E6%A0%87%E6%98%AF%E5%8F%91%E7%8E%B0%E9%94%99%E8%AF%AF%EF%BC%8C%E4%B8%8D%E6%98%AF%E6%8F%90%E5%89%8D%E5%86%99%E7%94%9F%E4%BA%A7%E4%BB%A3%E7%A0%81"><span class="toc-text">七、Prototype 的目标是发现错误，不是提前写生产代码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E5%A4%9A-Agent-%E7%9A%84%E9%87%8D%E7%82%B9%E6%98%AF%E9%9A%94%E7%A6%BB%E4%B8%8E%E7%A1%AE%E5%AE%9A%E6%80%A7%E8%A3%81%E5%86%B3"><span class="toc-text">八、多 Agent 的重点是隔离与确定性裁决</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E7%BB%B4%E6%8A%A4%E5%92%8C%E4%BA%A4%E6%8E%A5%E5%90%8C%E6%A0%B7%E5%B1%9E%E4%BA%8E%E4%BA%A4%E4%BB%98%E7%89%A9"><span class="toc-text">九、维护和交接同样属于交付物</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E4%B8%80%E4%B8%AA%E5%8F%AF%E9%9D%A0-Agent-%E9%A1%B9%E7%9B%AE%E7%9A%84%E6%A3%80%E6%9F%A5%E6%B8%85%E5%8D%95"><span class="toc-text">十、一个可靠 Agent 项目的检查清单</span></a></li></ol>
+        </div>
+      </aside>
+    
+  </div>
+
+  <footer class="article-footer">
+    
+      <div class="article-tags" aria-label="文章标签">
+        <a href="/tags/Agent/">#Agent</a><a href="/tags/Skills/">#Skills</a><a href="/tags/TDD/">#TDD</a><a href="/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/">#软件工程</a>
+      </div>
+    
+
+    
+      <nav class="article-neighbors" aria-label="相邻文章">
+        
+          <a href="/2026/03/22/MinerU%E6%96%87%E6%A1%A3%E8%A7%A3%E6%9E%90%E5%AE%9E%E8%B7%B5/"><small>上一篇</small><span>PDF 到 RAG 的第一公里：MinerU 部署、后端选择与解析质量评测</span></a>
+        
+        
+          <a href="/2026/01/27/AgentSkills%E5%85%A5%E9%97%A8/"><small>下一篇</small><span>把能力封装成 Skill：Agent Skills 的结构、加载机制与边界</span></a>
+        
+      </nav>
+    
+
+    
+      <section class="related-posts" aria-labelledby="related-title">
+        <h2 id="related-title">相关文章</h2>
+        
+          <a href="/2026/01/27/AgentSkills%E5%85%A5%E9%97%A8/"><span>把能力封装成 Skill：Agent Skills 的结构、加载机制与边界</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+        
+          <a href="/2026/07/31/GraphRAG%E4%B8%8E%E5%A4%8D%E6%9D%82%E9%97%AE%E7%AD%94%E6%9E%84%E5%BB%BA%E5%AE%9E%E8%B7%B5/"><span>从实体关系到多跳问答：GraphRAG 与复杂问答构建实践</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+        
+          <a href="/2026/07/12/LLM%E9%80%89%E6%8B%A9%E9%A2%98%E4%BD%8D%E7%BD%AE%E5%81%8F%E8%A7%81%E4%B8%8E%E6%8A%97%E5%81%8F%E8%AF%84%E6%B5%8B/"><span>模型做选择题为什么总偏爱 A？</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+        
+      </section>
+    
+
+    
+      <section
+        class="comments"
+        aria-labelledby="comments-title"
+        data-giscus-container
+        data-giscus-src="https://giscus.app/client.js"
+        data-giscus-repo="NokiaX300/NokiaX300.github.io"
+        data-giscus-repo-id="R_kgDOQzv_Qg"
+        data-giscus-category="Announcements"
+        data-giscus-category-id="DIC_kwDOQzv_Qs4C0lNy"
+        data-giscus-mapping="pathname"
+        data-giscus-reactions-enabled="1"
+        data-giscus-input-position="top"
+        data-giscus-lang="zh-CN"
+        data-giscus-loading="lazy"
+      >
+        <h2 id="comments-title">评论</h2>
+        <p data-giscus-status>滚动到这里时加载评论。</p>
+      </section>
+    
+  </footer>
+
+  
+    <dialog class="toc-drawer" data-toc-dialog aria-labelledby="toc-drawer-title">
+      <div class="toc-drawer__panel">
+        <header>
+          <h2 id="toc-drawer-title">文章目录</h2>
+          <button class="icon-button" type="button" data-toc-close aria-label="关闭目录"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+        </header>
+        <nav data-mobile-toc><ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E3%80%81Agent-%E4%B8%8D%E6%98%AF%E4%B8%80%E4%B8%AA%E6%A8%A1%E5%9E%8B%EF%BC%8C%E8%80%8C%E6%98%AF%E4%B8%80%E5%A5%97%E5%8F%8D%E9%A6%88%E7%B3%BB%E7%BB%9F"><span class="toc-text">一、Agent 不是一个模型，而是一套反馈系统</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E4%B8%8D%E5%90%8C%E8%A7%84%E5%88%99%E8%BD%BD%E4%BD%93%E5%90%84%E8%87%AA%E8%B4%9F%E8%B4%A3%E4%BB%80%E4%B9%88"><span class="toc-text">二、不同规则载体各自负责什么</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E4%BB%8E%E6%A8%A1%E7%B3%8A%E6%83%B3%E6%B3%95%E5%88%B0%E5%8F%AF%E9%AA%8C%E6%94%B6-Spec"><span class="toc-text">三、从模糊想法到可验收 Spec</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%9B%E3%80%81Ticket-%E5%BA%94%E6%8C%89%E7%94%A8%E6%88%B7%E4%BB%B7%E5%80%BC%E7%BA%B5%E5%90%91%E5%88%87%E5%88%86"><span class="toc-text">四、Ticket 应按用户价值纵向切分</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E8%AE%A9-Agent-%E7%9C%9F%E6%AD%A3%E6%89%A7%E8%A1%8C%E5%B0%8F%E6%AD%A5-TDD"><span class="toc-text">五、让 Agent 真正执行小步 TDD</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E7%94%A8-Provider-%E9%9A%94%E7%A6%BB%E7%9C%9F%E5%AE%9E%E6%A8%A1%E5%9E%8B"><span class="toc-text">六、用 Provider 隔离真实模型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%83%E3%80%81Prototype-%E7%9A%84%E7%9B%AE%E6%A0%87%E6%98%AF%E5%8F%91%E7%8E%B0%E9%94%99%E8%AF%AF%EF%BC%8C%E4%B8%8D%E6%98%AF%E6%8F%90%E5%89%8D%E5%86%99%E7%94%9F%E4%BA%A7%E4%BB%A3%E7%A0%81"><span class="toc-text">七、Prototype 的目标是发现错误，不是提前写生产代码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E5%A4%9A-Agent-%E7%9A%84%E9%87%8D%E7%82%B9%E6%98%AF%E9%9A%94%E7%A6%BB%E4%B8%8E%E7%A1%AE%E5%AE%9A%E6%80%A7%E8%A3%81%E5%86%B3"><span class="toc-text">八、多 Agent 的重点是隔离与确定性裁决</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E7%BB%B4%E6%8A%A4%E5%92%8C%E4%BA%A4%E6%8E%A5%E5%90%8C%E6%A0%B7%E5%B1%9E%E4%BA%8E%E4%BA%A4%E4%BB%98%E7%89%A9"><span class="toc-text">九、维护和交接同样属于交付物</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E4%B8%80%E4%B8%AA%E5%8F%AF%E9%9D%A0-Agent-%E9%A1%B9%E7%9B%AE%E7%9A%84%E6%A3%80%E6%9F%A5%E6%B8%85%E5%8D%95"><span class="toc-text">十、一个可靠 Agent 项目的检查清单</span></a></li></ol></nav>
+      </div>
+    </dialog>
+  
+</article>
+
+    </main>
+    <footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">
+      <strong>NokiaX300</strong>
+      <span>© 2026</span>
+      
+        <span class="site-footer__motto">为世界上所有的美好而战 | May all the beauty be blessed</span>
+      
+    </div>
+    <nav aria-label="页脚导航">
+      <a href="https://github.com/NokiaX300" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="/archives/">归档</a>
+      <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="license noopener noreferrer">CC BY-NC-SA 4.0</a>
+    </nav>
+  </div>
+</footer>
+
+    <dialog
+  class="search-dialog"
+  data-search-dialog
+  data-search-endpoint="/search.json"
+  data-search-max-results="8"
+  aria-labelledby="search-title"
+>
+  <div class="search-dialog__panel">
+    <header class="search-dialog__header">
+      <h2 id="search-title">搜索文章</h2>
+      <button class="icon-button" type="button" data-search-close aria-label="关闭搜索"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+    </header>
+    <form class="search-form" role="search" data-search-form>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+      <input
+        type="search"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="输入标题、正文、分类或标签"
+        aria-label="搜索文章"
+        data-search-input
+      >
+      <kbd>Esc</kbd>
+    </form>
+    <p class="search-status" data-search-status>输入关键词开始搜索</p>
+    <div class="search-results" data-search-results></div>
+  </div>
+</dialog>
+
+    <button class="back-to-top" type="button" data-back-to-top aria-label="返回顶部">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 14 6-6 6 6"/></svg>
+    </button>
+    <script src="/js/x300.js" defer></script>
+  </body>
+</html>

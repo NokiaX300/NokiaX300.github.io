@@ -1,0 +1,419 @@
+
+<!doctype html>
+<html lang="zh-CN">
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5f5f2">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111211">
+  <meta name="color-scheme" content="light dark">
+  <title>长文档问答的正确拆法：解析、检索、多 Agent 推理与校验 · NokiaX300</title>
+  <meta name="description" content="将长文档问答拆成可观测、可评测、可回溯的分层工作流，并讨论什么时候真正需要多 Agent">
+  <script>
+    (() => {
+      try {
+        const selected = localStorage.getItem('x300-theme');
+        if (selected === 'light' || selected === 'dark') {
+          document.documentElement.dataset.theme = selected;
+        }
+      } catch (_) {}
+    })();
+  </script>
+  
+    <meta name="description" content="将长文档问答拆成可观测、可评测、可回溯的分层工作流，并讨论什么时候真正需要多 Agent">
+<meta property="og:type" content="article">
+<meta property="og:title" content="长文档问答的正确拆法：解析、检索、多 Agent 推理与校验">
+<meta property="og:url" content="https://nokiax300.github.io/2026/06/14/%E9%95%BF%E6%96%87%E6%A1%A3%E9%97%AE%E7%AD%94%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93%E5%AE%9E%E8%B7%B5/">
+<meta property="og:site_name" content="NokiaX300">
+<meta property="og:description" content="将长文档问答拆成可观测、可评测、可回溯的分层工作流，并讨论什么时候真正需要多 Agent">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://nokiax300.github.io/images/avatar.jpg">
+<meta property="article:published_time" content="2026-06-13T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-08-12T02:48:36.144Z">
+<meta property="article:author" content="Nokia">
+<meta property="article:tag" content="AgentScope">
+<meta property="article:tag" content="Multi-Agent">
+<meta property="article:tag" content="RAG">
+<meta property="article:tag" content="长文本">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nokiax300.github.io/images/avatar.jpg">
+  
+  <link rel="stylesheet" href="/css/x300.css">
+  <link rel="shortcut icon" href="/images/%E4%B8%89%E8%8A%B1%E7%8C%AB.svg">
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+  <body class="page-post">
+    <a class="skip-link" href="#main-content">跳到正文</a>
+    <div class="reading-progress" aria-hidden="true"><span data-reading-progress></span></div>
+    
+<header class="site-header" data-site-header>
+  <div class="site-header__inner">
+    <a class="brand" href="/" aria-label="NokiaX300 首页">
+      <img src="/images/avatar.jpg" width="460" height="460" alt="">
+      <span>NokiaX300</span>
+    </a>
+
+    <nav class="primary-nav" aria-label="主导航">
+      
+        <a href="/posts/">文章</a>
+      
+        <a href="/categories/">分类</a>
+      
+        <a href="/archives/">归档</a>
+      
+    </nav>
+
+    <div class="header-actions">
+      <button class="icon-button" type="button" data-search-open aria-label="搜索">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+      </button>
+      <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="切换明暗模式">
+        <span class="theme-toggle__sun"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></span>
+        <span class="theme-toggle__moon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.5A8.5 8.5 0 0 1 8.5 4 8.5 8.5 0 1 0 20 15.5Z"/></svg></span>
+      </button>
+      <button class="icon-button nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="mobile-navigation" aria-label="打开导航">
+        <span data-nav-icon-open><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span>
+        <span data-nav-icon-close hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></span>
+      </button>
+    </div>
+  </div>
+
+  <nav class="mobile-nav" id="mobile-navigation" data-mobile-nav aria-label="移动端导航" hidden>
+    
+      <a href="/posts/">文章</a>
+    
+      <a href="/categories/">分类</a>
+    
+      <a href="/archives/">归档</a>
+    
+  </nav>
+</header>
+
+    <main class="site-main" id="main-content">
+      
+<article class="article-page">
+  <header class="article-header">
+    
+      <a class="article-header__category" href="/categories/RAG-%E4%B8%8E%E7%9F%A5%E8%AF%86%E7%B3%BB%E7%BB%9F/">RAG 与知识系统</a>
+    
+    <h1>长文档问答的正确拆法：解析、检索、多 Agent 推理与校验</h1>
+    <p class="article-header__summary">将长文档问答拆成可观测、可评测、可回溯的分层工作流，并讨论什么时候真正需要多 Agent</p>
+    <div class="article-meta">
+      <time datetime="2026-06-13T16:00:00.000Z">发布于 2026.06.14</time>
+      
+        <time datetime="2026-08-12T02:48:36.144Z">更新于 2026.08.12</time>
+      
+      <span>约 5 分钟</span>
+      
+        <button type="button" class="toc-trigger" data-toc-open><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4" cy="6" r=".8"/><circle cx="4" cy="12" r=".8"/><circle cx="4" cy="18" r=".8"/></svg>文章目录</button>
+      
+    </div>
+  </header>
+
+  <div class="reading-layout reading-layout--with-toc">
+    <div class="article-content"><p>随着模型上下文不断变长，一个很自然的想法是：把整份文档直接塞进去，让模型自己寻找答案。</p>
+<p>这种方式在小规模演示中很方便；可当文档继续变长、问题需要跨段综合，或证据必须精确定位时，位置敏感、内容遗漏、成本过高和难以排错等问题依然会出现。</p>
+<p>我的长文档问答方案采用分层架构：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">解析与分块 → 摘要/索引 → 多路检索 → 推理 → 校验</span><br></pre></td></tr></tbody></table></figure>
+
+<p>多 Agent 只是其中一种编排方式。它的目标不是增加角色数量，而是让每个阶段都有清晰的输入、输出和失败边界。</p>
+<hr>
+<h4 id="一、为什么长上下文不等于可靠问答"><a href="#一、为什么长上下文不等于可靠问答" class="headerlink" title="一、为什么长上下文不等于可靠问答"></a>一、为什么长上下文不等于可靠问答</h4><p>直接输入长文档仍可能遇到：</p>
+<ul>
+<li>关键信息位于中间位置时被忽略；</li>
+<li>不同章节存在相似表述，模型引用错误版本；</li>
+<li>表格、图片和页码在纯文本中丢失；</li>
+<li>跨章节问题需要先找证据再建立关系；</li>
+<li>回答正确，却无法给出可靠引用；</li>
+<li>出错后无法判断是检索失败还是推理失败。</li>
+</ul>
+<p>因此，长上下文更适合作为一项可选能力，而不是解析、检索和证据管理的替代品。</p>
+<hr>
+<h4 id="二、五层架构"><a href="#二、五层架构" class="headerlink" title="二、五层架构"></a>二、五层架构</h4><p><strong>解析层</strong></p>
+<p>读取 PDF、Word 等原件，恢复标题、段落、表格和原始图片，同时保留页码与资产位置。</p>
+<p><strong>组织层</strong></p>
+<p>根据语义与标题分块，建立章节摘要、文档摘要和父子结构。每个 Chunk 都必须能够回到原页。</p>
+<p><strong>检索层</strong></p>
+<p>组合关键词、向量、元数据过滤和必要的图检索。复杂问题可以先拆成子问题，再分别检索。</p>
+<p><strong>推理层</strong></p>
+<p>基于已经召回的证据进行比较、归纳或多步推理，不把模型记忆当作事实来源。</p>
+<p><strong>校验层</strong></p>
+<p>检查事实是否有证据、引用是否准确、多个结论是否冲突，再决定是否需要重新检索。</p>
+<hr>
+<h4 id="三、一个多-Agent-时序"><a href="#三、一个多-Agent-时序" class="headerlink" title="三、一个多 Agent 时序"></a>三、一个多 Agent 时序</h4><figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">用户问题</span><br><span class="line">  → Planner：结合会话上下文拆解子问题</span><br><span class="line">  → Query Rewriter / Retriever：改写查询并执行多路检索</span><br><span class="line">  → Researcher：整合证据、完成局部推理并处理冲突</span><br><span class="line">  → Synthesizer：生成答案草稿、引用和置信度</span><br><span class="line">  → Verifier：逐项核对结论与证据</span><br><span class="line">  → Memory：保存本轮记录</span><br><span class="line">  → 返回用户</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这条时序可以归纳为五个关键动作：</p>
+<ol>
+<li>用户问题与压缩后的对话记忆一起进入规划环节；</li>
+<li>Planner 分析问题类型并拆分搜索任务；</li>
+<li>查询改写后执行多路检索，返回带来源的候选证据；</li>
+<li>Researcher 跨来源整合、推理并处理证据冲突；</li>
+<li>Synthesizer 生成带引用的草稿，Verifier 通过后再更新记忆并返回用户。</li>
+</ol>
+<p>可以把角色拆成：</p>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>输入</th>
+<th>输出</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Planner</td>
+<td>用户问题、文档清单</td>
+<td>子问题与执行计划</td>
+</tr>
+<tr>
+<td>Retriever</td>
+<td>子问题、索引</td>
+<td>带来源的候选证据</td>
+</tr>
+<tr>
+<td>Researcher</td>
+<td>证据与上下文</td>
+<td>局部分析结果</td>
+</tr>
+<tr>
+<td>Synthesizer</td>
+<td>多个局部结果</td>
+<td>结构化答案草稿</td>
+</tr>
+<tr>
+<td>Verifier</td>
+<td>草稿、证据集合</td>
+<td>通过、驳回或补检索要求</td>
+</tr>
+</tbody></table>
+<p>并不是每个角色都必须对应一个独立的大模型实例。确定性预处理、过滤和格式校验，仍应由普通代码完成。</p>
+<hr>
+<h4 id="四、消息结构决定系统能否排错"><a href="#四、消息结构决定系统能否排错" class="headerlink" title="四、消息结构决定系统能否排错"></a>四、消息结构决定系统能否排错</h4><p>Agent 之间不要只传递自然语言段落。消息至少应包含：</p>
+<figure class="highlight json"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">{</span></span><br><span class="line">  <span class="attr">"task_id"</span><span class="punctuation">:</span> <span class="string">"qa-20260614-001"</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"question"</span><span class="punctuation">:</span> <span class="string">"..."</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"evidence"</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">{</span></span><br><span class="line">      <span class="attr">"source"</span><span class="punctuation">:</span> <span class="string">"report.pdf"</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">"page"</span><span class="punctuation">:</span> <span class="number">18</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">"chunk_id"</span><span class="punctuation">:</span> <span class="string">"report-p18-c02"</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">"text"</span><span class="punctuation">:</span> <span class="string">"..."</span></span><br><span class="line">    <span class="punctuation">}</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"status"</span><span class="punctuation">:</span> <span class="string">"completed"</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"confidence"</span><span class="punctuation">:</span> <span class="number">0.82</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"warnings"</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">}</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>结构化 metadata 让我们能够追踪页码、块号、来源和失败状态。缺少这些字段，多 Agent 就只是在互相转发无法审计的聊天内容。</p>
+<hr>
+<h4 id="五、会话记忆、长期知识和任务状态要分开"><a href="#五、会话记忆、长期知识和任务状态要分开" class="headerlink" title="五、会话记忆、长期知识和任务状态要分开"></a>五、会话记忆、长期知识和任务状态要分开</h4><p>三种状态承担不同职责：</p>
+<ul>
+<li><strong>Session Memory</strong>：当前对话中的上下文、用户追问和临时选择；</li>
+<li><strong>Knowledge Base</strong>：经过维护、可跨会话复用的长期事实；</li>
+<li><strong>Task State</strong>：计划、步骤状态、中间产物、重试次数和错误。</li>
+</ul>
+<p>把它们混进同一份 Memory，既会让临时推测污染长期知识，也会使过期信息难以治理。</p>
+<p><strong>记忆不是保存得越多越好，而是每一类信息都有清晰生命周期。</strong></p>
+<hr>
+<h4 id="六、工具调用必须可观测"><a href="#六、工具调用必须可观测" class="headerlink" title="六、工具调用必须可观测"></a>六、工具调用必须可观测</h4><p>检索、网页搜索、解析器和代码工具都需要：</p>
+<ul>
+<li>明确输入输出 Schema；</li>
+<li>超时与有限重试；</li>
+<li>调用日志与耗时；</li>
+<li>结果结构校验；</li>
+<li>失败后的降级路径；</li>
+<li>来源和版本记录。</li>
+</ul>
+<p>并行只用于互不依赖的步骤。需要前一步结果才能决定下一步查询时，应保持顺序执行。</p>
+<p>AgentScope 等框架可以提供消息、Memory、Tool、Pipeline、并发、路由和 Handoff 等抽象，但不会替项目自动划定正确的角色边界。</p>
+<hr>
+<h4 id="七、Verifier-不应该只是再问一次模型"><a href="#七、Verifier-不应该只是再问一次模型" class="headerlink" title="七、Verifier 不应该只是再问一次模型"></a>七、Verifier 不应该只是再问一次模型</h4><p>如果 Verifier 只收到答案，再被笼统地问一句「这段答案对吗」，它很可能只是重复前一个模型的错误。</p>
+<p>更有效的校验包括：</p>
+<ol>
+<li>每个结论是否绑定证据 ID；</li>
+<li>引用内容是否真的支持该结论；</li>
+<li>数字、时间、主体和单位是否一致；</li>
+<li>多个来源之间是否冲突；</li>
+<li>是否存在关键子问题未回答；</li>
+<li>证据不足时是否明确拒绝推断。</li>
+</ol>
+<p>验证结果应当是结构化决策：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">PASS</span><br><span class="line">RETRIEVE_MORE</span><br><span class="line">CONFLICT</span><br><span class="line">INSUFFICIENT_EVIDENCE</span><br></pre></td></tr></tbody></table></figure>
+
+<p>只有 <code>PASS</code> 才进入最终输出，其他状态回到相应阶段。</p>
+<hr>
+<h4 id="八、怎样评测长文档问答"><a href="#八、怎样评测长文档问答" class="headerlink" title="八、怎样评测长文档问答"></a>八、怎样评测长文档问答</h4><p>最终答案指标包括：</p>
+<ul>
+<li>事实正确性；</li>
+<li>证据完整性；</li>
+<li>引用准确性；</li>
+<li>跨段和跨文档综合能力；</li>
+<li>对信息位置变化的鲁棒性；</li>
+<li>延迟、Token 和工具调用成本。</li>
+</ul>
+<p>除了最终答案，还应记录各阶段指标：</p>
+<ul>
+<li>解析是否遗漏内容；</li>
+<li>相关证据是否进入候选集；</li>
+<li>Reranker 是否把正确证据排到前面；</li>
+<li>推理是否错误使用了正确证据；</li>
+<li>校验器是否发现错误；</li>
+<li>重新检索是否真正改善结果。</li>
+</ul>
+<p>失败可以分为：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">未检出</span><br><span class="line">→ 检出但未采用</span><br><span class="line">→ 证据采用正确但推理错误</span><br><span class="line">→ 推理正确但输出或引用错误</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这种分类比简单统计「答错了」更能指向真正需要优化的环节。</p>
+<hr>
+<h4 id="九、什么时候不需要多-Agent"><a href="#九、什么时候不需要多-Agent" class="headerlink" title="九、什么时候不需要多 Agent"></a>九、什么时候不需要多 Agent</h4><p>以下任务通常使用固定 Workflow 或单 Agent 更合适：</p>
+<ul>
+<li>步骤稳定、分支很少；</li>
+<li>单次检索即可回答；</li>
+<li>延迟和成本要求严格；</li>
+<li>角色拆分后没有独立可验证产物；</li>
+<li>多个 Agent 只是重复阅读同一上下文。</li>
+</ul>
+<p>多 Agent 真正有价值的场景包括：</p>
+<ul>
+<li>子任务可以独立检索或并行分析；</li>
+<li>不同角色使用不同工具或知识边界；</li>
+<li>需要明确的互验和冲突处理；</li>
+<li>每个中间产物都可以保存和评测。</li>
+</ul>
+<hr>
+<h4 id="十、落地检查清单"><a href="#十、落地检查清单" class="headerlink" title="十、落地检查清单"></a>十、落地检查清单</h4><ul>
+<li><input disabled="" type="checkbox"> 原始文档、Chunk、图片和页码可以互相追溯；</li>
+<li><input disabled="" type="checkbox"> Planner 的子问题覆盖原始问题；</li>
+<li><input disabled="" type="checkbox"> 消息使用稳定 Schema，而不是自由文本接力；</li>
+<li><input disabled="" type="checkbox"> Session、Knowledge 与 Task State 分离；</li>
+<li><input disabled="" type="checkbox"> 工具具备超时、重试、日志和校验；</li>
+<li><input disabled="" type="checkbox"> Verifier 能触发补检索和冲突处理；</li>
+<li><input disabled="" type="checkbox"> 每个阶段都有独立指标与失败分类；</li>
+<li><input disabled="" type="checkbox"> 使用多 Agent 的收益高于额外成本。</li>
+</ul>
+<hr>
+<h4 id="相关资源"><a href="#相关资源" class="headerlink" title="相关资源"></a>相关资源</h4><ul>
+<li><a target="_blank" rel="noopener" href="https://doc.agentscope.io/">AgentScope 官方文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/agentscope-ai/agentscope">AgentScope 官方仓库</a></li>
+</ul>
+<hr>
+<blockquote>
+<p>长文档问答的可靠性，不来自把文档塞进更大的上下文，而来自每一步都能找到证据、解释失败并重新执行。</p>
+</blockquote>
+</div>
+    
+      <aside class="desktop-toc" aria-label="文章目录">
+        <div class="desktop-toc__inner" data-desktop-toc>
+          <p>文章目录</p>
+          <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88%E9%95%BF%E4%B8%8A%E4%B8%8B%E6%96%87%E4%B8%8D%E7%AD%89%E4%BA%8E%E5%8F%AF%E9%9D%A0%E9%97%AE%E7%AD%94"><span class="toc-text">一、为什么长上下文不等于可靠问答</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E4%BA%94%E5%B1%82%E6%9E%B6%E6%9E%84"><span class="toc-text">二、五层架构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E4%B8%80%E4%B8%AA%E5%A4%9A-Agent-%E6%97%B6%E5%BA%8F"><span class="toc-text">三、一个多 Agent 时序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%B6%88%E6%81%AF%E7%BB%93%E6%9E%84%E5%86%B3%E5%AE%9A%E7%B3%BB%E7%BB%9F%E8%83%BD%E5%90%A6%E6%8E%92%E9%94%99"><span class="toc-text">四、消息结构决定系统能否排错</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E4%BC%9A%E8%AF%9D%E8%AE%B0%E5%BF%86%E3%80%81%E9%95%BF%E6%9C%9F%E7%9F%A5%E8%AF%86%E5%92%8C%E4%BB%BB%E5%8A%A1%E7%8A%B6%E6%80%81%E8%A6%81%E5%88%86%E5%BC%80"><span class="toc-text">五、会话记忆、长期知识和任务状态要分开</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%B7%A5%E5%85%B7%E8%B0%83%E7%94%A8%E5%BF%85%E9%A1%BB%E5%8F%AF%E8%A7%82%E6%B5%8B"><span class="toc-text">六、工具调用必须可观测</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%83%E3%80%81Verifier-%E4%B8%8D%E5%BA%94%E8%AF%A5%E5%8F%AA%E6%98%AF%E5%86%8D%E9%97%AE%E4%B8%80%E6%AC%A1%E6%A8%A1%E5%9E%8B"><span class="toc-text">七、Verifier 不应该只是再问一次模型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E6%80%8E%E6%A0%B7%E8%AF%84%E6%B5%8B%E9%95%BF%E6%96%87%E6%A1%A3%E9%97%AE%E7%AD%94"><span class="toc-text">八、怎样评测长文档问答</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E4%B8%8D%E9%9C%80%E8%A6%81%E5%A4%9A-Agent"><span class="toc-text">九、什么时候不需要多 Agent</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E8%90%BD%E5%9C%B0%E6%A3%80%E6%9F%A5%E6%B8%85%E5%8D%95"><span class="toc-text">十、落地检查清单</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90"><span class="toc-text">相关资源</span></a></li></ol>
+        </div>
+      </aside>
+    
+  </div>
+
+  <footer class="article-footer">
+    
+      <div class="article-tags" aria-label="文章标签">
+        <a href="/tags/RAG/">#RAG</a><a href="/tags/AgentScope/">#AgentScope</a><a href="/tags/%E9%95%BF%E6%96%87%E6%9C%AC/">#长文本</a><a href="/tags/Multi-Agent/">#Multi-Agent</a>
+      </div>
+    
+
+    
+      <nav class="article-neighbors" aria-label="相邻文章">
+        
+          <a href="/2026/07/02/%E6%96%B0%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/"><small>上一篇</small><span>从 WSL2 到大模型微调：CUDA、Conda、PyTorch 与 ms-swift 环境搭建</span></a>
+        
+        
+          <a href="/2026/05/17/%E5%A4%9A%E6%A8%A1%E6%80%81RAG%E5%AE%9E%E8%B7%B5/"><small>下一篇</small><span>多模态 RAG 不只是给图片写摘要</span></a>
+        
+      </nav>
+    
+
+    
+      <section class="related-posts" aria-labelledby="related-title">
+        <h2 id="related-title">相关文章</h2>
+        
+          <a href="/2026/07/31/GraphRAG%E4%B8%8E%E5%A4%8D%E6%9D%82%E9%97%AE%E7%AD%94%E6%9E%84%E5%BB%BA%E5%AE%9E%E8%B7%B5/"><span>从实体关系到多跳问答：GraphRAG 与复杂问答构建实践</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+        
+          <a href="/2026/05/17/%E5%A4%9A%E6%A8%A1%E6%80%81RAG%E5%AE%9E%E8%B7%B5/"><span>多模态 RAG 不只是给图片写摘要</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+        
+          <a href="/2026/04/19/%E4%B8%AD%E6%96%87RAG%E6%A3%80%E7%B4%A2%E5%AE%9E%E8%B7%B5/"><span>中文 RAG 检索怎么选：Embedding、Reranker 与 Qdrant</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+        
+      </section>
+    
+
+    
+      <section
+        class="comments"
+        aria-labelledby="comments-title"
+        data-giscus-container
+        data-giscus-src="https://giscus.app/client.js"
+        data-giscus-repo="NokiaX300/NokiaX300.github.io"
+        data-giscus-repo-id="R_kgDOQzv_Qg"
+        data-giscus-category="Announcements"
+        data-giscus-category-id="DIC_kwDOQzv_Qs4C0lNy"
+        data-giscus-mapping="pathname"
+        data-giscus-reactions-enabled="1"
+        data-giscus-input-position="top"
+        data-giscus-lang="zh-CN"
+        data-giscus-loading="lazy"
+      >
+        <h2 id="comments-title">评论</h2>
+        <p data-giscus-status>滚动到这里时加载评论。</p>
+      </section>
+    
+  </footer>
+
+  
+    <dialog class="toc-drawer" data-toc-dialog aria-labelledby="toc-drawer-title">
+      <div class="toc-drawer__panel">
+        <header>
+          <h2 id="toc-drawer-title">文章目录</h2>
+          <button class="icon-button" type="button" data-toc-close aria-label="关闭目录"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+        </header>
+        <nav data-mobile-toc><ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88%E9%95%BF%E4%B8%8A%E4%B8%8B%E6%96%87%E4%B8%8D%E7%AD%89%E4%BA%8E%E5%8F%AF%E9%9D%A0%E9%97%AE%E7%AD%94"><span class="toc-text">一、为什么长上下文不等于可靠问答</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E4%BA%94%E5%B1%82%E6%9E%B6%E6%9E%84"><span class="toc-text">二、五层架构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E4%B8%80%E4%B8%AA%E5%A4%9A-Agent-%E6%97%B6%E5%BA%8F"><span class="toc-text">三、一个多 Agent 时序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%B6%88%E6%81%AF%E7%BB%93%E6%9E%84%E5%86%B3%E5%AE%9A%E7%B3%BB%E7%BB%9F%E8%83%BD%E5%90%A6%E6%8E%92%E9%94%99"><span class="toc-text">四、消息结构决定系统能否排错</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E4%BC%9A%E8%AF%9D%E8%AE%B0%E5%BF%86%E3%80%81%E9%95%BF%E6%9C%9F%E7%9F%A5%E8%AF%86%E5%92%8C%E4%BB%BB%E5%8A%A1%E7%8A%B6%E6%80%81%E8%A6%81%E5%88%86%E5%BC%80"><span class="toc-text">五、会话记忆、长期知识和任务状态要分开</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%B7%A5%E5%85%B7%E8%B0%83%E7%94%A8%E5%BF%85%E9%A1%BB%E5%8F%AF%E8%A7%82%E6%B5%8B"><span class="toc-text">六、工具调用必须可观测</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%83%E3%80%81Verifier-%E4%B8%8D%E5%BA%94%E8%AF%A5%E5%8F%AA%E6%98%AF%E5%86%8D%E9%97%AE%E4%B8%80%E6%AC%A1%E6%A8%A1%E5%9E%8B"><span class="toc-text">七、Verifier 不应该只是再问一次模型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E6%80%8E%E6%A0%B7%E8%AF%84%E6%B5%8B%E9%95%BF%E6%96%87%E6%A1%A3%E9%97%AE%E7%AD%94"><span class="toc-text">八、怎样评测长文档问答</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E4%B8%8D%E9%9C%80%E8%A6%81%E5%A4%9A-Agent"><span class="toc-text">九、什么时候不需要多 Agent</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E8%90%BD%E5%9C%B0%E6%A3%80%E6%9F%A5%E6%B8%85%E5%8D%95"><span class="toc-text">十、落地检查清单</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90"><span class="toc-text">相关资源</span></a></li></ol></nav>
+      </div>
+    </dialog>
+  
+</article>
+
+    </main>
+    <footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">
+      <strong>NokiaX300</strong>
+      <span>© 2026</span>
+      
+        <span class="site-footer__motto">为世界上所有的美好而战 | May all the beauty be blessed</span>
+      
+    </div>
+    <nav aria-label="页脚导航">
+      <a href="https://github.com/NokiaX300" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="/archives/">归档</a>
+      <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="license noopener noreferrer">CC BY-NC-SA 4.0</a>
+    </nav>
+  </div>
+</footer>
+
+    <dialog
+  class="search-dialog"
+  data-search-dialog
+  data-search-endpoint="/search.json"
+  data-search-max-results="8"
+  aria-labelledby="search-title"
+>
+  <div class="search-dialog__panel">
+    <header class="search-dialog__header">
+      <h2 id="search-title">搜索文章</h2>
+      <button class="icon-button" type="button" data-search-close aria-label="关闭搜索"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+    </header>
+    <form class="search-form" role="search" data-search-form>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+      <input
+        type="search"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="输入标题、正文、分类或标签"
+        aria-label="搜索文章"
+        data-search-input
+      >
+      <kbd>Esc</kbd>
+    </form>
+    <p class="search-status" data-search-status>输入关键词开始搜索</p>
+    <div class="search-results" data-search-results></div>
+  </div>
+</dialog>
+
+    <button class="back-to-top" type="button" data-back-to-top aria-label="返回顶部">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 14 6-6 6 6"/></svg>
+    </button>
+    <script src="/js/x300.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,353 @@
+
+<!doctype html>
+<html lang="zh-CN">
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5f5f2">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111211">
+  <meta name="color-scheme" content="light dark">
+  <title>多模态 RAG 不只是给图片写摘要 · NokiaX300</title>
+  <meta name="description" content="从图像检索、知识图谱到多格式文档处理，梳理 Beyond Text、LightRAG 与 RAG-Anything 的工程边界">
+  <script>
+    (() => {
+      try {
+        const selected = localStorage.getItem('x300-theme');
+        if (selected === 'light' || selected === 'dark') {
+          document.documentElement.dataset.theme = selected;
+        }
+      } catch (_) {}
+    })();
+  </script>
+  
+    <meta name="description" content="从图像检索、知识图谱到多格式文档处理，梳理 Beyond Text、LightRAG 与 RAG-Anything 的工程边界">
+<meta property="og:type" content="article">
+<meta property="og:title" content="多模态 RAG 不只是给图片写摘要">
+<meta property="og:url" content="https://nokiax300.github.io/2026/05/17/%E5%A4%9A%E6%A8%A1%E6%80%81RAG%E5%AE%9E%E8%B7%B5/">
+<meta property="og:site_name" content="NokiaX300">
+<meta property="og:description" content="从图像检索、知识图谱到多格式文档处理，梳理 Beyond Text、LightRAG 与 RAG-Anything 的工程边界">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://nokiax300.github.io/images/avatar.jpg">
+<meta property="article:published_time" content="2026-05-16T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-08-12T02:48:29.563Z">
+<meta property="article:author" content="Nokia">
+<meta property="article:tag" content="LightRAG">
+<meta property="article:tag" content="RAG">
+<meta property="article:tag" content="多模态">
+<meta property="article:tag" content="知识图谱">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nokiax300.github.io/images/avatar.jpg">
+  
+  <link rel="stylesheet" href="/css/x300.css">
+  <link rel="shortcut icon" href="/images/%E4%B8%89%E8%8A%B1%E7%8C%AB.svg">
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+  <body class="page-post">
+    <a class="skip-link" href="#main-content">跳到正文</a>
+    <div class="reading-progress" aria-hidden="true"><span data-reading-progress></span></div>
+    
+<header class="site-header" data-site-header>
+  <div class="site-header__inner">
+    <a class="brand" href="/" aria-label="NokiaX300 首页">
+      <img src="/images/avatar.jpg" width="460" height="460" alt="">
+      <span>NokiaX300</span>
+    </a>
+
+    <nav class="primary-nav" aria-label="主导航">
+      
+        <a href="/posts/">文章</a>
+      
+        <a href="/categories/">分类</a>
+      
+        <a href="/archives/">归档</a>
+      
+    </nav>
+
+    <div class="header-actions">
+      <button class="icon-button" type="button" data-search-open aria-label="搜索">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+      </button>
+      <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="切换明暗模式">
+        <span class="theme-toggle__sun"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></span>
+        <span class="theme-toggle__moon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.5A8.5 8.5 0 0 1 8.5 4 8.5 8.5 0 1 0 20 15.5Z"/></svg></span>
+      </button>
+      <button class="icon-button nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="mobile-navigation" aria-label="打开导航">
+        <span data-nav-icon-open><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span>
+        <span data-nav-icon-close hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></span>
+      </button>
+    </div>
+  </div>
+
+  <nav class="mobile-nav" id="mobile-navigation" data-mobile-nav aria-label="移动端导航" hidden>
+    
+      <a href="/posts/">文章</a>
+    
+      <a href="/categories/">分类</a>
+    
+      <a href="/archives/">归档</a>
+    
+  </nav>
+</header>
+
+    <main class="site-main" id="main-content">
+      
+<article class="article-page">
+  <header class="article-header">
+    
+      <a class="article-header__category" href="/categories/RAG-%E4%B8%8E%E7%9F%A5%E8%AF%86%E7%B3%BB%E7%BB%9F/">RAG 与知识系统</a>
+    
+    <h1>多模态 RAG 不只是给图片写摘要</h1>
+    <p class="article-header__summary">从图像检索、知识图谱到多格式文档处理，梳理 Beyond Text、LightRAG 与 RAG-Anything 的工程边界</p>
+    <div class="article-meta">
+      <time datetime="2026-05-16T16:00:00.000Z">发布于 2026.05.17</time>
+      
+        <time datetime="2026-08-12T02:48:29.563Z">更新于 2026.08.12</time>
+      
+      <span>约 5 分钟</span>
+      
+        <button type="button" class="toc-trigger" data-toc-open><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4" cy="6" r=".8"/><circle cx="4" cy="12" r=".8"/><circle cx="4" cy="18" r=".8"/></svg>文章目录</button>
+      
+    </div>
+  </header>
+
+  <div class="reading-layout reading-layout--with-toc">
+    <div class="article-content"><p>传统 RAG 往往先把 PDF 转成纯文本，再进行分块和向量检索。可一旦遇到流程图、原始界面图、表格和公式，这条链路就会丢失大量信息。</p>
+<p>多模态 RAG 的目标并不是简单地把图片塞进上下文，而是让不同模态都成为<strong>可检索、可定位、可回到原始证据</strong>的知识对象。</p>
+<p>在阅读和实践中，我把相关方案分成三条路线：图像检索、关系检索和多格式文档处理。</p>
+<hr>
+<h4 id="一、三类方案分别解决什么问题"><a href="#一、三类方案分别解决什么问题" class="headerlink" title="一、三类方案分别解决什么问题"></a>一、三类方案分别解决什么问题</h4><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>主要方向</th>
+<th>核心机制</th>
+<th>适合解决的问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Beyond Text</td>
+<td>图像参与检索</td>
+<td>图像嵌入或图像摘要</td>
+<td>如何让图表、截图被问题召回</td>
+</tr>
+<tr>
+<td>LightRAG</td>
+<td>关系与全局检索</td>
+<td>实体、关系、图结构和向量检索</td>
+<td>如何回答跨文档关系与主题问题</td>
+</tr>
+<tr>
+<td>RAG-Anything</td>
+<td>多格式统一处理</td>
+<td>文档解析、多模态描述与混合检索</td>
+<td>如何接入文本、图片、表格和公式</td>
+</tr>
+</tbody></table>
+<p>三者并不互斥。在完整系统中，文档解析负责拆出多模态元素，摘要或嵌入负责召回，知识图谱负责关系检索，最后再把原始证据交给模型。</p>
+<hr>
+<h4 id="二、图像摘要和图像嵌入怎么选"><a href="#二、图像摘要和图像嵌入怎么选" class="headerlink" title="二、图像摘要和图像嵌入怎么选"></a>二、图像摘要和图像嵌入怎么选</h4><p>让图像进入检索系统，通常有两条路径：</p>
+<p><strong>直接生成多模态向量</strong></p>
+<p>图像通过视觉编码器生成向量，与文本查询进行跨模态相似度比较。优点是保留视觉表达，难点是查询与图像是否处于足够一致的向量空间。</p>
+<p><strong>先生成图像摘要，再做文本向量</strong></p>
+<p>视觉模型先把图片转成面向检索的文字描述，再复用成熟的文本嵌入链路。Beyond Text 的实验显示了图像摘要路线的潜力，但结果仍会受到数据集、视觉模型、摘要 Prompt 和评测方法影响。</p>
+<p>Beyond Text 所采用的处理链可以写成可检索的文本流程：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">PDF 集合</span><br><span class="line">  ├─ 文本提取 → 文本向量</span><br><span class="line">  └─ 图片提取 → 图像摘要或图像向量</span><br><span class="line">                  ↓</span><br><span class="line">             多向量检索</span><br><span class="line">                  ↓</span><br><span class="line">       取回原文与原始图片</span><br><span class="line">                  ↓</span><br><span class="line">          多模态模型生成答案</span><br></pre></td></tr></tbody></table></figure>
+
+<p>无论选择哪条路线，都不能越过同一条底线：</p>
+<blockquote>
+<p>摘要或向量只是检索代理，不能替代原始图片。</p>
+</blockquote>
+<p>命中摘要后，系统仍应取回原图，让多模态模型结合文本证据与视觉对象作答。</p>
+<hr>
+<h4 id="三、图像元数据至少要保存什么"><a href="#三、图像元数据至少要保存什么" class="headerlink" title="三、图像元数据至少要保存什么"></a>三、图像元数据至少要保存什么</h4><figure class="highlight json"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">{</span></span><br><span class="line">  <span class="attr">"asset_id"</span><span class="punctuation">:</span> <span class="string">"fig-p08-02"</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"source_file"</span><span class="punctuation">:</span> <span class="string">"manual.pdf"</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"page"</span><span class="punctuation">:</span> <span class="number">8</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"image_path"</span><span class="punctuation">:</span> <span class="string">"images/manual/fig-p08-02.png"</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"caption"</span><span class="punctuation">:</span> <span class="string">"设备控制流程"</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"summary"</span><span class="punctuation">:</span> <span class="string">"流程从传感器输入开始……"</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"summary_model"</span><span class="punctuation">:</span> <span class="string">"vision-model-version"</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"fallback"</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span></span><br><span class="line"><span class="punctuation">}</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>至少要保留文件、页码、原图路径、题注、摘要来源，以及是否使用回退路径。否则系统最终只能返回一段无法验证的描述。</p>
+<p>图像摘要 Prompt 也不应追求文学性，而要服务检索：使用具体名称，描述关键对象、关系、数值和异常，不使用「左边这个」「如下图所示」等离开图片就失去意义的表达。</p>
+<hr>
+<h4 id="四、LightRAG-为什么引入知识图谱"><a href="#四、LightRAG-为什么引入知识图谱" class="headerlink" title="四、LightRAG 为什么引入知识图谱"></a>四、LightRAG 为什么引入知识图谱</h4><p>普通向量检索擅长寻找与查询语义接近的片段；但面对「多个实体之间有什么关系」「一批文档反映了哪些共同主题」时，扁平分块很容易产生碎片化结果。</p>
+<p>LightRAG 从文本块中抽取实体和关系，将图结构与向量检索结合。查询阶段可以同时关注：</p>
+<ul>
+<li>高层关键词：整体概念、主题与关系；</li>
+<li>低层关键词：具体实体、事实和专业术语。</li>
+</ul>
+<p>这样可以分别覆盖全局关系和局部事实。</p>
+<p>但知识图谱并不是免费能力。实体与关系抽取会增加模型调用、索引成本和更新复杂度。只有真实问题确实涉及跨实体、跨文档关系时，图结构才值得引入。</p>
+<hr>
+<h4 id="五、RAG-Anything-如何组织多格式文档"><a href="#五、RAG-Anything-如何组织多格式文档" class="headerlink" title="五、RAG-Anything 如何组织多格式文档"></a>五、RAG-Anything 如何组织多格式文档</h4><p>RAG-Anything 将文本、图片、表格和公式放进统一处理流水线：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">解析文档</span><br><span class="line">  ↓</span><br><span class="line">分离文本/图片/表格/公式</span><br><span class="line">  ↓</span><br><span class="line">为非文本内容生成描述</span><br><span class="line">  ↓</span><br><span class="line">建立向量与图索引</span><br><span class="line">  ↓</span><br><span class="line">混合召回文本和视觉对象</span><br><span class="line">  ↓</span><br><span class="line">多模态模型生成答案</span><br></pre></td></tr></tbody></table></figure>
+
+<p>如果原图缺失或无法读取，可以根据路径、题注和脚注构造文本回退，但必须给结果标记 <code>fallback=true</code>。文本回退只能保证流程继续运行，不能冒充真实的视觉识别结果。</p>
+<hr>
+<h4 id="六、我采用的工程链路"><a href="#六、我采用的工程链路" class="headerlink" title="六、我采用的工程链路"></a>六、我采用的工程链路</h4><p>完整链路可以拆成六层：</p>
+<ol>
+<li><strong>解析层</strong>：恢复页面结构并提取原始资产；</li>
+<li><strong>描述层</strong>：为图片、表格和公式生成可检索描述；</li>
+<li><strong>索引层</strong>：分别建立文本、视觉代理和关系索引；</li>
+<li><strong>检索层</strong>：根据问题选择向量、关键词、图或混合检索；</li>
+<li><strong>证据层</strong>：把摘要映射回原文、原图和页码；</li>
+<li><strong>生成层</strong>：让模型只基于返回证据作答并给出引用。</li>
+</ol>
+<p><strong>不同模态可以分别建索引，但最终必须共享同一套来源标识。</strong></p>
+<hr>
+<h4 id="七、多模态-RAG-应该怎样评测"><a href="#七、多模态-RAG-应该怎样评测" class="headerlink" title="七、多模态 RAG 应该怎样评测"></a>七、多模态 RAG 应该怎样评测</h4><p>如果只评价最终答案，就很难判断问题究竟出在解析、检索还是生成。因此至少要分开记录：</p>
+<ul>
+<li>文本、图片、表格的解析召回；</li>
+<li>图像摘要是否覆盖关键对象和数值；</li>
+<li>不同模态的 Recall@K；</li>
+<li>摘要命中后原始资产能否正确回取；</li>
+<li>引用页码和图表是否准确；</li>
+<li>单模态与多模态答案差异；</li>
+<li>延迟、显存和模型调用成本。</li>
+</ul>
+<p>同时还应保留纯文本基线。只有加入视觉内容后，目标问题的结果能够稳定改善，额外的系统复杂度才有意义。</p>
+<hr>
+<h4 id="八、常见误区"><a href="#八、常见误区" class="headerlink" title="八、常见误区"></a>八、常见误区</h4><ul>
+<li>把 OCR 文本当成完整多模态理解；</li>
+<li>只存图像摘要，不保留原图；</li>
+<li>图片和正文使用不同 ID，无法回溯；</li>
+<li>所有查询都调用昂贵的视觉模型；</li>
+<li>图谱建得很大，却没有真实关系型问题；</li>
+<li>用文本回退生成的描述冒充视觉事实；</li>
+<li>只展示最终答案，不评估各阶段错误。</li>
+</ul>
+<hr>
+<h4 id="相关资源"><a href="#相关资源" class="headerlink" title="相关资源"></a>相关资源</h4><ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2410.21943">Beyond Text 论文</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/HKUDS/LightRAG">LightRAG 官方仓库</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/HKUDS/RAG-Anything">RAG-Anything 官方仓库</a></li>
+</ul>
+<hr>
+<blockquote>
+<p>多模态 RAG 的核心不是支持更多文件格式，而是让每一种模态都能够被检索、被验证，并回到原始证据。</p>
+</blockquote>
+</div>
+    
+      <aside class="desktop-toc" aria-label="文章目录">
+        <div class="desktop-toc__inner" data-desktop-toc>
+          <p>文章目录</p>
+          <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E4%B8%89%E7%B1%BB%E6%96%B9%E6%A1%88%E5%88%86%E5%88%AB%E8%A7%A3%E5%86%B3%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="toc-text">一、三类方案分别解决什么问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%9B%BE%E5%83%8F%E6%91%98%E8%A6%81%E5%92%8C%E5%9B%BE%E5%83%8F%E5%B5%8C%E5%85%A5%E6%80%8E%E4%B9%88%E9%80%89"><span class="toc-text">二、图像摘要和图像嵌入怎么选</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%9B%BE%E5%83%8F%E5%85%83%E6%95%B0%E6%8D%AE%E8%87%B3%E5%B0%91%E8%A6%81%E4%BF%9D%E5%AD%98%E4%BB%80%E4%B9%88"><span class="toc-text">三、图像元数据至少要保存什么</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%9B%E3%80%81LightRAG-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BC%95%E5%85%A5%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1"><span class="toc-text">四、LightRAG 为什么引入知识图谱</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%94%E3%80%81RAG-Anything-%E5%A6%82%E4%BD%95%E7%BB%84%E7%BB%87%E5%A4%9A%E6%A0%BC%E5%BC%8F%E6%96%87%E6%A1%A3"><span class="toc-text">五、RAG-Anything 如何组织多格式文档</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E6%88%91%E9%87%87%E7%94%A8%E7%9A%84%E5%B7%A5%E7%A8%8B%E9%93%BE%E8%B7%AF"><span class="toc-text">六、我采用的工程链路</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%A4%9A%E6%A8%A1%E6%80%81-RAG-%E5%BA%94%E8%AF%A5%E6%80%8E%E6%A0%B7%E8%AF%84%E6%B5%8B"><span class="toc-text">七、多模态 RAG 应该怎样评测</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E5%B8%B8%E8%A7%81%E8%AF%AF%E5%8C%BA"><span class="toc-text">八、常见误区</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90"><span class="toc-text">相关资源</span></a></li></ol>
+        </div>
+      </aside>
+    
+  </div>
+
+  <footer class="article-footer">
+    
+      <div class="article-tags" aria-label="文章标签">
+        <a href="/tags/%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1/">#知识图谱</a><a href="/tags/RAG/">#RAG</a><a href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81/">#多模态</a><a href="/tags/LightRAG/">#LightRAG</a>
+      </div>
+    
+
+    
+      <nav class="article-neighbors" aria-label="相邻文章">
+        
+          <a href="/2026/06/14/%E9%95%BF%E6%96%87%E6%A1%A3%E9%97%AE%E7%AD%94%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93%E5%AE%9E%E8%B7%B5/"><small>上一篇</small><span>长文档问答的正确拆法：解析、检索、多 Agent 推理与校验</span></a>
+        
+        
+          <a href="/2026/05/11/%E7%BE%A4%E6%99%96NAS%E5%86%85%E7%BD%91%E9%83%A8%E7%BD%B2%E6%95%99%E5%AD%A6/"><small>下一篇</small><span>把 NAS 放进企业内网：群晖 DSM、权限隔离与目录导出</span></a>
+        
+      </nav>
+    
+
+    
+      <section class="related-posts" aria-labelledby="related-title">
+        <h2 id="related-title">相关文章</h2>
+        
+          <a href="/2026/07/31/GraphRAG%E4%B8%8E%E5%A4%8D%E6%9D%82%E9%97%AE%E7%AD%94%E6%9E%84%E5%BB%BA%E5%AE%9E%E8%B7%B5/"><span>从实体关系到多跳问答：GraphRAG 与复杂问答构建实践</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+        
+          <a href="/2026/06/14/%E9%95%BF%E6%96%87%E6%A1%A3%E9%97%AE%E7%AD%94%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93%E5%AE%9E%E8%B7%B5/"><span>长文档问答的正确拆法：解析、检索、多 Agent 推理与校验</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+        
+          <a href="/2026/04/19/%E4%B8%AD%E6%96%87RAG%E6%A3%80%E7%B4%A2%E5%AE%9E%E8%B7%B5/"><span>中文 RAG 检索怎么选：Embedding、Reranker 与 Qdrant</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+        
+      </section>
+    
+
+    
+      <section
+        class="comments"
+        aria-labelledby="comments-title"
+        data-giscus-container
+        data-giscus-src="https://giscus.app/client.js"
+        data-giscus-repo="NokiaX300/NokiaX300.github.io"
+        data-giscus-repo-id="R_kgDOQzv_Qg"
+        data-giscus-category="Announcements"
+        data-giscus-category-id="DIC_kwDOQzv_Qs4C0lNy"
+        data-giscus-mapping="pathname"
+        data-giscus-reactions-enabled="1"
+        data-giscus-input-position="top"
+        data-giscus-lang="zh-CN"
+        data-giscus-loading="lazy"
+      >
+        <h2 id="comments-title">评论</h2>
+        <p data-giscus-status>滚动到这里时加载评论。</p>
+      </section>
+    
+  </footer>
+
+  
+    <dialog class="toc-drawer" data-toc-dialog aria-labelledby="toc-drawer-title">
+      <div class="toc-drawer__panel">
+        <header>
+          <h2 id="toc-drawer-title">文章目录</h2>
+          <button class="icon-button" type="button" data-toc-close aria-label="关闭目录"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+        </header>
+        <nav data-mobile-toc><ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E4%B8%89%E7%B1%BB%E6%96%B9%E6%A1%88%E5%88%86%E5%88%AB%E8%A7%A3%E5%86%B3%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="toc-text">一、三类方案分别解决什么问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%9B%BE%E5%83%8F%E6%91%98%E8%A6%81%E5%92%8C%E5%9B%BE%E5%83%8F%E5%B5%8C%E5%85%A5%E6%80%8E%E4%B9%88%E9%80%89"><span class="toc-text">二、图像摘要和图像嵌入怎么选</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%9B%BE%E5%83%8F%E5%85%83%E6%95%B0%E6%8D%AE%E8%87%B3%E5%B0%91%E8%A6%81%E4%BF%9D%E5%AD%98%E4%BB%80%E4%B9%88"><span class="toc-text">三、图像元数据至少要保存什么</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%9B%E3%80%81LightRAG-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BC%95%E5%85%A5%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1"><span class="toc-text">四、LightRAG 为什么引入知识图谱</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%94%E3%80%81RAG-Anything-%E5%A6%82%E4%BD%95%E7%BB%84%E7%BB%87%E5%A4%9A%E6%A0%BC%E5%BC%8F%E6%96%87%E6%A1%A3"><span class="toc-text">五、RAG-Anything 如何组织多格式文档</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E6%88%91%E9%87%87%E7%94%A8%E7%9A%84%E5%B7%A5%E7%A8%8B%E9%93%BE%E8%B7%AF"><span class="toc-text">六、我采用的工程链路</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%A4%9A%E6%A8%A1%E6%80%81-RAG-%E5%BA%94%E8%AF%A5%E6%80%8E%E6%A0%B7%E8%AF%84%E6%B5%8B"><span class="toc-text">七、多模态 RAG 应该怎样评测</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E5%B8%B8%E8%A7%81%E8%AF%AF%E5%8C%BA"><span class="toc-text">八、常见误区</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90"><span class="toc-text">相关资源</span></a></li></ol></nav>
+      </div>
+    </dialog>
+  
+</article>
+
+    </main>
+    <footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">
+      <strong>NokiaX300</strong>
+      <span>© 2026</span>
+      
+        <span class="site-footer__motto">为世界上所有的美好而战 | May all the beauty be blessed</span>
+      
+    </div>
+    <nav aria-label="页脚导航">
+      <a href="https://github.com/NokiaX300" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="/archives/">归档</a>
+      <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="license noopener noreferrer">CC BY-NC-SA 4.0</a>
+    </nav>
+  </div>
+</footer>
+
+    <dialog
+  class="search-dialog"
+  data-search-dialog
+  data-search-endpoint="/search.json"
+  data-search-max-results="8"
+  aria-labelledby="search-title"
+>
+  <div class="search-dialog__panel">
+    <header class="search-dialog__header">
+      <h2 id="search-title">搜索文章</h2>
+      <button class="icon-button" type="button" data-search-close aria-label="关闭搜索"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+    </header>
+    <form class="search-form" role="search" data-search-form>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+      <input
+        type="search"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="输入标题、正文、分类或标签"
+        aria-label="搜索文章"
+        data-search-input
+      >
+      <kbd>Esc</kbd>
+    </form>
+    <p class="search-status" data-search-status>输入关键词开始搜索</p>
+    <div class="search-results" data-search-results></div>
+  </div>
+</dialog>
+
+    <button class="back-to-top" type="button" data-back-to-top aria-label="返回顶部">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 14 6-6 6 6"/></svg>
+    </button>
+    <script src="/js/x300.js" defer></script>
+  </body>
+</html>

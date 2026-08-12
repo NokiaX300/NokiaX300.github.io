@@ -1,0 +1,443 @@
+
+<!doctype html>
+<html lang="zh-CN">
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5f5f2">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111211">
+  <meta name="color-scheme" content="light dark">
+  <title>从实体关系到多跳问答：GraphRAG 与复杂问答构建实践 · NokiaX300</title>
+  <meta name="description" content="从实体关系抽取、社区检索到知识图谱驱动的多跳问答与推理轨迹，梳理 GraphRAG 的工程路径">
+  <script>
+    (() => {
+      try {
+        const selected = localStorage.getItem('x300-theme');
+        if (selected === 'light' || selected === 'dark') {
+          document.documentElement.dataset.theme = selected;
+        }
+      } catch (_) {}
+    })();
+  </script>
+  
+    <meta name="description" content="从实体关系抽取、社区检索到知识图谱驱动的多跳问答与推理轨迹，梳理 GraphRAG 的工程路径">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从实体关系到多跳问答：GraphRAG 与复杂问答构建实践">
+<meta property="og:url" content="https://nokiax300.github.io/2026/07/31/GraphRAG%E4%B8%8E%E5%A4%8D%E6%9D%82%E9%97%AE%E7%AD%94%E6%9E%84%E5%BB%BA%E5%AE%9E%E8%B7%B5/">
+<meta property="og:site_name" content="NokiaX300">
+<meta property="og:description" content="从实体关系抽取、社区检索到知识图谱驱动的多跳问答与推理轨迹，梳理 GraphRAG 的工程路径">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://nokiax300.github.io/images/avatar.jpg">
+<meta property="article:published_time" content="2026-07-30T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-08-12T02:48:21.478Z">
+<meta property="article:author" content="Nokia">
+<meta property="article:tag" content="Agent">
+<meta property="article:tag" content="GraphRAG">
+<meta property="article:tag" content="RAG">
+<meta property="article:tag" content="知识图谱">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nokiax300.github.io/images/avatar.jpg">
+  
+  <link rel="stylesheet" href="/css/x300.css">
+  <link rel="shortcut icon" href="/images/%E4%B8%89%E8%8A%B1%E7%8C%AB.svg">
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+  <body class="page-post">
+    <a class="skip-link" href="#main-content">跳到正文</a>
+    <div class="reading-progress" aria-hidden="true"><span data-reading-progress></span></div>
+    
+<header class="site-header" data-site-header>
+  <div class="site-header__inner">
+    <a class="brand" href="/" aria-label="NokiaX300 首页">
+      <img src="/images/avatar.jpg" width="460" height="460" alt="">
+      <span>NokiaX300</span>
+    </a>
+
+    <nav class="primary-nav" aria-label="主导航">
+      
+        <a href="/posts/">文章</a>
+      
+        <a href="/categories/">分类</a>
+      
+        <a href="/archives/">归档</a>
+      
+    </nav>
+
+    <div class="header-actions">
+      <button class="icon-button" type="button" data-search-open aria-label="搜索">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+      </button>
+      <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="切换明暗模式">
+        <span class="theme-toggle__sun"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></span>
+        <span class="theme-toggle__moon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.5A8.5 8.5 0 0 1 8.5 4 8.5 8.5 0 1 0 20 15.5Z"/></svg></span>
+      </button>
+      <button class="icon-button nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="mobile-navigation" aria-label="打开导航">
+        <span data-nav-icon-open><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span>
+        <span data-nav-icon-close hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></span>
+      </button>
+    </div>
+  </div>
+
+  <nav class="mobile-nav" id="mobile-navigation" data-mobile-nav aria-label="移动端导航" hidden>
+    
+      <a href="/posts/">文章</a>
+    
+      <a href="/categories/">分类</a>
+    
+      <a href="/archives/">归档</a>
+    
+  </nav>
+</header>
+
+    <main class="site-main" id="main-content">
+      
+<article class="article-page">
+  <header class="article-header">
+    
+      <a class="article-header__category" href="/categories/RAG-%E4%B8%8E%E7%9F%A5%E8%AF%86%E7%B3%BB%E7%BB%9F/">RAG 与知识系统</a>
+    
+    <h1>从实体关系到多跳问答：GraphRAG 与复杂问答构建实践</h1>
+    <p class="article-header__summary">从实体关系抽取、社区检索到知识图谱驱动的多跳问答与推理轨迹，梳理 GraphRAG 的工程路径</p>
+    <div class="article-meta">
+      <time datetime="2026-07-30T16:00:00.000Z">发布于 2026.07.31</time>
+      
+        <time datetime="2026-08-12T02:48:21.478Z">更新于 2026.08.12</time>
+      
+      <span>约 6 分钟</span>
+      
+        <button type="button" class="toc-trigger" data-toc-open><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4" cy="6" r=".8"/><circle cx="4" cy="12" r=".8"/><circle cx="4" cy="18" r=".8"/></svg>文章目录</button>
+      
+    </div>
+  </header>
+
+  <div class="reading-layout reading-layout--with-toc">
+    <div class="article-content"><p>传统 RAG 会把文档切成一组相对独立的 Chunk，再根据查询寻找相似内容。这种方法很适合定位局部事实，却不擅长处理跨文档关系、整体主题和多跳推理问题。</p>
+<p>GraphRAG 的思路，是把文本中的实体与关系组织成图。这样，检索不再只依赖「这段话像不像问题」，还可以沿着关系寻找相关实体、社区和证据。</p>
+<p>在 GraphRAG 实验与 MedResearcher-R1 的阅读和复现过程中，我进一步关注了一个问题：图谱除了用于检索，能否反过来生成可验证的复杂问答与推理轨迹？</p>
+<hr>
+<h4 id="一、向量检索与图检索分别擅长什么"><a href="#一、向量检索与图检索分别擅长什么" class="headerlink" title="一、向量检索与图检索分别擅长什么"></a>一、向量检索与图检索分别擅长什么</h4><table>
+<thead>
+<tr>
+<th>查询类型</th>
+<th>更适合的入口</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>局部事实</td>
+<td>向量/关键词检索</td>
+<td>某设备的维护周期是多少</td>
+</tr>
+<tr>
+<td>实体关系</td>
+<td>图检索</td>
+<td>设备、故障与处置措施之间有什么关系</td>
+</tr>
+<tr>
+<td>全局主题</td>
+<td>社区摘要或全局图检索</td>
+<td>一批报告反映出哪些共同风险</td>
+</tr>
+<tr>
+<td>多跳问题</td>
+<td>图路径 + 原文证据</td>
+<td>A 如何通过 B 和 C 影响 D</td>
+</tr>
+</tbody></table>
+<p>GraphRAG 不应完全取代向量检索。更实用的工程方案，是先用图结构发现关系和全局线索，再回到原始 Chunk 获取精确证据。</p>
+<hr>
+<h4 id="二、GraphRAG-的基本索引流程"><a href="#二、GraphRAG-的基本索引流程" class="headerlink" title="二、GraphRAG 的基本索引流程"></a>二、GraphRAG 的基本索引流程</h4><figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">原始文档</span><br><span class="line">  ↓ 解析与分块</span><br><span class="line">文本 Chunk</span><br><span class="line">  ↓ 实体与关系抽取</span><br><span class="line">Entity + Relationship</span><br><span class="line">  ↓ 聚类</span><br><span class="line">Community</span><br><span class="line">  ↓ 摘要</span><br><span class="line">Community Report</span><br><span class="line">  ↓</span><br><span class="line">图索引 + 向量索引 + 原文映射</span><br></pre></td></tr></tbody></table></figure>
+
+<p>实践中最重要的并不是节点数量，而是实体与关系能否稳定、可追溯地对应原文。</p>
+<p>一条关系至少需要保存：</p>
+<figure class="highlight json"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">{</span></span><br><span class="line">  <span class="attr">"source_entity"</span><span class="punctuation">:</span> <span class="string">"设备 A"</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"relation"</span><span class="punctuation">:</span> <span class="string">"可能导致"</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"target_entity"</span><span class="punctuation">:</span> <span class="string">"风险 B"</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"source_file"</span><span class="punctuation">:</span> <span class="string">"report.pdf"</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"page"</span><span class="punctuation">:</span> <span class="number">12</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"chunk_id"</span><span class="punctuation">:</span> <span class="string">"report-p12-c03"</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"evidence"</span><span class="punctuation">:</span> <span class="string">"..."</span></span><br><span class="line"><span class="punctuation">}</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>如果图上的边无法回到文本证据，它就更像模型生成的观点，而不是可验证知识。</p>
+<hr>
+<h4 id="三、实体类型和-Prompt-决定图谱质量"><a href="#三、实体类型和-Prompt-决定图谱质量" class="headerlink" title="三、实体类型和 Prompt 决定图谱质量"></a>三、实体类型和 Prompt 决定图谱质量</h4><p>开始构建图谱之前，首先要回答：业务真正关心哪些对象和关系？</p>
+<p>实体类型过少，重要对象会被压缩成模糊概念；类型过多，又会产生大量重复项、别名和稀疏节点。</p>
+<p>抽取阶段常见问题包括：</p>
+<ul>
+<li>同一实体被不同名称重复创建；</li>
+<li>关系描述太自由，难以聚合；</li>
+<li>代词或省略主语导致错误连接；</li>
+<li>跨 Chunk 关系缺少上下文；</li>
+<li>模型根据常识补出原文不存在的边；</li>
+<li>时间和版本变化没有进入图结构。</li>
+</ul>
+<p><strong>先用小样本稳定实体类型、关系词和去重规则，再扩大索引规模。</strong></p>
+<hr>
+<h4 id="四、社区层级对应不同查询粒度"><a href="#四、社区层级对应不同查询粒度" class="headerlink" title="四、社区层级对应不同查询粒度"></a>四、社区层级对应不同查询粒度</h4><p>GraphRAG 会把关系密集的节点组织成社区，再为每个社区生成摘要报告。</p>
+<ul>
+<li>较低层社区靠近局部实体和具体证据；</li>
+<li>较高层社区适合概括主题、趋势和跨文档关系；</li>
+<li>全局问题可以聚合多个社区报告；</li>
+<li>局部问题仍应返回实体邻域和原始 Chunk。</li>
+</ul>
+<p>社区层级越高，摘要的信息压缩越强，也越容易丢失限定条件。因此，即使回答全局问题，也必须保留社区、实体与原文之间的映射。</p>
+<p>Microsoft GraphRAG 官方仓库也特别提醒，索引过程可能成本较高，且默认 Prompt 不一定适合自己的数据，应从小数据集和 Prompt Tuning 开始。</p>
+<hr>
+<h4 id="五、从图谱路径生成多跳问答"><a href="#五、从图谱路径生成多跳问答" class="headerlink" title="五、从图谱路径生成多跳问答"></a>五、从图谱路径生成多跳问答</h4><p>除了服务检索，知识图谱还可以反过来构造复杂问题：</p>
+<ol>
+<li>选择稀有但有代表性的种子实体；</li>
+<li>在主题约束下扩展邻居和关系；</li>
+<li>从子图中采样具有意义的关系链；</li>
+<li>根据路径生成问题、推理过程和答案；</li>
+<li>回到来源文本核验每一步；</li>
+<li>过滤含糊、不可回答或证据不足的样本。</li>
+</ol>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">实体 A ─关系 1→ 实体 B ─关系 2→ 实体 C</span><br><span class="line">   ↓</span><br><span class="line">问题：A 通过什么机制影响 C？</span><br><span class="line">   ↓</span><br><span class="line">答案：关系 1 + 关系 2，并附两段来源证据</span><br></pre></td></tr></tbody></table></figure>
+
+<p>最长路径并不等于最好的问题。链条越长，主题漂移、错误关系和证据缺失的概率也越高。</p>
+<hr>
+<h4 id="六、MedResearcher-R1-的-KISA-思路"><a href="#六、MedResearcher-R1-的-KISA-思路" class="headerlink" title="六、MedResearcher-R1 的 KISA 思路"></a>六、MedResearcher-R1 的 KISA 思路</h4><p>MedResearcher-R1 使用知识图谱辅助构造医学复杂问答与工具推理轨迹。它以知识驱动数据合成，整体思路可以概括为：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">医学语料 → 实体筛选 → 知识图谱</span><br><span class="line">       → 子图/长链采样 → 多跳问答</span><br><span class="line">       → 工具交互轨迹 → 训练与评测</span><br></pre></td></tr></tbody></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>主要工作</th>
+<th>质量门槛</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>稀有实体筛选</td>
+<td>从大规模医学实体中筛出具有代表性的长尾实体</td>
+<td>控制主题漂移和实体重复</td>
+</tr>
+<tr>
+<td>图谱构建</td>
+<td>围绕候选实体补充关系并形成局部知识图</td>
+<td>每条关系能够回到来源</td>
+</tr>
+<tr>
+<td>子图采样</td>
+<td>从稀有实体子图中抽取长链或多跳路径</td>
+<td>路径必须连通且具备问答价值</td>
+</tr>
+<tr>
+<td>问答生成</td>
+<td>将路径整理为 <code>question</code>、<code>reasoning</code> 和 <code>answer</code></td>
+<td>答案不能脱离路径证据</td>
+</tr>
+<tr>
+<td>质量复核</td>
+<td>使用独立模型或规则检查难度、事实和可回答性</td>
+<td>低质量样本重新生成</td>
+</tr>
+</tbody></table>
+<p>其中，掩码轨迹引导会抽象路径中的具体实体，同时保留关系结构和推理步骤，以减少模型直接记忆最终答案的捷径。</p>
+<p>论文报告了 12 个医学专科、2100 余条轨迹和平均 4.2 次工具交互等结果。这里把它作为方法案例理解，医学事实和基准结果仍应回到论文、代码与专业评审中核验。</p>
+<hr>
+<h4 id="七、一个可执行的问答生成系统"><a href="#七、一个可执行的问答生成系统" class="headerlink" title="七、一个可执行的问答生成系统"></a>七、一个可执行的问答生成系统</h4><p>要把这一思路落到工程中，可以拆成三个模块：</p>
+<p><strong>知识图谱构建</strong></p>
+<p>从输入主题或文档抽取实体、过滤重复节点、扩展关系，并限制主题漂移。</p>
+<p><strong>子图采样与 QA 生成</strong></p>
+<p>保存问题、答案、推理路径、原始子图、来源 Chunk 和无法确认的部分。</p>
+<p><strong>评估与轨迹生成</strong></p>
+<p>比较不同模型答案，检查事实、关系和引用；再将合格问题转换成包含思考、工具调用、观察与结论的训练轨迹。</p>
+<p>三个模块之间传递的，不应是一段无法审计的自由文本，而应是带来源的结构化产物：</p>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>主要输入</th>
+<th>必须保留的输出</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>图谱构建</td>
+<td>主题、文档与实体候选</td>
+<td>实体、关系、来源 Chunk、抽取时间</td>
+</tr>
+<tr>
+<td>QA 生成</td>
+<td>子图、长链路径与约束</td>
+<td>问题、答案、推理路径、原始子图</td>
+</tr>
+<tr>
+<td>评估与轨迹</td>
+<td>问答样本、证据与模型回答</td>
+<td>分项结论、失败类型、工具轨迹与引用</td>
+</tr>
+</tbody></table>
+<hr>
+<h4 id="八、怎样评估生成的复杂问答"><a href="#八、怎样评估生成的复杂问答" class="headerlink" title="八、怎样评估生成的复杂问答"></a>八、怎样评估生成的复杂问答</h4><p>生成结果不能只交给另一个模型打一个总分，至少还要逐项检查：</p>
+<ul>
+<li>问题是否明确且可以回答；</li>
+<li>难度是否来自真实多跳关系，而不是含糊措辞；</li>
+<li>每一步关系是否有原文证据；</li>
+<li>答案是否覆盖关键实体和限定条件；</li>
+<li>不同模型答案是否出现实质冲突；</li>
+<li>引用是否定位到正确文件、页码和 Chunk；</li>
+<li>删除某条关系后，问题是否仍然可以直接回答；</li>
+<li>实体顺序、时间和数值是否一致。</li>
+</ul>
+<p>原型中的一次三题小样本评估只有 1 题通过，平均分为 <code>0.33</code>。这个结果只用于暴露流程问题，不能作为模型能力基准；它反而说明，小样本、含糊问题和不稳定裁判会让总分迅速失去解释力。</p>
+<p>还可以把失败进一步拆成实体抽取错误、关系错误、路径采样错误、问题生成错误、检索失败和推理错误，并分别建立回归样本。</p>
+<hr>
+<h4 id="九、成本与风险"><a href="#九、成本与风险" class="headerlink" title="九、成本与风险"></a>九、成本与风险</h4><ul>
+<li>每个 Chunk 执行实体关系抽取会产生较高模型成本；</li>
+<li>图谱规模增大不代表知识质量提高；</li>
+<li>社区摘要可能压缩掉关键限定条件；</li>
+<li>自动生成关系容易引入没有来源的事实；</li>
+<li>图谱更新需要处理别名、版本、删除和引用关系；</li>
+<li>医学、法律等高风险领域必须经过专业核验；</li>
+<li>多模型评估不等于事实验证，模型可能共享相同错误。</li>
+</ul>
+<p><strong>图谱中的每个节点、关系、问题和答案都应尽可能回到原始来源。</strong></p>
+<hr>
+<h4 id="十、什么时候值得使用-GraphRAG"><a href="#十、什么时候值得使用-GraphRAG" class="headerlink" title="十、什么时候值得使用 GraphRAG"></a>十、什么时候值得使用 GraphRAG</h4><p>适合：</p>
+<ul>
+<li>问题经常涉及跨文档实体关系；</li>
+<li>需要全局主题和社区层面的总结；</li>
+<li>需要生成或评估多跳问答；</li>
+<li>图谱可以长期复用并持续治理。</li>
+</ul>
+<p>不一定适合：</p>
+<ul>
+<li>数据量很小且问题主要是局部事实；</li>
+<li>实体关系没有稳定定义；</li>
+<li>项目没有成本预算和质量评测；</li>
+<li>普通混合检索已经满足准确率和延迟目标。</li>
+</ul>
+<hr>
+<h4 id="相关资源"><a href="#相关资源" class="headerlink" title="相关资源"></a>相关资源</h4><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/microsoft/graphrag">Microsoft GraphRAG 官方仓库</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2508.14880">MedResearcher-R1 论文</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/AQ-MedAI/MedResearcher-R1">MedResearcher-R1 官方仓库</a></li>
+</ul>
+<hr>
+<blockquote>
+<p>GraphRAG 的价值不在于把所有文本变成一张巨大的图，而在于让真正重要的关系能够被检索、被解释，并回到证据。</p>
+</blockquote>
+</div>
+    
+      <aside class="desktop-toc" aria-label="文章目录">
+        <div class="desktop-toc__inner" data-desktop-toc>
+          <p>文章目录</p>
+          <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%90%91%E9%87%8F%E6%A3%80%E7%B4%A2%E4%B8%8E%E5%9B%BE%E6%A3%80%E7%B4%A2%E5%88%86%E5%88%AB%E6%93%85%E9%95%BF%E4%BB%80%E4%B9%88"><span class="toc-text">一、向量检索与图检索分别擅长什么</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E3%80%81GraphRAG-%E7%9A%84%E5%9F%BA%E6%9C%AC%E7%B4%A2%E5%BC%95%E6%B5%81%E7%A8%8B"><span class="toc-text">二、GraphRAG 的基本索引流程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%AE%9E%E4%BD%93%E7%B1%BB%E5%9E%8B%E5%92%8C-Prompt-%E5%86%B3%E5%AE%9A%E5%9B%BE%E8%B0%B1%E8%B4%A8%E9%87%8F"><span class="toc-text">三、实体类型和 Prompt 决定图谱质量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E7%A4%BE%E5%8C%BA%E5%B1%82%E7%BA%A7%E5%AF%B9%E5%BA%94%E4%B8%8D%E5%90%8C%E6%9F%A5%E8%AF%A2%E7%B2%92%E5%BA%A6"><span class="toc-text">四、社区层级对应不同查询粒度</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E4%BB%8E%E5%9B%BE%E8%B0%B1%E8%B7%AF%E5%BE%84%E7%94%9F%E6%88%90%E5%A4%9A%E8%B7%B3%E9%97%AE%E7%AD%94"><span class="toc-text">五、从图谱路径生成多跳问答</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AD%E3%80%81MedResearcher-R1-%E7%9A%84-KISA-%E6%80%9D%E8%B7%AF"><span class="toc-text">六、MedResearcher-R1 的 KISA 思路</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E4%B8%80%E4%B8%AA%E5%8F%AF%E6%89%A7%E8%A1%8C%E7%9A%84%E9%97%AE%E7%AD%94%E7%94%9F%E6%88%90%E7%B3%BB%E7%BB%9F"><span class="toc-text">七、一个可执行的问答生成系统</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E6%80%8E%E6%A0%B7%E8%AF%84%E4%BC%B0%E7%94%9F%E6%88%90%E7%9A%84%E5%A4%8D%E6%9D%82%E9%97%AE%E7%AD%94"><span class="toc-text">八、怎样评估生成的复杂问答</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E6%88%90%E6%9C%AC%E4%B8%8E%E9%A3%8E%E9%99%A9"><span class="toc-text">九、成本与风险</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E5%80%BC%E5%BE%97%E4%BD%BF%E7%94%A8-GraphRAG"><span class="toc-text">十、什么时候值得使用 GraphRAG</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90"><span class="toc-text">相关资源</span></a></li></ol>
+        </div>
+      </aside>
+    
+  </div>
+
+  <footer class="article-footer">
+    
+      <div class="article-tags" aria-label="文章标签">
+        <a href="/tags/Agent/">#Agent</a><a href="/tags/GraphRAG/">#GraphRAG</a><a href="/tags/%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1/">#知识图谱</a><a href="/tags/RAG/">#RAG</a>
+      </div>
+    
+
+    
+      <nav class="article-neighbors" aria-label="相邻文章">
+        
+        
+          <a href="/2026/07/12/LLM%E9%80%89%E6%8B%A9%E9%A2%98%E4%BD%8D%E7%BD%AE%E5%81%8F%E8%A7%81%E4%B8%8E%E6%8A%97%E5%81%8F%E8%AF%84%E6%B5%8B/"><small>下一篇</small><span>模型做选择题为什么总偏爱 A？</span></a>
+        
+      </nav>
+    
+
+    
+      <section class="related-posts" aria-labelledby="related-title">
+        <h2 id="related-title">相关文章</h2>
+        
+          <a href="/2026/05/17/%E5%A4%9A%E6%A8%A1%E6%80%81RAG%E5%AE%9E%E8%B7%B5/"><span>多模态 RAG 不只是给图片写摘要</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+        
+          <a href="/2026/06/14/%E9%95%BF%E6%96%87%E6%A1%A3%E9%97%AE%E7%AD%94%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93%E5%AE%9E%E8%B7%B5/"><span>长文档问答的正确拆法：解析、检索、多 Agent 推理与校验</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+        
+          <a href="/2026/04/19/%E4%B8%AD%E6%96%87RAG%E6%A3%80%E7%B4%A2%E5%AE%9E%E8%B7%B5/"><span>中文 RAG 检索怎么选：Embedding、Reranker 与 Qdrant</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+        
+      </section>
+    
+
+    
+      <section
+        class="comments"
+        aria-labelledby="comments-title"
+        data-giscus-container
+        data-giscus-src="https://giscus.app/client.js"
+        data-giscus-repo="NokiaX300/NokiaX300.github.io"
+        data-giscus-repo-id="R_kgDOQzv_Qg"
+        data-giscus-category="Announcements"
+        data-giscus-category-id="DIC_kwDOQzv_Qs4C0lNy"
+        data-giscus-mapping="pathname"
+        data-giscus-reactions-enabled="1"
+        data-giscus-input-position="top"
+        data-giscus-lang="zh-CN"
+        data-giscus-loading="lazy"
+      >
+        <h2 id="comments-title">评论</h2>
+        <p data-giscus-status>滚动到这里时加载评论。</p>
+      </section>
+    
+  </footer>
+
+  
+    <dialog class="toc-drawer" data-toc-dialog aria-labelledby="toc-drawer-title">
+      <div class="toc-drawer__panel">
+        <header>
+          <h2 id="toc-drawer-title">文章目录</h2>
+          <button class="icon-button" type="button" data-toc-close aria-label="关闭目录"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+        </header>
+        <nav data-mobile-toc><ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%90%91%E9%87%8F%E6%A3%80%E7%B4%A2%E4%B8%8E%E5%9B%BE%E6%A3%80%E7%B4%A2%E5%88%86%E5%88%AB%E6%93%85%E9%95%BF%E4%BB%80%E4%B9%88"><span class="toc-text">一、向量检索与图检索分别擅长什么</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E3%80%81GraphRAG-%E7%9A%84%E5%9F%BA%E6%9C%AC%E7%B4%A2%E5%BC%95%E6%B5%81%E7%A8%8B"><span class="toc-text">二、GraphRAG 的基本索引流程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%AE%9E%E4%BD%93%E7%B1%BB%E5%9E%8B%E5%92%8C-Prompt-%E5%86%B3%E5%AE%9A%E5%9B%BE%E8%B0%B1%E8%B4%A8%E9%87%8F"><span class="toc-text">三、实体类型和 Prompt 决定图谱质量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E7%A4%BE%E5%8C%BA%E5%B1%82%E7%BA%A7%E5%AF%B9%E5%BA%94%E4%B8%8D%E5%90%8C%E6%9F%A5%E8%AF%A2%E7%B2%92%E5%BA%A6"><span class="toc-text">四、社区层级对应不同查询粒度</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E4%BB%8E%E5%9B%BE%E8%B0%B1%E8%B7%AF%E5%BE%84%E7%94%9F%E6%88%90%E5%A4%9A%E8%B7%B3%E9%97%AE%E7%AD%94"><span class="toc-text">五、从图谱路径生成多跳问答</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AD%E3%80%81MedResearcher-R1-%E7%9A%84-KISA-%E6%80%9D%E8%B7%AF"><span class="toc-text">六、MedResearcher-R1 的 KISA 思路</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E4%B8%80%E4%B8%AA%E5%8F%AF%E6%89%A7%E8%A1%8C%E7%9A%84%E9%97%AE%E7%AD%94%E7%94%9F%E6%88%90%E7%B3%BB%E7%BB%9F"><span class="toc-text">七、一个可执行的问答生成系统</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E6%80%8E%E6%A0%B7%E8%AF%84%E4%BC%B0%E7%94%9F%E6%88%90%E7%9A%84%E5%A4%8D%E6%9D%82%E9%97%AE%E7%AD%94"><span class="toc-text">八、怎样评估生成的复杂问答</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E6%88%90%E6%9C%AC%E4%B8%8E%E9%A3%8E%E9%99%A9"><span class="toc-text">九、成本与风险</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E5%80%BC%E5%BE%97%E4%BD%BF%E7%94%A8-GraphRAG"><span class="toc-text">十、什么时候值得使用 GraphRAG</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90"><span class="toc-text">相关资源</span></a></li></ol></nav>
+      </div>
+    </dialog>
+  
+</article>
+
+    </main>
+    <footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">
+      <strong>NokiaX300</strong>
+      <span>© 2026</span>
+      
+        <span class="site-footer__motto">为世界上所有的美好而战 | May all the beauty be blessed</span>
+      
+    </div>
+    <nav aria-label="页脚导航">
+      <a href="https://github.com/NokiaX300" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="/archives/">归档</a>
+      <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="license noopener noreferrer">CC BY-NC-SA 4.0</a>
+    </nav>
+  </div>
+</footer>
+
+    <dialog
+  class="search-dialog"
+  data-search-dialog
+  data-search-endpoint="/search.json"
+  data-search-max-results="8"
+  aria-labelledby="search-title"
+>
+  <div class="search-dialog__panel">
+    <header class="search-dialog__header">
+      <h2 id="search-title">搜索文章</h2>
+      <button class="icon-button" type="button" data-search-close aria-label="关闭搜索"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+    </header>
+    <form class="search-form" role="search" data-search-form>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+      <input
+        type="search"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="输入标题、正文、分类或标签"
+        aria-label="搜索文章"
+        data-search-input
+      >
+      <kbd>Esc</kbd>
+    </form>
+    <p class="search-status" data-search-status>输入关键词开始搜索</p>
+    <div class="search-results" data-search-results></div>
+  </div>
+</dialog>
+
+    <button class="back-to-top" type="button" data-back-to-top aria-label="返回顶部">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 14 6-6 6 6"/></svg>
+    </button>
+    <script src="/js/x300.js" defer></script>
+  </body>
+</html>

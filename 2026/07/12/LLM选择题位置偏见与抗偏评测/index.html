@@ -1,0 +1,367 @@
+
+<!doctype html>
+<html lang="zh-CN">
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5f5f2">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111211">
+  <meta name="color-scheme" content="light dark">
+  <title>模型做选择题为什么总偏爱 A？ · NokiaX300</title>
+  <meta name="description" content="从选项轮换、语义作答到 PriDe 和 SCOPE，构建可审计的 LLM 选择题抗偏评测流程">
+  <script>
+    (() => {
+      try {
+        const selected = localStorage.getItem('x300-theme');
+        if (selected === 'light' || selected === 'dark') {
+          document.documentElement.dataset.theme = selected;
+        }
+      } catch (_) {}
+    })();
+  </script>
+  
+    <meta name="description" content="从选项轮换、语义作答到 PriDe 和 SCOPE，构建可审计的 LLM 选择题抗偏评测流程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="模型做选择题为什么总偏爱 A？">
+<meta property="og:url" content="https://nokiax300.github.io/2026/07/12/LLM%E9%80%89%E6%8B%A9%E9%A2%98%E4%BD%8D%E7%BD%AE%E5%81%8F%E8%A7%81%E4%B8%8E%E6%8A%97%E5%81%8F%E8%AF%84%E6%B5%8B/">
+<meta property="og:site_name" content="NokiaX300">
+<meta property="og:description" content="从选项轮换、语义作答到 PriDe 和 SCOPE，构建可审计的 LLM 选择题抗偏评测流程">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://nokiax300.github.io/images/avatar.jpg">
+<meta property="article:published_time" content="2026-07-11T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-08-12T02:48:24.601Z">
+<meta property="article:author" content="Nokia">
+<meta property="article:tag" content="Benchmark">
+<meta property="article:tag" content="LLM">
+<meta property="article:tag" content="位置偏见">
+<meta property="article:tag" content="模型评测">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nokiax300.github.io/images/avatar.jpg">
+  
+  <link rel="stylesheet" href="/css/x300.css">
+  <link rel="shortcut icon" href="/images/%E4%B8%89%E8%8A%B1%E7%8C%AB.svg">
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+  <body class="page-post">
+    <a class="skip-link" href="#main-content">跳到正文</a>
+    <div class="reading-progress" aria-hidden="true"><span data-reading-progress></span></div>
+    
+<header class="site-header" data-site-header>
+  <div class="site-header__inner">
+    <a class="brand" href="/" aria-label="NokiaX300 首页">
+      <img src="/images/avatar.jpg" width="460" height="460" alt="">
+      <span>NokiaX300</span>
+    </a>
+
+    <nav class="primary-nav" aria-label="主导航">
+      
+        <a href="/posts/">文章</a>
+      
+        <a href="/categories/">分类</a>
+      
+        <a href="/archives/">归档</a>
+      
+    </nav>
+
+    <div class="header-actions">
+      <button class="icon-button" type="button" data-search-open aria-label="搜索">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+      </button>
+      <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="切换明暗模式">
+        <span class="theme-toggle__sun"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></span>
+        <span class="theme-toggle__moon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.5A8.5 8.5 0 0 1 8.5 4 8.5 8.5 0 1 0 20 15.5Z"/></svg></span>
+      </button>
+      <button class="icon-button nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="mobile-navigation" aria-label="打开导航">
+        <span data-nav-icon-open><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span>
+        <span data-nav-icon-close hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></span>
+      </button>
+    </div>
+  </div>
+
+  <nav class="mobile-nav" id="mobile-navigation" data-mobile-nav aria-label="移动端导航" hidden>
+    
+      <a href="/posts/">文章</a>
+    
+      <a href="/categories/">分类</a>
+    
+      <a href="/archives/">归档</a>
+    
+  </nav>
+</header>
+
+    <main class="site-main" id="main-content">
+      
+<article class="article-page">
+  <header class="article-header">
+    
+      <a class="article-header__category" href="/categories/AI-%E4%B8%8E-Agent/">AI 与 Agent</a>
+    
+    <h1>模型做选择题为什么总偏爱 A？</h1>
+    <p class="article-header__summary">从选项轮换、语义作答到 PriDe 和 SCOPE，构建可审计的 LLM 选择题抗偏评测流程</p>
+    <div class="article-meta">
+      <time datetime="2026-07-11T16:00:00.000Z">发布于 2026.07.12</time>
+      
+        <time datetime="2026-08-12T02:48:24.601Z">更新于 2026.08.12</time>
+      
+      <span>约 5 分钟</span>
+      
+        <button type="button" class="toc-trigger" data-toc-open><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4" cy="6" r=".8"/><circle cx="4" cy="12" r=".8"/><circle cx="4" cy="18" r=".8"/></svg>文章目录</button>
+      
+    </div>
+  </header>
+
+  <div class="reading-layout reading-layout--with-toc">
+    <div class="article-content"><p>在使用选择题评测大语言模型时，我遇到过一个很容易被忽略的现象：同一道题只改变选项顺序，模型就可能给出不同答案；当正确答案位于 A 时，成绩甚至可能显著更高。</p>
+<p>这意味着最终分数混合了两类因素：模型是否真正理解知识，以及它是否偏爱某个选项标签或位置。</p>
+<p>因此，可靠的选择题评测既不能只跑一次固定顺序，也不能只依赖一句「不要受选项位置影响」的 Prompt。</p>
+<hr>
+<h4 id="一、位置偏见如何污染结果"><a href="#一、位置偏见如何污染结果" class="headerlink" title="一、位置偏见如何污染结果"></a>一、位置偏见如何污染结果</h4><p>假设同一道题有四个选项：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">版本 1：正确答案位于 A</span><br><span class="line">版本 2：同样内容移到 C</span><br><span class="line">版本 3：去掉 A/B/C/D，只保留文本</span><br></pre></td></tr></tbody></table></figure>
+
+<p>如果模型真正理解题目，三个版本指向的语义答案应当一致。但在实际测试中，模型可能表现出：</p>
+<ul>
+<li>偏好特定字母或编号；</li>
+<li>对靠前选项给予更高概率；</li>
+<li>选项重排后推理过程也随之变化；</li>
+<li>输出文字解释正确，却返回了错误字母；</li>
+<li>自报置信度很高，但不同排列之间不稳定。</li>
+</ul>
+<p>ICLR 2024 的 PriDe 论文将这类现象称为 selection bias，并通过置换选项内容，估计模型对 option ID 的先验偏好。</p>
+<hr>
+<h4 id="二、最低成本的基础检查"><a href="#二、最低成本的基础检查" class="headerlink" title="二、最低成本的基础检查"></a>二、最低成本的基础检查</h4><p>在引入复杂校正之前，可以先用三项低成本检查判断问题是否存在。</p>
+<p><strong>平衡正确答案位置</strong></p>
+<p>题库中的正确答案应在各位置近似均衡，避免数据分布本身制造偏差。</p>
+<p><strong>循环置换一小批题目</strong></p>
+<p>把同一题的选项轮换多次，观察语义答案是否稳定，并统计每个位置被选中的频率。</p>
+<p><strong>同时保存语义答案与选项 ID</strong></p>
+<p>不要只让模型返回 <code>A</code>。要求它输出所选内容、判断理由和最终 ID，便于区分知识错误与映射错误。</p>
+<p>这三步不能完全消除偏见，但能快速发现固定顺序评测是否可信。</p>
+<hr>
+<h4 id="三、去掉字母，让模型回答选项语义"><a href="#三、去掉字母，让模型回答选项语义" class="headerlink" title="三、去掉字母，让模型回答选项语义"></a>三、去掉字母，让模型回答选项语义</h4><p>一种实用方法是移除 A/B/C/D，让模型对每个候选内容分别判断：</p>
+<figure class="highlight json"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">{</span></span><br><span class="line">  <span class="attr">"items"</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">{</span><span class="attr">"content"</span><span class="punctuation">:</span> <span class="string">"选项的核心含义"</span><span class="punctuation">,</span> <span class="attr">"judgement"</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">,</span> <span class="attr">"confidence"</span><span class="punctuation">:</span> <span class="number">0.18</span><span class="punctuation">}</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">{</span><span class="attr">"content"</span><span class="punctuation">:</span> <span class="string">"选项的核心含义"</span><span class="punctuation">,</span> <span class="attr">"judgement"</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span>  <span class="attr">"confidence"</span><span class="punctuation">:</span> <span class="number">0.76</span><span class="punctuation">}</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"final_answer"</span><span class="punctuation">:</span> <span class="string">"被选中的完整语义"</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"reason"</span><span class="punctuation">:</span> <span class="string">"..."</span></span><br><span class="line"><span class="punctuation">}</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>随后，系统再通过严格文本匹配或语义相似度，将答案映射回原选项。</p>
+<p>这种方式既能减少字母线索，也能保留审计信息；但语义重述本身可能不稳定，当候选含义接近时，还会引入新的映射错误。</p>
+<p><strong>模型自报置信度通常没有校准，不能直接理解为真实概率。</strong></p>
+<hr>
+<h4 id="四、PriDe：估计并扣除选项先验"><a href="#四、PriDe：估计并扣除选项先验" class="headerlink" title="四、PriDe：估计并扣除选项先验"></a>四、PriDe：估计并扣除选项先验</h4><p>PriDe 的核心思路，是把观测到的选项概率拆成「题目内容」和「选项 ID 先验」两部分。</p>
+<p>简化后的工程流程：</p>
+<ol>
+<li>从同分布测试题中抽取一小部分校准集；</li>
+<li>对校准题多次置换选项内容；</li>
+<li>估计模型对 A/B/C/D 的先验概率；</li>
+<li>对剩余题目的原始概率进行先验校正；</li>
+<li>同时报告校正前和校正后的成绩。</li>
+</ol>
+<p>可以用下面的形式理解校正思想：</p>
+<figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">position_prior = [p_A, p_B, p_C, p_D]</span><br><span class="line">raw_confidence = [conf_A, conf_B, conf_C, conf_D]</span><br><span class="line"></span><br><span class="line">corrected = [</span><br><span class="line">    raw_confidence[i] / position_prior[i]</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">4</span>)</span><br><span class="line">]</span><br><span class="line">normalized = [value / <span class="built_in">sum</span>(corrected) <span class="keyword">for</span> value <span class="keyword">in</span> corrected]</span><br><span class="line">final_answer = argmax(normalized)</span><br></pre></td></tr></tbody></table></figure>
+
+<p>真正实现时仍需遵循论文的估计方式，并妥善处理归一化与数值稳定性。若模型接口不提供可比较的 token 概率，就只能采用多次采样频率或其他近似，成本和方差也会随之增加。</p>
+<hr>
+<h4 id="五、SCOPE：在题库排布阶段对抗偏好"><a href="#五、SCOPE：在题库排布阶段对抗偏好" class="headerlink" title="五、SCOPE：在题库排布阶段对抗偏好"></a>五、SCOPE：在题库排布阶段对抗偏好</h4><p>SCOPE 则从选项放置的角度降低位置偏差，其思路可以概括为：</p>
+<ol>
+<li>计算正确答案与干扰项之间的语义相似度；</li>
+<li>找到最容易混淆的干扰项；</li>
+<li>根据已测得的位置偏好进行随机或反偏放置；</li>
+<li>减少显式字母线索；</li>
+<li>将模型语义答案映射回原选项。</li>
+</ol>
+<p>需要警惕的是，如果永远不把正确答案放在首位，同样会制造新的分布偏差。更稳妥的做法，是平衡位置、随机化排列，或根据已经测得的先验进行反向加权。</p>
+<hr>
+<h4 id="六、我采用的分层评测流程"><a href="#六、我采用的分层评测流程" class="headerlink" title="六、我采用的分层评测流程"></a>六、我采用的分层评测流程</h4><table>
+<thead>
+<tr>
+<th>层级</th>
+<th>主要措施</th>
+<th>目的</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>输入层</td>
+<td>平衡或随机排布、去掉字母</td>
+<td>减少位置和标签线索</td>
+</tr>
+<tr>
+<td>作答层</td>
+<td>逐项判断、语义答案、理由</td>
+<td>保留可审计输出</td>
+</tr>
+<tr>
+<td>校正层</td>
+<td>PriDe 或置换频率</td>
+<td>抵消剩余选项先验</td>
+</tr>
+<tr>
+<td>映射层</td>
+<td>严格匹配与语义复核</td>
+<td>避免答案还原错误</td>
+</tr>
+<tr>
+<td>统计层</td>
+<td>多随机种子、置信区间</td>
+<td>衡量结果稳定性</td>
+</tr>
+</tbody></table>
+<p>低成本起点可以采用：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">平衡选项位置</span><br><span class="line">+ 小比例循环置换</span><br><span class="line">+ 输出完整语义答案</span><br><span class="line">+ 逐项判断</span><br><span class="line">+ 映射复核</span><br></pre></td></tr></tbody></table></figure>
+
+<p>只有当接口支持概率输出、且评测要求足够高时，才有必要加入完整的先验校正。</p>
+<hr>
+<h4 id="七、报告中应该包含哪些结果"><a href="#七、报告中应该包含哪些结果" class="headerlink" title="七、报告中应该包含哪些结果"></a>七、报告中应该包含哪些结果</h4><ul>
+<li>原始准确率与校正后准确率；</li>
+<li>各位置作为正确答案时的准确率；</li>
+<li>模型对各位置的选择率；</li>
+<li>同一道题不同排列的一致率；</li>
+<li>语义答案与字母答案不一致的比例；</li>
+<li>知识错误、位置错误和映射错误的数量；</li>
+<li>模型、Prompt、温度、随机种子和题库版本；</li>
+<li>校准集大小、置换方式和额外推理成本。</li>
+</ul>
+<p>一旦模型版本、Prompt 或输出模板发生变化，都应重新测量位置先验。</p>
+<hr>
+<h4 id="八、这套方法的边界"><a href="#八、这套方法的边界" class="headerlink" title="八、这套方法的边界"></a>八、这套方法的边界</h4><ul>
+<li>PriDe 依赖可比较的选项概率或可靠近似；</li>
+<li>文本答案有时比首 token 概率更稳定，两者应分别检查；</li>
+<li>语义映射器本身也会引入误差；</li>
+<li>使用正确答案指导选项放置只适用于离线评测；</li>
+<li>选择题稳定不代表模型具备真实场景能力；</li>
+<li>抗偏后的高分仍需结合开放问答和任务评测解释。</li>
+</ul>
+<hr>
+<h4 id="相关论文"><a href="#相关论文" class="headerlink" title="相关论文"></a>相关论文</h4><ul>
+<li><a target="_blank" rel="noopener" href="https://proceedings.iclr.cc/paper_files/paper/2024/hash/54dd9e0cff6d9214e20d97eb2a3bae49-Abstract-Conference.html">Large Language Models Are Not Robust Multiple Choice Selectors（PriDe，ICLR 2024）</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2507.18182">SCOPE: Stochastic and Counterbiased Option Placement</a></li>
+</ul>
+<hr>
+<blockquote>
+<p>选择题评测真正要测的是模型对内容的判断，而不是它对 A、B、C、D 的习惯。</p>
+</blockquote>
+</div>
+    
+      <aside class="desktop-toc" aria-label="文章目录">
+        <div class="desktop-toc__inner" data-desktop-toc>
+          <p>文章目录</p>
+          <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E4%BD%8D%E7%BD%AE%E5%81%8F%E8%A7%81%E5%A6%82%E4%BD%95%E6%B1%A1%E6%9F%93%E7%BB%93%E6%9E%9C"><span class="toc-text">一、位置偏见如何污染结果</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E6%9C%80%E4%BD%8E%E6%88%90%E6%9C%AC%E7%9A%84%E5%9F%BA%E7%A1%80%E6%A3%80%E6%9F%A5"><span class="toc-text">二、最低成本的基础检查</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%8E%BB%E6%8E%89%E5%AD%97%E6%AF%8D%EF%BC%8C%E8%AE%A9%E6%A8%A1%E5%9E%8B%E5%9B%9E%E7%AD%94%E9%80%89%E9%A1%B9%E8%AF%AD%E4%B9%89"><span class="toc-text">三、去掉字母，让模型回答选项语义</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%9B%E3%80%81PriDe%EF%BC%9A%E4%BC%B0%E8%AE%A1%E5%B9%B6%E6%89%A3%E9%99%A4%E9%80%89%E9%A1%B9%E5%85%88%E9%AA%8C"><span class="toc-text">四、PriDe：估计并扣除选项先验</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%94%E3%80%81SCOPE%EF%BC%9A%E5%9C%A8%E9%A2%98%E5%BA%93%E6%8E%92%E5%B8%83%E9%98%B6%E6%AE%B5%E5%AF%B9%E6%8A%97%E5%81%8F%E5%A5%BD"><span class="toc-text">五、SCOPE：在题库排布阶段对抗偏好</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E6%88%91%E9%87%87%E7%94%A8%E7%9A%84%E5%88%86%E5%B1%82%E8%AF%84%E6%B5%8B%E6%B5%81%E7%A8%8B"><span class="toc-text">六、我采用的分层评测流程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E6%8A%A5%E5%91%8A%E4%B8%AD%E5%BA%94%E8%AF%A5%E5%8C%85%E5%90%AB%E5%93%AA%E4%BA%9B%E7%BB%93%E6%9E%9C"><span class="toc-text">七、报告中应该包含哪些结果</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E8%BF%99%E5%A5%97%E6%96%B9%E6%B3%95%E7%9A%84%E8%BE%B9%E7%95%8C"><span class="toc-text">八、这套方法的边界</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E8%AE%BA%E6%96%87"><span class="toc-text">相关论文</span></a></li></ol>
+        </div>
+      </aside>
+    
+  </div>
+
+  <footer class="article-footer">
+    
+      <div class="article-tags" aria-label="文章标签">
+        <a href="/tags/LLM/">#LLM</a><a href="/tags/%E6%A8%A1%E5%9E%8B%E8%AF%84%E6%B5%8B/">#模型评测</a><a href="/tags/%E4%BD%8D%E7%BD%AE%E5%81%8F%E8%A7%81/">#位置偏见</a><a href="/tags/Benchmark/">#Benchmark</a>
+      </div>
+    
+
+    
+      <nav class="article-neighbors" aria-label="相邻文章">
+        
+          <a href="/2026/07/31/GraphRAG%E4%B8%8E%E5%A4%8D%E6%9D%82%E9%97%AE%E7%AD%94%E6%9E%84%E5%BB%BA%E5%AE%9E%E8%B7%B5/"><small>上一篇</small><span>从实体关系到多跳问答：GraphRAG 与复杂问答构建实践</span></a>
+        
+        
+          <a href="/2026/07/02/WSL2%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE%E6%95%99%E7%A8%8B/"><small>下一篇</small><span>把 Linux 开发环境装进 Windows：WSL2 安装、迁移与 Cursor 连接</span></a>
+        
+      </nav>
+    
+
+    
+      <section class="related-posts" aria-labelledby="related-title">
+        <h2 id="related-title">相关文章</h2>
+        
+          <a href="/2026/02/22/AgentSkills%E9%A1%B9%E7%9B%AE%E5%8C%96%E5%AE%9E%E8%B7%B5/"><span>把 Agent 做成工程：从 Spec、Ticket、TDD 到可验证交付</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+        
+          <a href="/2026/01/27/AgentSkills%E5%85%A5%E9%97%A8/"><span>把能力封装成 Skill：Agent Skills 的结构、加载机制与边界</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+        
+      </section>
+    
+
+    
+      <section
+        class="comments"
+        aria-labelledby="comments-title"
+        data-giscus-container
+        data-giscus-src="https://giscus.app/client.js"
+        data-giscus-repo="NokiaX300/NokiaX300.github.io"
+        data-giscus-repo-id="R_kgDOQzv_Qg"
+        data-giscus-category="Announcements"
+        data-giscus-category-id="DIC_kwDOQzv_Qs4C0lNy"
+        data-giscus-mapping="pathname"
+        data-giscus-reactions-enabled="1"
+        data-giscus-input-position="top"
+        data-giscus-lang="zh-CN"
+        data-giscus-loading="lazy"
+      >
+        <h2 id="comments-title">评论</h2>
+        <p data-giscus-status>滚动到这里时加载评论。</p>
+      </section>
+    
+  </footer>
+
+  
+    <dialog class="toc-drawer" data-toc-dialog aria-labelledby="toc-drawer-title">
+      <div class="toc-drawer__panel">
+        <header>
+          <h2 id="toc-drawer-title">文章目录</h2>
+          <button class="icon-button" type="button" data-toc-close aria-label="关闭目录"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+        </header>
+        <nav data-mobile-toc><ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E4%BD%8D%E7%BD%AE%E5%81%8F%E8%A7%81%E5%A6%82%E4%BD%95%E6%B1%A1%E6%9F%93%E7%BB%93%E6%9E%9C"><span class="toc-text">一、位置偏见如何污染结果</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E6%9C%80%E4%BD%8E%E6%88%90%E6%9C%AC%E7%9A%84%E5%9F%BA%E7%A1%80%E6%A3%80%E6%9F%A5"><span class="toc-text">二、最低成本的基础检查</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%8E%BB%E6%8E%89%E5%AD%97%E6%AF%8D%EF%BC%8C%E8%AE%A9%E6%A8%A1%E5%9E%8B%E5%9B%9E%E7%AD%94%E9%80%89%E9%A1%B9%E8%AF%AD%E4%B9%89"><span class="toc-text">三、去掉字母，让模型回答选项语义</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%9B%E3%80%81PriDe%EF%BC%9A%E4%BC%B0%E8%AE%A1%E5%B9%B6%E6%89%A3%E9%99%A4%E9%80%89%E9%A1%B9%E5%85%88%E9%AA%8C"><span class="toc-text">四、PriDe：估计并扣除选项先验</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%94%E3%80%81SCOPE%EF%BC%9A%E5%9C%A8%E9%A2%98%E5%BA%93%E6%8E%92%E5%B8%83%E9%98%B6%E6%AE%B5%E5%AF%B9%E6%8A%97%E5%81%8F%E5%A5%BD"><span class="toc-text">五、SCOPE：在题库排布阶段对抗偏好</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E6%88%91%E9%87%87%E7%94%A8%E7%9A%84%E5%88%86%E5%B1%82%E8%AF%84%E6%B5%8B%E6%B5%81%E7%A8%8B"><span class="toc-text">六、我采用的分层评测流程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E6%8A%A5%E5%91%8A%E4%B8%AD%E5%BA%94%E8%AF%A5%E5%8C%85%E5%90%AB%E5%93%AA%E4%BA%9B%E7%BB%93%E6%9E%9C"><span class="toc-text">七、报告中应该包含哪些结果</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E8%BF%99%E5%A5%97%E6%96%B9%E6%B3%95%E7%9A%84%E8%BE%B9%E7%95%8C"><span class="toc-text">八、这套方法的边界</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E8%AE%BA%E6%96%87"><span class="toc-text">相关论文</span></a></li></ol></nav>
+      </div>
+    </dialog>
+  
+</article>
+
+    </main>
+    <footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">
+      <strong>NokiaX300</strong>
+      <span>© 2026</span>
+      
+        <span class="site-footer__motto">为世界上所有的美好而战 | May all the beauty be blessed</span>
+      
+    </div>
+    <nav aria-label="页脚导航">
+      <a href="https://github.com/NokiaX300" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="/archives/">归档</a>
+      <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="license noopener noreferrer">CC BY-NC-SA 4.0</a>
+    </nav>
+  </div>
+</footer>
+
+    <dialog
+  class="search-dialog"
+  data-search-dialog
+  data-search-endpoint="/search.json"
+  data-search-max-results="8"
+  aria-labelledby="search-title"
+>
+  <div class="search-dialog__panel">
+    <header class="search-dialog__header">
+      <h2 id="search-title">搜索文章</h2>
+      <button class="icon-button" type="button" data-search-close aria-label="关闭搜索"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+    </header>
+    <form class="search-form" role="search" data-search-form>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+      <input
+        type="search"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="输入标题、正文、分类或标签"
+        aria-label="搜索文章"
+        data-search-input
+      >
+      <kbd>Esc</kbd>
+    </form>
+    <p class="search-status" data-search-status>输入关键词开始搜索</p>
+    <div class="search-results" data-search-results></div>
+  </div>
+</dialog>
+
+    <button class="back-to-top" type="button" data-back-to-top aria-label="返回顶部">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 14 6-6 6 6"/></svg>
+    </button>
+    <script src="/js/x300.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,519 @@
+
+<!doctype html>
+<html lang="zh-CN">
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5f5f2">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111211">
+  <meta name="color-scheme" content="light dark">
+  <title>中文 RAG 检索怎么选：Embedding、Reranker 与 Qdrant · NokiaX300</title>
+  <meta name="description" content="从业务黄金集到向量库参数，建立一套可复现的中文 RAG 检索评测与上线流程">
+  <script>
+    (() => {
+      try {
+        const selected = localStorage.getItem('x300-theme');
+        if (selected === 'light' || selected === 'dark') {
+          document.documentElement.dataset.theme = selected;
+        }
+      } catch (_) {}
+    })();
+  </script>
+  
+    <meta name="description" content="从业务黄金集到向量库参数，建立一套可复现的中文 RAG 检索评测与上线流程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="中文 RAG 检索怎么选：Embedding、Reranker 与 Qdrant">
+<meta property="og:url" content="https://nokiax300.github.io/2026/04/19/%E4%B8%AD%E6%96%87RAG%E6%A3%80%E7%B4%A2%E5%AE%9E%E8%B7%B5/">
+<meta property="og:site_name" content="NokiaX300">
+<meta property="og:description" content="从业务黄金集到向量库参数，建立一套可复现的中文 RAG 检索评测与上线流程">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://nokiax300.github.io/images/avatar.jpg">
+<meta property="article:published_time" content="2026-04-18T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-08-12T02:48:37.754Z">
+<meta property="article:author" content="Nokia">
+<meta property="article:tag" content="Embedding">
+<meta property="article:tag" content="Qdrant">
+<meta property="article:tag" content="RAG">
+<meta property="article:tag" content="向量检索">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nokiax300.github.io/images/avatar.jpg">
+  
+  <link rel="stylesheet" href="/css/x300.css">
+  <link rel="shortcut icon" href="/images/%E4%B8%89%E8%8A%B1%E7%8C%AB.svg">
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+  <body class="page-post">
+    <a class="skip-link" href="#main-content">跳到正文</a>
+    <div class="reading-progress" aria-hidden="true"><span data-reading-progress></span></div>
+    
+<header class="site-header" data-site-header>
+  <div class="site-header__inner">
+    <a class="brand" href="/" aria-label="NokiaX300 首页">
+      <img src="/images/avatar.jpg" width="460" height="460" alt="">
+      <span>NokiaX300</span>
+    </a>
+
+    <nav class="primary-nav" aria-label="主导航">
+      
+        <a href="/posts/">文章</a>
+      
+        <a href="/categories/">分类</a>
+      
+        <a href="/archives/">归档</a>
+      
+    </nav>
+
+    <div class="header-actions">
+      <button class="icon-button" type="button" data-search-open aria-label="搜索">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+      </button>
+      <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="切换明暗模式">
+        <span class="theme-toggle__sun"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></span>
+        <span class="theme-toggle__moon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.5A8.5 8.5 0 0 1 8.5 4 8.5 8.5 0 1 0 20 15.5Z"/></svg></span>
+      </button>
+      <button class="icon-button nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="mobile-navigation" aria-label="打开导航">
+        <span data-nav-icon-open><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span>
+        <span data-nav-icon-close hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></span>
+      </button>
+    </div>
+  </div>
+
+  <nav class="mobile-nav" id="mobile-navigation" data-mobile-nav aria-label="移动端导航" hidden>
+    
+      <a href="/posts/">文章</a>
+    
+      <a href="/categories/">分类</a>
+    
+      <a href="/archives/">归档</a>
+    
+  </nav>
+</header>
+
+    <main class="site-main" id="main-content">
+      
+<article class="article-page">
+  <header class="article-header">
+    
+      <a class="article-header__category" href="/categories/RAG-%E4%B8%8E%E7%9F%A5%E8%AF%86%E7%B3%BB%E7%BB%9F/">RAG 与知识系统</a>
+    
+    <h1>中文 RAG 检索怎么选：Embedding、Reranker 与 Qdrant</h1>
+    <p class="article-header__summary">从业务黄金集到向量库参数，建立一套可复现的中文 RAG 检索评测与上线流程</p>
+    <div class="article-meta">
+      <time datetime="2026-04-18T16:00:00.000Z">发布于 2026.04.19</time>
+      
+        <time datetime="2026-08-12T02:48:37.754Z">更新于 2026.08.12</time>
+      
+      <span>约 6 分钟</span>
+      
+        <button type="button" class="toc-trigger" data-toc-open><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4" cy="6" r=".8"/><circle cx="4" cy="12" r=".8"/><circle cx="4" cy="18" r=".8"/></svg>文章目录</button>
+      
+    </div>
+  </header>
+
+  <div class="reading-layout reading-layout--with-toc">
+    <div class="article-content"><p>搭建 RAG 时，最容易的做法是从榜单上挑一个 Embedding 模型，再把向量写进数据库。真正困难的问题是：面对我的中文文档、真实问法和过滤条件，它是否真的比另一个模型更好？</p>
+<p>我早期的 RAG 管线依次经历了 PDF 解析、Markdown 清洗、分块、Embedding、Qdrant 入库、检索和生成。经过多轮测试，我把模型选择与向量库配置整理成了一条可复现的评测流程。</p>
+<hr>
+<h4 id="一、检索质量从文档解析开始"><a href="#一、检索质量从文档解析开始" class="headerlink" title="一、检索质量从文档解析开始"></a>一、检索质量从文档解析开始</h4><p>一个完整链路是：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">原始文档</span><br><span class="line">  ↓ 解析与结构恢复</span><br><span class="line">Markdown/JSON</span><br><span class="line">  ↓ 语义分块</span><br><span class="line">Chunk + 标题 + 页码</span><br><span class="line">  ↓ Embedding</span><br><span class="line">向量 + Payload</span><br><span class="line">  ↓ Qdrant 检索与过滤</span><br><span class="line">候选结果</span><br><span class="line">  ↓ Reranker</span><br><span class="line">最终上下文</span><br></pre></td></tr></tbody></table></figure>
+
+<p>如果解析已经丢段、阅读顺序错误，或者分块没有标题和页码，再强的向量模型也无法恢复原始信息。</p>
+<p><strong>Embedding 决定“哪些内容看起来相关”，Payload 决定“结果能否被过滤和追溯”。</strong></p>
+<hr>
+<h4 id="二、不要先选模型，先做业务黄金集"><a href="#二、不要先选模型，先做业务黄金集" class="headerlink" title="二、不要先选模型，先做业务黄金集"></a>二、不要先选模型，先做业务黄金集</h4><p>公开榜单适合缩小候选范围，却不能代替本地评测。一个小型业务黄金集至少应包含：</p>
+<ul>
+<li>用户真实可能提出的中文问题；</li>
+<li>每个问题对应的相关文档和 Chunk；</li>
+<li>同义表达、口语化表达和缩写；</li>
+<li>容易混淆但不相关的困难负样本；</li>
+<li>需要元数据过滤的问题；</li>
+<li>没有答案的问题。</li>
+</ul>
+<p>第一版不必盲目追求规模。几十到几百个经过人工确认的问题，通常比数千条自动生成却未经核验的数据更有价值。</p>
+<p>需要固定并记录：</p>
+<ul>
+<li>原始文档版本；</li>
+<li>分块策略与 Chunk 大小；</li>
+<li>模型名称和版本；</li>
+<li>向量维度与归一化方式；</li>
+<li>查询模板；</li>
+<li>数据库参数和评测代码版本。</li>
+</ul>
+<hr>
+<h4 id="三、Embedding-模型应该比较什么"><a href="#三、Embedding-模型应该比较什么" class="headerlink" title="三、Embedding 模型应该比较什么"></a>三、Embedding 模型应该比较什么</h4><p>中文语义能力只是起点，还要同时考虑：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>需要回答的问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>检索质量</td>
+<td>相关内容能否进入 Top-K</td>
+</tr>
+<tr>
+<td>向量维度</td>
+<td>存储、内存和计算成本是否可接受</td>
+</tr>
+<tr>
+<td>上下文长度</td>
+<td>长 Chunk 是否会被截断</td>
+</tr>
+<tr>
+<td>吞吐与延迟</td>
+<td>入库和在线查询是否满足目标</td>
+</tr>
+<tr>
+<td>部署资源</td>
+<td>CPU/GPU、显存和并发要求</td>
+</tr>
+<tr>
+<td>许可证</td>
+<td>是否允许目标部署方式</td>
+</tr>
+</tbody></table>
+<p>下面保留一次本地黄金集实验的原始指标。由于数据集规模和分布有限，这些数字只能说明当前样本中的相对表现，不能替代新业务数据上的复测。</p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th align="right">MAP@1</th>
+<th align="right">MAP@3</th>
+<th align="right">MAP@5</th>
+<th align="right">MAP@10</th>
+<th align="right">MRR</th>
+<th align="right">nDCG@1</th>
+<th align="right">nDCG@3</th>
+<th align="right">nDCG@5</th>
+<th align="right">nDCG@10</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>BGE-Embedding</td>
+<td align="right">1.0000</td>
+<td align="right">0.9833</td>
+<td align="right">0.9693</td>
+<td align="right">0.9350</td>
+<td align="right">1.0000</td>
+<td align="right">0.7290</td>
+<td align="right">0.8339</td>
+<td align="right">0.8490</td>
+<td align="right">0.8878</td>
+</tr>
+<tr>
+<td>BGE-Embedding-BM42</td>
+<td align="right">1.0000</td>
+<td align="right">1.0000</td>
+<td align="right">0.9767</td>
+<td align="right">0.9259</td>
+<td align="right">1.0000</td>
+<td align="right">0.5871</td>
+<td align="right">0.7506</td>
+<td align="right">0.7815</td>
+<td align="right">0.8301</td>
+</tr>
+<tr>
+<td>Youtu-Embedding</td>
+<td align="right">1.0000</td>
+<td align="right">0.9667</td>
+<td align="right">0.9425</td>
+<td align="right">0.9162</td>
+<td align="right">1.0000</td>
+<td align="right">0.7806</td>
+<td align="right">0.7786</td>
+<td align="right">0.8597</td>
+<td align="right">0.8861</td>
+</tr>
+<tr>
+<td>Youtu-Embedding-BM42</td>
+<td align="right">1.0000</td>
+<td align="right">0.9833</td>
+<td align="right">0.9571</td>
+<td align="right">0.9001</td>
+<td align="right">1.0000</td>
+<td align="right">0.7806</td>
+<td align="right">0.7279</td>
+<td align="right">0.8201</td>
+<td align="right">0.8604</td>
+</tr>
+<tr>
+<td>Qwen3-Embedding-0.6B</td>
+<td align="right">1.0000</td>
+<td align="right">0.9833</td>
+<td align="right">0.9692</td>
+<td align="right">0.9590</td>
+<td align="right">1.0000</td>
+<td align="right">0.9097</td>
+<td align="right">0.8850</td>
+<td align="right">0.9291</td>
+<td align="right">0.9432</td>
+</tr>
+<tr>
+<td>Qwen3-Embedding-0.6B-BM42</td>
+<td align="right">1.0000</td>
+<td align="right">0.9833</td>
+<td align="right">0.9754</td>
+<td align="right">0.9230</td>
+<td align="right">1.0000</td>
+<td align="right">0.7161</td>
+<td align="right">0.7813</td>
+<td align="right">0.8121</td>
+<td align="right">0.8665</td>
+</tr>
+<tr>
+<td>Qwen3-Embedding-4B</td>
+<td align="right">1.0000</td>
+<td align="right">1.0000</td>
+<td align="right">0.9900</td>
+<td align="right">0.9772</td>
+<td align="right">1.0000</td>
+<td align="right">0.8323</td>
+<td align="right">0.8719</td>
+<td align="right">0.9014</td>
+<td align="right">0.9160</td>
+</tr>
+<tr>
+<td>Qwen3-Embedding-4B-BM42</td>
+<td align="right">1.0000</td>
+<td align="right">1.0000</td>
+<td align="right">0.9887</td>
+<td align="right">0.9371</td>
+<td align="right">1.0000</td>
+<td align="right">0.7806</td>
+<td align="right">0.8001</td>
+<td align="right">0.8279</td>
+<td align="right">0.8786</td>
+</tr>
+</tbody></table>
+<p>在这组结果中，<code>Qwen3-Embedding-0.6B</code> 的 nDCG 指标整体领先，<code>Qwen3-Embedding-4B</code> 的 MAP 指标更高。但多个模型的 MAP@1 与 MRR 都达到 <code>1.0</code>，也说明样本规模和区分度仍然有限。最终选择仍需结合延迟、显存、向量维度和实际 Top-K 召回来判断。</p>
+<p>常用指标包括：</p>
+<ul>
+<li><code>Recall@K</code>：相关结果是否进入前 K 个；</li>
+<li><code>MRR</code>：第一个相关结果出现得有多靠前；</li>
+<li><code>nDCG@K</code>：多个相关结果的排序质量；</li>
+<li>P50/P95 延迟：典型与尾部响应时间；</li>
+<li>吞吐、显存和向量存储体积。</li>
+</ul>
+<p>不同模型的相似度分数尺度不一定相同，不能拿一个模型的 <code>0.75</code> 与另一个模型的 <code>0.75</code> 直接比较。</p>
+<hr>
+<h4 id="四、什么时候需要-Reranker"><a href="#四、什么时候需要-Reranker" class="headerlink" title="四、什么时候需要 Reranker"></a>四、什么时候需要 Reranker</h4><p>Embedding 负责从大量 Chunk 中快速召回候选，Reranker 再对较小的候选集进行更细致的相关性排序。</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">向量检索 Top-50</span><br><span class="line">      ↓ Reranker</span><br><span class="line">保留 Top-5 或 Top-10</span><br></pre></td></tr></tbody></table></figure>
+
+<p>适合增加 Reranker 的情况：</p>
+<ul>
+<li>召回率不错，但前几名排序不稳定；</li>
+<li>文档中有大量相似条款或模板化段落；</li>
+<li>查询与答案需要更细粒度匹配；</li>
+<li>允许增加一定在线延迟。</li>
+</ul>
+<p>如果正确内容根本没有被 Embedding 召回，Reranker 也无法凭空找回。因此，应先确认 Recall@K，再决定是否继续优化排序。</p>
+<hr>
+<h4 id="五、Qdrant-集合设计"><a href="#五、Qdrant-集合设计" class="headerlink" title="五、Qdrant 集合设计"></a>五、Qdrant 集合设计</h4><p>创建 Collection 前必须固定向量维度和距离度量。Payload 则只保存检索、过滤和追溯真正需要的字段：</p>
+<figure class="highlight json"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">{</span></span><br><span class="line">  <span class="attr">"chunk_id"</span><span class="punctuation">:</span> <span class="string">"doc-001-p12-c03"</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"source_file"</span><span class="punctuation">:</span> <span class="string">"manual.pdf"</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"page"</span><span class="punctuation">:</span> <span class="number">12</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"heading"</span><span class="punctuation">:</span> <span class="string">"设备维护周期"</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"document_type"</span><span class="punctuation">:</span> <span class="string">"manual"</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"version"</span><span class="punctuation">:</span> <span class="string">"2026-07"</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"permission"</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">"engineering"</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"text"</span><span class="punctuation">:</span> <span class="string">"..."</span></span><br><span class="line"><span class="punctuation">}</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>大对象、原始图片和完整文件不应直接塞进 Payload，只保存稳定引用。经常参与过滤的字段应建立 Payload Index，并尽量在大批量数据进入前设计好。</p>
+<hr>
+<h4 id="六、HNSW-参数怎样影响检索"><a href="#六、HNSW-参数怎样影响检索" class="headerlink" title="六、HNSW 参数怎样影响检索"></a>六、HNSW 参数怎样影响检索</h4><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>增大后的典型效果</th>
+<th>主要代价</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>m</code></td>
+<td>图连接更丰富，召回可能提高</td>
+<td>内存和索引体积增加</td>
+</tr>
+<tr>
+<td><code>ef_construct</code></td>
+<td>建图搜索更充分</td>
+<td>建库时间增加</td>
+</tr>
+<tr>
+<td>查询 <code>hnsw_ef</code></td>
+<td>查询候选更多，召回可能提高</td>
+<td>查询延迟增加</td>
+</tr>
+</tbody></table>
+<p>这些参数不存在适用于所有数据的最佳值。真实数据量、向量维度、过滤比例和并发模式，都会改变召回与延迟的平衡。</p>
+<p>对于很小的集合，暴力搜索可能已经足够；当集合增长后，再比较 HNSW 的召回与延迟收益。</p>
+<hr>
+<h4 id="七、量化不是免费的压缩"><a href="#七、量化不是免费的压缩" class="headerlink" title="七、量化不是免费的压缩"></a>七、量化不是免费的压缩</h4><p>量化可以减少内存或提高搜索速度，但会引入近似误差。</p>
+<ul>
+<li>标量量化通常是较稳妥的起点；</li>
+<li>二值量化压缩更强，对数据分布与模型更敏感；</li>
+<li>应开启或比较原始向量重打分；</li>
+<li>评测必须同时记录召回、延迟、内存和磁盘。</li>
+</ul>
+<p>不要只因为数据能够放进内存，就认为量化配置已经成功。量化前后应使用同一黄金集对比，并特别观察困难查询是否率先退化。</p>
+<hr>
+<h4 id="八、一次完整的对比实验"><a href="#八、一次完整的对比实验" class="headerlink" title="八、一次完整的对比实验"></a>八、一次完整的对比实验</h4><p><strong>固定输入</strong></p>
+<p>锁定文档、分块、问题集和判定标准。</p>
+<p><strong>建立纯向量基线</strong></p>
+<p>分别测试候选 Embedding，记录 Recall@K、MRR、nDCG 和延迟。</p>
+<p><strong>增加过滤场景</strong></p>
+<p>测试文档类型、版本、权限、日期等真实过滤条件，并检查 Payload Index。</p>
+<p><strong>增加 Reranker</strong></p>
+<p>比较排序改善与额外延迟，不默认认为加入后一定更好。</p>
+<p><strong>压测索引参数与量化</strong></p>
+<p>同时记录建库时间、内存、磁盘、P95 延迟和召回变化。</p>
+<p><strong>做失败样本分析</strong></p>
+<p>把失败分成解析错误、分块错误、未召回、排序错误、过滤错误和生成错误，避免所有问题都归因于 Embedding。</p>
+<hr>
+<h4 id="九、模型升级必须按数据迁移处理"><a href="#九、模型升级必须按数据迁移处理" class="headerlink" title="九、模型升级必须按数据迁移处理"></a>九、模型升级必须按数据迁移处理</h4><p>更换 Embedding 模型后，即使向量维度相同，语义空间也已经改变，旧向量与新查询向量不能混用。</p>
+<p>更安全的流程是：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">建立新 Collection</span><br><span class="line">→ 使用新模型全量编码</span><br><span class="line">→ 回放黄金集和线上样本</span><br><span class="line">→ 灰度切换查询</span><br><span class="line">→ 保留旧 Collection 回滚</span><br><span class="line">→ 确认后再下线旧数据</span><br></pre></td></tr></tbody></table></figure>
+
+<p>不要在原 Collection 中悄悄混写两个模型生成的向量，否则问题往往会以难以解释的召回波动出现。</p>
+<hr>
+<h4 id="十、我的最终原则"><a href="#十、我的最终原则" class="headerlink" title="十、我的最终原则"></a>十、我的最终原则</h4><ul>
+<li>榜单只用于生成候选，不用于直接做结论；</li>
+<li>先建立业务黄金集，再讨论模型和参数；</li>
+<li>先看召回，再看排序，最后看生成；</li>
+<li>Payload 必须让每个结果回到原始证据；</li>
+<li>HNSW、量化和并发参数都用真实数据压测；</li>
+<li>任何模型升级都要有新索引和回滚方案。</li>
+</ul>
+<hr>
+<h4 id="相关资源"><a href="#相关资源" class="headerlink" title="相关资源"></a>相关资源</h4><ul>
+<li><a target="_blank" rel="noopener" href="https://qdrant.tech/documentation/manage-data/indexing/">Qdrant Indexing 文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://qdrant.tech/documentation/faq/qdrant-fundamentals/">Qdrant Fundamentals</a></li>
+</ul>
+<hr>
+<blockquote>
+<p>一个好的 RAG 检索系统，不是能返回几个看起来相似的段落，而是能够稳定召回正确证据，并解释为什么这段内容应该被返回。</p>
+</blockquote>
+</div>
+    
+      <aside class="desktop-toc" aria-label="文章目录">
+        <div class="desktop-toc__inner" data-desktop-toc>
+          <p>文章目录</p>
+          <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%A3%80%E7%B4%A2%E8%B4%A8%E9%87%8F%E4%BB%8E%E6%96%87%E6%A1%A3%E8%A7%A3%E6%9E%90%E5%BC%80%E5%A7%8B"><span class="toc-text">一、检索质量从文档解析开始</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E4%B8%8D%E8%A6%81%E5%85%88%E9%80%89%E6%A8%A1%E5%9E%8B%EF%BC%8C%E5%85%88%E5%81%9A%E4%B8%9A%E5%8A%A1%E9%BB%84%E9%87%91%E9%9B%86"><span class="toc-text">二、不要先选模型，先做业务黄金集</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%89%E3%80%81Embedding-%E6%A8%A1%E5%9E%8B%E5%BA%94%E8%AF%A5%E6%AF%94%E8%BE%83%E4%BB%80%E4%B9%88"><span class="toc-text">三、Embedding 模型应该比较什么</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E9%9C%80%E8%A6%81-Reranker"><span class="toc-text">四、什么时候需要 Reranker</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%94%E3%80%81Qdrant-%E9%9B%86%E5%90%88%E8%AE%BE%E8%AE%A1"><span class="toc-text">五、Qdrant 集合设计</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AD%E3%80%81HNSW-%E5%8F%82%E6%95%B0%E6%80%8E%E6%A0%B7%E5%BD%B1%E5%93%8D%E6%A3%80%E7%B4%A2"><span class="toc-text">六、HNSW 参数怎样影响检索</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E9%87%8F%E5%8C%96%E4%B8%8D%E6%98%AF%E5%85%8D%E8%B4%B9%E7%9A%84%E5%8E%8B%E7%BC%A9"><span class="toc-text">七、量化不是免费的压缩</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E4%B8%80%E6%AC%A1%E5%AE%8C%E6%95%B4%E7%9A%84%E5%AF%B9%E6%AF%94%E5%AE%9E%E9%AA%8C"><span class="toc-text">八、一次完整的对比实验</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E6%A8%A1%E5%9E%8B%E5%8D%87%E7%BA%A7%E5%BF%85%E9%A1%BB%E6%8C%89%E6%95%B0%E6%8D%AE%E8%BF%81%E7%A7%BB%E5%A4%84%E7%90%86"><span class="toc-text">九、模型升级必须按数据迁移处理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E6%88%91%E7%9A%84%E6%9C%80%E7%BB%88%E5%8E%9F%E5%88%99"><span class="toc-text">十、我的最终原则</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90"><span class="toc-text">相关资源</span></a></li></ol>
+        </div>
+      </aside>
+    
+  </div>
+
+  <footer class="article-footer">
+    
+      <div class="article-tags" aria-label="文章标签">
+        <a href="/tags/RAG/">#RAG</a><a href="/tags/Embedding/">#Embedding</a><a href="/tags/Qdrant/">#Qdrant</a><a href="/tags/%E5%90%91%E9%87%8F%E6%A3%80%E7%B4%A2/">#向量检索</a>
+      </div>
+    
+
+    
+      <nav class="article-neighbors" aria-label="相邻文章">
+        
+          <a href="/2026/05/11/%E7%BE%A4%E6%99%96NAS%E5%86%85%E7%BD%91%E9%83%A8%E7%BD%B2%E6%95%99%E5%AD%A6/"><small>上一篇</small><span>把 NAS 放进企业内网：群晖 DSM、权限隔离与目录导出</span></a>
+        
+        
+          <a href="/2026/03/22/MinerU%E6%96%87%E6%A1%A3%E8%A7%A3%E6%9E%90%E5%AE%9E%E8%B7%B5/"><small>下一篇</small><span>PDF 到 RAG 的第一公里：MinerU 部署、后端选择与解析质量评测</span></a>
+        
+      </nav>
+    
+
+    
+      <section class="related-posts" aria-labelledby="related-title">
+        <h2 id="related-title">相关文章</h2>
+        
+          <a href="/2026/07/31/GraphRAG%E4%B8%8E%E5%A4%8D%E6%9D%82%E9%97%AE%E7%AD%94%E6%9E%84%E5%BB%BA%E5%AE%9E%E8%B7%B5/"><span>从实体关系到多跳问答：GraphRAG 与复杂问答构建实践</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+        
+          <a href="/2026/06/14/%E9%95%BF%E6%96%87%E6%A1%A3%E9%97%AE%E7%AD%94%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93%E5%AE%9E%E8%B7%B5/"><span>长文档问答的正确拆法：解析、检索、多 Agent 推理与校验</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+        
+          <a href="/2026/05/17/%E5%A4%9A%E6%A8%A1%E6%80%81RAG%E5%AE%9E%E8%B7%B5/"><span>多模态 RAG 不只是给图片写摘要</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+        
+      </section>
+    
+
+    
+      <section
+        class="comments"
+        aria-labelledby="comments-title"
+        data-giscus-container
+        data-giscus-src="https://giscus.app/client.js"
+        data-giscus-repo="NokiaX300/NokiaX300.github.io"
+        data-giscus-repo-id="R_kgDOQzv_Qg"
+        data-giscus-category="Announcements"
+        data-giscus-category-id="DIC_kwDOQzv_Qs4C0lNy"
+        data-giscus-mapping="pathname"
+        data-giscus-reactions-enabled="1"
+        data-giscus-input-position="top"
+        data-giscus-lang="zh-CN"
+        data-giscus-loading="lazy"
+      >
+        <h2 id="comments-title">评论</h2>
+        <p data-giscus-status>滚动到这里时加载评论。</p>
+      </section>
+    
+  </footer>
+
+  
+    <dialog class="toc-drawer" data-toc-dialog aria-labelledby="toc-drawer-title">
+      <div class="toc-drawer__panel">
+        <header>
+          <h2 id="toc-drawer-title">文章目录</h2>
+          <button class="icon-button" type="button" data-toc-close aria-label="关闭目录"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+        </header>
+        <nav data-mobile-toc><ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%A3%80%E7%B4%A2%E8%B4%A8%E9%87%8F%E4%BB%8E%E6%96%87%E6%A1%A3%E8%A7%A3%E6%9E%90%E5%BC%80%E5%A7%8B"><span class="toc-text">一、检索质量从文档解析开始</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E4%B8%8D%E8%A6%81%E5%85%88%E9%80%89%E6%A8%A1%E5%9E%8B%EF%BC%8C%E5%85%88%E5%81%9A%E4%B8%9A%E5%8A%A1%E9%BB%84%E9%87%91%E9%9B%86"><span class="toc-text">二、不要先选模型，先做业务黄金集</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%89%E3%80%81Embedding-%E6%A8%A1%E5%9E%8B%E5%BA%94%E8%AF%A5%E6%AF%94%E8%BE%83%E4%BB%80%E4%B9%88"><span class="toc-text">三、Embedding 模型应该比较什么</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E9%9C%80%E8%A6%81-Reranker"><span class="toc-text">四、什么时候需要 Reranker</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%94%E3%80%81Qdrant-%E9%9B%86%E5%90%88%E8%AE%BE%E8%AE%A1"><span class="toc-text">五、Qdrant 集合设计</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AD%E3%80%81HNSW-%E5%8F%82%E6%95%B0%E6%80%8E%E6%A0%B7%E5%BD%B1%E5%93%8D%E6%A3%80%E7%B4%A2"><span class="toc-text">六、HNSW 参数怎样影响检索</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E9%87%8F%E5%8C%96%E4%B8%8D%E6%98%AF%E5%85%8D%E8%B4%B9%E7%9A%84%E5%8E%8B%E7%BC%A9"><span class="toc-text">七、量化不是免费的压缩</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E4%B8%80%E6%AC%A1%E5%AE%8C%E6%95%B4%E7%9A%84%E5%AF%B9%E6%AF%94%E5%AE%9E%E9%AA%8C"><span class="toc-text">八、一次完整的对比实验</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E6%A8%A1%E5%9E%8B%E5%8D%87%E7%BA%A7%E5%BF%85%E9%A1%BB%E6%8C%89%E6%95%B0%E6%8D%AE%E8%BF%81%E7%A7%BB%E5%A4%84%E7%90%86"><span class="toc-text">九、模型升级必须按数据迁移处理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E6%88%91%E7%9A%84%E6%9C%80%E7%BB%88%E5%8E%9F%E5%88%99"><span class="toc-text">十、我的最终原则</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90"><span class="toc-text">相关资源</span></a></li></ol></nav>
+      </div>
+    </dialog>
+  
+</article>
+
+    </main>
+    <footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">
+      <strong>NokiaX300</strong>
+      <span>© 2026</span>
+      
+        <span class="site-footer__motto">为世界上所有的美好而战 | May all the beauty be blessed</span>
+      
+    </div>
+    <nav aria-label="页脚导航">
+      <a href="https://github.com/NokiaX300" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="/archives/">归档</a>
+      <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="license noopener noreferrer">CC BY-NC-SA 4.0</a>
+    </nav>
+  </div>
+</footer>
+
+    <dialog
+  class="search-dialog"
+  data-search-dialog
+  data-search-endpoint="/search.json"
+  data-search-max-results="8"
+  aria-labelledby="search-title"
+>
+  <div class="search-dialog__panel">
+    <header class="search-dialog__header">
+      <h2 id="search-title">搜索文章</h2>
+      <button class="icon-button" type="button" data-search-close aria-label="关闭搜索"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+    </header>
+    <form class="search-form" role="search" data-search-form>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+      <input
+        type="search"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="输入标题、正文、分类或标签"
+        aria-label="搜索文章"
+        data-search-input
+      >
+      <kbd>Esc</kbd>
+    </form>
+    <p class="search-status" data-search-status>输入关键词开始搜索</p>
+    <div class="search-results" data-search-results></div>
+  </div>
+</dialog>
+
+    <button class="back-to-top" type="button" data-back-to-top aria-label="返回顶部">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 14 6-6 6 6"/></svg>
+    </button>
+    <script src="/js/x300.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,549 @@
+
+<!doctype html>
+<html lang="zh-CN">
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5f5f2">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111211">
+  <meta name="color-scheme" content="light dark">
+  <title>PDF 到 RAG 的第一公里：MinerU 部署、后端选择与解析质量评测 · NokiaX300</title>
+  <meta name="description" content="从 Pipeline、VLM 后端实测到跨页表格和质量门槛，梳理复杂文档进入 RAG 前的解析工程">
+  <script>
+    (() => {
+      try {
+        const selected = localStorage.getItem('x300-theme');
+        if (selected === 'light' || selected === 'dark') {
+          document.documentElement.dataset.theme = selected;
+        }
+      } catch (_) {}
+    })();
+  </script>
+  
+    <meta name="description" content="从 Pipeline、VLM 后端实测到跨页表格和质量门槛，梳理复杂文档进入 RAG 前的解析工程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PDF 到 RAG 的第一公里：MinerU 部署、后端选择与解析质量评测">
+<meta property="og:url" content="https://nokiax300.github.io/2026/03/22/MinerU%E6%96%87%E6%A1%A3%E8%A7%A3%E6%9E%90%E5%AE%9E%E8%B7%B5/">
+<meta property="og:site_name" content="NokiaX300">
+<meta property="og:description" content="从 Pipeline、VLM 后端实测到跨页表格和质量门槛，梳理复杂文档进入 RAG 前的解析工程">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://nokiax300.github.io/images/avatar.jpg">
+<meta property="article:published_time" content="2026-03-21T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-08-12T02:48:26.168Z">
+<meta property="article:author" content="Nokia">
+<meta property="article:tag" content="MinerU">
+<meta property="article:tag" content="OCR">
+<meta property="article:tag" content="RAG">
+<meta property="article:tag" content="文档解析">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nokiax300.github.io/images/avatar.jpg">
+  
+  <link rel="stylesheet" href="/css/x300.css">
+  <link rel="shortcut icon" href="/images/%E4%B8%89%E8%8A%B1%E7%8C%AB.svg">
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+  <body class="page-post">
+    <a class="skip-link" href="#main-content">跳到正文</a>
+    <div class="reading-progress" aria-hidden="true"><span data-reading-progress></span></div>
+    
+<header class="site-header" data-site-header>
+  <div class="site-header__inner">
+    <a class="brand" href="/" aria-label="NokiaX300 首页">
+      <img src="/images/avatar.jpg" width="460" height="460" alt="">
+      <span>NokiaX300</span>
+    </a>
+
+    <nav class="primary-nav" aria-label="主导航">
+      
+        <a href="/posts/">文章</a>
+      
+        <a href="/categories/">分类</a>
+      
+        <a href="/archives/">归档</a>
+      
+    </nav>
+
+    <div class="header-actions">
+      <button class="icon-button" type="button" data-search-open aria-label="搜索">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+      </button>
+      <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="切换明暗模式">
+        <span class="theme-toggle__sun"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></span>
+        <span class="theme-toggle__moon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.5A8.5 8.5 0 0 1 8.5 4 8.5 8.5 0 1 0 20 15.5Z"/></svg></span>
+      </button>
+      <button class="icon-button nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="mobile-navigation" aria-label="打开导航">
+        <span data-nav-icon-open><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span>
+        <span data-nav-icon-close hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></span>
+      </button>
+    </div>
+  </div>
+
+  <nav class="mobile-nav" id="mobile-navigation" data-mobile-nav aria-label="移动端导航" hidden>
+    
+      <a href="/posts/">文章</a>
+    
+      <a href="/categories/">分类</a>
+    
+      <a href="/archives/">归档</a>
+    
+  </nav>
+</header>
+
+    <main class="site-main" id="main-content">
+      
+<article class="article-page">
+  <header class="article-header">
+    
+      <a class="article-header__category" href="/categories/RAG-%E4%B8%8E%E7%9F%A5%E8%AF%86%E7%B3%BB%E7%BB%9F/">RAG 与知识系统</a>
+    
+    <h1>PDF 到 RAG 的第一公里：MinerU 部署、后端选择与解析质量评测</h1>
+    <p class="article-header__summary">从 Pipeline、VLM 后端实测到跨页表格和质量门槛，梳理复杂文档进入 RAG 前的解析工程</p>
+    <div class="article-meta">
+      <time datetime="2026-03-21T16:00:00.000Z">发布于 2026.03.22</time>
+      
+        <time datetime="2026-08-12T02:48:26.168Z">更新于 2026.08.12</time>
+      
+      <span>约 7 分钟</span>
+      
+        <button type="button" class="toc-trigger" data-toc-open><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4" cy="6" r=".8"/><circle cx="4" cy="12" r=".8"/><circle cx="4" cy="18" r=".8"/></svg>文章目录</button>
+      
+    </div>
+  </header>
+
+  <div class="reading-layout reading-layout--with-toc">
+    <div class="article-content"><p>许多 RAG 项目把注意力集中在向量模型、检索策略和大模型上，却忽略了链路最前端的文档解析。事实上，如果标题层级、段落顺序、表格或图片在解析阶段已经丢失，后续分块和检索就只能在错误输入上继续优化。</p>
+<p>我使用一组包含制度文档、长篇报告、复杂目录、图片、图例和跨页表格的 PDF，对 MinerU 的不同版本与后端进行了比较。本文整理这次部署与实测过程，并给出最终形成的解析质量门槛。</p>
+<blockquote>
+<p>本文中的速度、显存和质量观察来自特定版本、硬件及 10 份测试 PDF，只代表当时的工程记录，不应直接推广到其他环境。安装前请以 MinerU 官方仓库的当前说明为准。</p>
+</blockquote>
+<hr>
+<h4 id="一、文档解析在-RAG-中负责什么"><a href="#一、文档解析在-RAG-中负责什么" class="headerlink" title="一、文档解析在 RAG 中负责什么"></a>一、文档解析在 RAG 中负责什么</h4><p>合格的解析入口远不止「PDF 转文本」，还需要尽可能恢复：</p>
+<ul>
+<li>标题与正文层级；</li>
+<li>阅读顺序；</li>
+<li>图片、题注和图例；</li>
+<li>表格结构与跨页关系；</li>
+<li>公式、代码和脚注；</li>
+<li>页码、边界框和原始资产位置。</li>
+</ul>
+<p>这些结构决定了后续能否正确分块、生成可靠的检索元数据，并让最终回答回到原始证据。</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">PDF/Office</span><br><span class="line">    ↓ 文档解析</span><br><span class="line">结构化文本 + 图片 + 表格 + 公式 + 页码</span><br><span class="line">    ↓ 清洗与分块</span><br><span class="line">向量/关键词/图索引</span><br><span class="line">    ↓ 检索</span><br><span class="line">可回溯到原页的回答</span><br></pre></td></tr></tbody></table></figure>
+
+<hr>
+<h4 id="二、我比较了哪些后端"><a href="#二、我比较了哪些后端" class="headerlink" title="二、我比较了哪些后端"></a>二、我比较了哪些后端</h4><p>测试包含四条路径：</p>
+<table>
+<thead>
+<tr>
+<th>后端</th>
+<th>定位</th>
+<th>主要代价</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0.9 Pipeline</td>
+<td>历史基线</td>
+<td>长文档存在明显文本丢失风险</td>
+</tr>
+<tr>
+<td>2.1 Pipeline</td>
+<td>传统解析流水线</td>
+<td>速度快、资源占用相对较低</td>
+</tr>
+<tr>
+<td>2.1 VLM-Transformers</td>
+<td>视觉语言模型本地推理</td>
+<td>解析慢，适合验证</td>
+</tr>
+<tr>
+<td>2.1 VLM-SGLang</td>
+<td>独立 VLM 推理服务</td>
+<td>速度较好，但显存开销高</td>
+</tr>
+</tbody></table>
+<p>Pipeline 组合版面分析、OCR、公式和表格模型；VLM 路线则直接从页面视觉输入理解内容。两者不是简单的「旧方案与新方案」，而是速度、资源消耗与复杂页面完整性之间的不同取舍。</p>
+<hr>
+<h4 id="三、不能只比较解析耗时"><a href="#三、不能只比较解析耗时" class="headerlink" title="三、不能只比较解析耗时"></a>三、不能只比较解析耗时</h4><p>为了避免只比较一条耗时数字，我选取了 10 份曾经出现解析问题的 PDF，并同时记录以下维度：</p>
+<ul>
+<li>单文档耗时；</li>
+<li>文本是否丢句、丢段或生成多余字符；</li>
+<li>图片和图例召回；</li>
+<li>标题与目录层级；</li>
+<li>表格、跨页表格和脚注；</li>
+<li>GPU 显存与部署复杂度。</li>
+</ul>
+<p>下面是这组本地样本的单文档解析耗时，单位为秒。数据只用于比较当前硬件和版本下的相对差异，不能直接外推为通用性能结论。</p>
+<table>
+<thead>
+<tr>
+<th>测试文件</th>
+<th align="right">页数</th>
+<th align="right">0.9 Pipeline</th>
+<th align="right">2.1 Pipeline</th>
+<th align="right">2.1 VLM-Transformers</th>
+<th align="right">2.1 VLM-SGLang</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>安全办公会议制度</td>
+<td align="right">4</td>
+<td align="right">7.358</td>
+<td align="right">3.131</td>
+<td align="right">68.458</td>
+<td align="right">6.938</td>
+</tr>
+<tr>
+<td>安全操作规程管理制度</td>
+<td align="right">3</td>
+<td align="right">5.693</td>
+<td align="right">2.653</td>
+<td align="right">53.995</td>
+<td align="right">5.915</td>
+</tr>
+<tr>
+<td>安全管理机构及职责</td>
+<td align="right">2</td>
+<td align="right">4.111</td>
+<td align="right">2.130</td>
+<td align="right">31.722</td>
+<td align="right">3.064</td>
+</tr>
+<tr>
+<td>安全目标管理制度</td>
+<td align="right">4</td>
+<td align="right">7.850</td>
+<td align="right">3.193</td>
+<td align="right">61.073</td>
+<td align="right">4.106</td>
+</tr>
+<tr>
+<td>部门职责</td>
+<td align="right">68</td>
+<td align="right">118.421</td>
+<td align="right">33.264</td>
+<td align="right">930.000</td>
+<td align="right">39.954</td>
+</tr>
+<tr>
+<td>煤冲击倾向性鉴定报告</td>
+<td align="right">49</td>
+<td align="right">145.150</td>
+<td align="right">40.952</td>
+<td align="right">876.000</td>
+<td align="right">32.600</td>
+</tr>
+<tr>
+<td>“三不腐”体制机制指导意见</td>
+<td align="right">10</td>
+<td align="right">20.434</td>
+<td align="right">7.051</td>
+<td align="right">141.182</td>
+<td align="right">7.167</td>
+</tr>
+<tr>
+<td>会计政策</td>
+<td align="right">48</td>
+<td align="right">95.512</td>
+<td align="right">24.814</td>
+<td align="right">838.000</td>
+<td align="right">27.553</td>
+</tr>
+<tr>
+<td>采购管理办法</td>
+<td align="right">43</td>
+<td align="right">88.102</td>
+<td align="right">24.555</td>
+<td align="right">653.000</td>
+<td align="right">25.225</td>
+</tr>
+<tr>
+<td>任务公开制度</td>
+<td align="right">8</td>
+<td align="right">16.834</td>
+<td align="right">6.350</td>
+<td align="right">127.638</td>
+<td align="right">6.167</td>
+</tr>
+</tbody></table>
+<p>结合耗时与解析结果，可以得到几条局部结论：</p>
+<ul>
+<li>2.1 Pipeline 单任务速度最快，适合作为默认入口；</li>
+<li>VLM-Transformers 与 VLM-SGLang 的解析效果接近，但前者明显更慢；</li>
+<li>VLM-SGLang 速度接近 Pipeline，文本完整性更稳定，但占用更多显存；</li>
+<li>0.9 Pipeline 在多个长文档中出现大段文字丢失，不宜继续作为主路径。</li>
+</ul>
+<p>在该环境中，SGLang 总显存占用约 <code>68 GB</code>：调度进程约 <code>58.3 GB</code>，另外两个 Python 进程分别约占 <code>6.8 GB</code> 与 <code>2.9 GB</code>。这同样只是特定模型、版本和硬件下的观测值。</p>
+<p><strong>接口成功返回，只能说明程序没有报错，不能证明文档已经正确解析。</strong></p>
+<hr>
+<h4 id="四、解析质量最容易坏在哪里"><a href="#四、解析质量最容易坏在哪里" class="headerlink" title="四、解析质量最容易坏在哪里"></a>四、解析质量最容易坏在哪里</h4><p><strong>文本完整性</strong></p>
+<p>丢一行日志很容易发现，长报告中间悄悄少了几段却十分隐蔽。除了抽样阅读，还应比较页数、文本长度分布、异常空页和标题连续性。</p>
+<p><strong>图片与图例</strong></p>
+<p>图片可能被遗漏、跨页拆分或方向翻转，连续图例也可能被误判为附件。即使图片成功提取，也不代表它已经与题注和正文建立了正确关系。</p>
+<p><strong>阅读顺序</strong></p>
+<p>版面检测框只能告诉我们元素在哪里，并不等于正确的阅读顺序。双栏、侧栏和跨栏标题仍需结合坐标与区域类型重新组织。</p>
+<p>PP-DocLayout 等版面模型可以帮助定位标题、正文、表格、图片和公式，但检测结果仍需转换为可靠顺序：</p>
+<table>
+<thead>
+<tr>
+<th>检查项</th>
+<th>样本中的具体表现</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>短句完整性</td>
+<td>0.9 Pipeline 与 2.1 Pipeline 在个别制度文档中各出现过丢句</td>
+</tr>
+<tr>
+<td>长段完整性</td>
+<td>0.9 Pipeline 在《会计政策》《采购管理办法》等长文档中出现过大段缺失</td>
+</tr>
+<tr>
+<td>VLM 文本</td>
+<td>本次样本中未观察到同类文本丢失，但仍不能跳过抽检</td>
+</tr>
+<tr>
+<td>图片</td>
+<td>不同后端均有少量漏图，没有观察到方向翻转</td>
+</tr>
+<tr>
+<td>图例</td>
+<td>同版本后端结果接近，连续图例仍是共性短板</td>
+</tr>
+<tr>
+<td>标题层级</td>
+<td>所有后端都不完全可靠，需要检查父子层级和正文归属</td>
+</tr>
+</tbody></table>
+<p>版面模型通常返回 <code>chart</code>、<code>chart_title</code>、<code>text</code>、<code>paragraph_title</code>、<code>formula</code>、<code>table</code>、<code>table_title</code> 等区域及其置信度。实验页面中图表、正文和表格区域置信度较高，部分公式区域只有约 <code>0.50–0.80</code>；即使检测框正确，也仍需依据坐标、跨栏规则和区域类型重建阅读顺序。</p>
+<hr>
+<h4 id="五、跨页表格：合并成功不等于内容正确"><a href="#五、跨页表格：合并成功不等于内容正确" class="headerlink" title="五、跨页表格：合并成功不等于内容正确"></a>五、跨页表格：合并成功不等于内容正确</h4><p>处理跨页表格时，系统通常会先判断：</p>
+<ul>
+<li>前一页末块和后一页首块是否都是表格；</li>
+<li>宽度和列结构是否接近；</li>
+<li>后页是否重复表头；</li>
+<li>caption 与 footnote 是否允许合并。</li>
+</ul>
+<p>满足条件后，再在结构化 JSON 或 HTML 层追加数据行，而不是直接拼接两张原始图片。</p>
+<p>即使合并动作完成，仍可能出现：</p>
+<ul>
+<li>后页开头没有被识别成表格；</li>
+<li>前页末尾缺少内容；</li>
+<li>重复表头未正确删除；</li>
+<li>图例、题注或脚注归属错误；</li>
+<li>列结构相同，但两张表实际上不是同一张表。</li>
+</ul>
+<p>所以，跨页表格的验收不能停在「是否成功合并」，还必须同时检查结构与语义。</p>
+<table>
+<thead>
+<tr>
+<th>测试情况</th>
+<th>结果</th>
+<th>暴露的问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>后页首块被识别为非表格</td>
+<td>合并失败</td>
+<td>合并条件未被触发</td>
+</tr>
+<tr>
+<td>前页末块解析不完整</td>
+<td>结构合并成功</td>
+<td>合并后的内容仍有漏项</td>
+</tr>
+<tr>
+<td>连续三页以上同结构表格</td>
+<td>可以连续合并</td>
+<td>仍需检查重复表头、脚注和题注归属</td>
+</tr>
+</tbody></table>
+<hr>
+<h4 id="六、VLM-与-OCR-更适合做补充路径"><a href="#六、VLM-与-OCR-更适合做补充路径" class="headerlink" title="六、VLM 与 OCR 更适合做补充路径"></a>六、VLM 与 OCR 更适合做补充路径</h4><p>复杂页面可以引入 VLM 或专用 OCR 作为补充识别器。以 DeepSeek-OCR 实验为例，判断结果不能只看是否输出了字符，还要继续检查标题层级、段落顺序、表格和公式。</p>
+<p>更稳妥的方案是分级路由：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">普通文档 → Pipeline</span><br><span class="line">      ↓ 质量检查失败</span><br><span class="line">复杂版面/关键文档 → VLM 或其他解析器</span><br><span class="line">      ↓</span><br><span class="line">必要时双路结果差异检查</span><br></pre></td></tr></tbody></table></figure>
+
+<p>补充识别器的结果也应转换为结构化检查项，而不是只保存页面截图。例如：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>检查含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>has_title</code></td>
+<td>标题是否识别且与文件主题一致</td>
+</tr>
+<tr>
+<td><code>has_content</code></td>
+<td>正文主体是否存在，是否发生大段缺失</td>
+</tr>
+<tr>
+<td><code>signature_complete</code></td>
+<td>签章、日期等关键区域是否完整</td>
+</tr>
+<tr>
+<td><code>reading_order_ok</code></td>
+<td>多栏、表格和非线性版面的顺序是否合理</td>
+</tr>
+</tbody></table>
+<p>生产环境使用 VLM 时，我更倾向于让推理引擎作为独立服务运行，解析进程通过接口访问。不要在每个 Web 工作线程中重复初始化大模型。</p>
+<hr>
+<h4 id="七、为解析器建立统一适配层"><a href="#七、为解析器建立统一适配层" class="headerlink" title="七、为解析器建立统一适配层"></a>七、为解析器建立统一适配层</h4><p>后续知识入库不应直接依赖某一种解析器的私有输出。更稳妥的做法，是先转换为统一结构：</p>
+<figure class="highlight json"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">{</span></span><br><span class="line">  <span class="attr">"source"</span><span class="punctuation">:</span> <span class="string">"manual.pdf"</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"page"</span><span class="punctuation">:</span> <span class="number">12</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"type"</span><span class="punctuation">:</span> <span class="string">"table"</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"bbox"</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="number">72</span><span class="punctuation">,</span> <span class="number">120</span><span class="punctuation">,</span> <span class="number">510</span><span class="punctuation">,</span> <span class="number">680</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"text"</span><span class="punctuation">:</span> <span class="string">"..."</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"asset"</span><span class="punctuation">:</span> <span class="string">"images/table-p12.png"</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"caption"</span><span class="punctuation">:</span> <span class="string">"..."</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"parser"</span><span class="punctuation">:</span> <span class="string">"mineru-pipeline"</span></span><br><span class="line"><span class="punctuation">}</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>有了统一适配层，系统就可以替换解析器、增加 fallback，也能对不同结果进行差异评测。</p>
+<hr>
+<h4 id="八、进入知识库前的质量门槛"><a href="#八、进入知识库前的质量门槛" class="headerlink" title="八、进入知识库前的质量门槛"></a>八、进入知识库前的质量门槛</h4><ul>
+<li><input disabled="" type="checkbox"> 页数与原文件一致；</li>
+<li><input disabled="" type="checkbox"> 没有异常空页或大段文本骤降；</li>
+<li><input disabled="" type="checkbox"> 标题层级和阅读顺序合理；</li>
+<li><input disabled="" type="checkbox"> 图片、题注和正文能够对应；</li>
+<li><input disabled="" type="checkbox"> 表格行列、跨页合并和脚注完整；</li>
+<li><input disabled="" type="checkbox"> 公式、数值和单位得到保留；</li>
+<li><input disabled="" type="checkbox"> 每个块都能回到文件、页码和资产；</li>
+<li><input disabled="" type="checkbox"> 关键文档完成抽样或双路检查；</li>
+<li><input disabled="" type="checkbox"> 内网地址、密码和个人信息已经处理。</li>
+</ul>
+<p><strong>最终 Markdown、结构化 JSON、提取资产与原始 PDF 应保持可追溯关系。</strong></p>
+<hr>
+<h4 id="九、我的选型结论"><a href="#九、我的选型结论" class="headerlink" title="九、我的选型结论"></a>九、我的选型结论</h4><p>对普通文档，我会先使用资源成本较低的 Pipeline；遇到长篇法规、关键报告、复杂表格或未通过质量检查的页面，再切换到 VLM 或其他解析器。真正值得投入的，不是追逐单一最强模型，而是建立稳定的质量检查、降级与回溯能力。</p>
+<hr>
+<h4 id="相关资源"><a href="#相关资源" class="headerlink" title="相关资源"></a>相关资源</h4><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/opendatalab/MinerU">MinerU 官方仓库</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2409.18839">MinerU 论文</a></li>
+</ul>
+<hr>
+<blockquote>
+<p>RAG 的检索上限，往往在生成向量之前就已经由文档解析质量决定了。</p>
+</blockquote>
+</div>
+    
+      <aside class="desktop-toc" aria-label="文章目录">
+        <div class="desktop-toc__inner" data-desktop-toc>
+          <p>文章目录</p>
+          <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%96%87%E6%A1%A3%E8%A7%A3%E6%9E%90%E5%9C%A8-RAG-%E4%B8%AD%E8%B4%9F%E8%B4%A3%E4%BB%80%E4%B9%88"><span class="toc-text">一、文档解析在 RAG 中负责什么</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E6%88%91%E6%AF%94%E8%BE%83%E4%BA%86%E5%93%AA%E4%BA%9B%E5%90%8E%E7%AB%AF"><span class="toc-text">二、我比较了哪些后端</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E4%B8%8D%E8%83%BD%E5%8F%AA%E6%AF%94%E8%BE%83%E8%A7%A3%E6%9E%90%E8%80%97%E6%97%B6"><span class="toc-text">三、不能只比较解析耗时</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E8%A7%A3%E6%9E%90%E8%B4%A8%E9%87%8F%E6%9C%80%E5%AE%B9%E6%98%93%E5%9D%8F%E5%9C%A8%E5%93%AA%E9%87%8C"><span class="toc-text">四、解析质量最容易坏在哪里</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E8%B7%A8%E9%A1%B5%E8%A1%A8%E6%A0%BC%EF%BC%9A%E5%90%88%E5%B9%B6%E6%88%90%E5%8A%9F%E4%B8%8D%E7%AD%89%E4%BA%8E%E5%86%85%E5%AE%B9%E6%AD%A3%E7%A1%AE"><span class="toc-text">五、跨页表格：合并成功不等于内容正确</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AD%E3%80%81VLM-%E4%B8%8E-OCR-%E6%9B%B4%E9%80%82%E5%90%88%E5%81%9A%E8%A1%A5%E5%85%85%E8%B7%AF%E5%BE%84"><span class="toc-text">六、VLM 与 OCR 更适合做补充路径</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E4%B8%BA%E8%A7%A3%E6%9E%90%E5%99%A8%E5%BB%BA%E7%AB%8B%E7%BB%9F%E4%B8%80%E9%80%82%E9%85%8D%E5%B1%82"><span class="toc-text">七、为解析器建立统一适配层</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E8%BF%9B%E5%85%A5%E7%9F%A5%E8%AF%86%E5%BA%93%E5%89%8D%E7%9A%84%E8%B4%A8%E9%87%8F%E9%97%A8%E6%A7%9B"><span class="toc-text">八、进入知识库前的质量门槛</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E6%88%91%E7%9A%84%E9%80%89%E5%9E%8B%E7%BB%93%E8%AE%BA"><span class="toc-text">九、我的选型结论</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90"><span class="toc-text">相关资源</span></a></li></ol>
+        </div>
+      </aside>
+    
+  </div>
+
+  <footer class="article-footer">
+    
+      <div class="article-tags" aria-label="文章标签">
+        <a href="/tags/RAG/">#RAG</a><a href="/tags/MinerU/">#MinerU</a><a href="/tags/OCR/">#OCR</a><a href="/tags/%E6%96%87%E6%A1%A3%E8%A7%A3%E6%9E%90/">#文档解析</a>
+      </div>
+    
+
+    
+      <nav class="article-neighbors" aria-label="相邻文章">
+        
+          <a href="/2026/04/19/%E4%B8%AD%E6%96%87RAG%E6%A3%80%E7%B4%A2%E5%AE%9E%E8%B7%B5/"><small>上一篇</small><span>中文 RAG 检索怎么选：Embedding、Reranker 与 Qdrant</span></a>
+        
+        
+          <a href="/2026/02/22/AgentSkills%E9%A1%B9%E7%9B%AE%E5%8C%96%E5%AE%9E%E8%B7%B5/"><small>下一篇</small><span>把 Agent 做成工程：从 Spec、Ticket、TDD 到可验证交付</span></a>
+        
+      </nav>
+    
+
+    
+      <section class="related-posts" aria-labelledby="related-title">
+        <h2 id="related-title">相关文章</h2>
+        
+          <a href="/2026/07/31/GraphRAG%E4%B8%8E%E5%A4%8D%E6%9D%82%E9%97%AE%E7%AD%94%E6%9E%84%E5%BB%BA%E5%AE%9E%E8%B7%B5/"><span>从实体关系到多跳问答：GraphRAG 与复杂问答构建实践</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+        
+          <a href="/2026/06/14/%E9%95%BF%E6%96%87%E6%A1%A3%E9%97%AE%E7%AD%94%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93%E5%AE%9E%E8%B7%B5/"><span>长文档问答的正确拆法：解析、检索、多 Agent 推理与校验</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+        
+          <a href="/2026/05/17/%E5%A4%9A%E6%A8%A1%E6%80%81RAG%E5%AE%9E%E8%B7%B5/"><span>多模态 RAG 不只是给图片写摘要</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+        
+      </section>
+    
+
+    
+      <section
+        class="comments"
+        aria-labelledby="comments-title"
+        data-giscus-container
+        data-giscus-src="https://giscus.app/client.js"
+        data-giscus-repo="NokiaX300/NokiaX300.github.io"
+        data-giscus-repo-id="R_kgDOQzv_Qg"
+        data-giscus-category="Announcements"
+        data-giscus-category-id="DIC_kwDOQzv_Qs4C0lNy"
+        data-giscus-mapping="pathname"
+        data-giscus-reactions-enabled="1"
+        data-giscus-input-position="top"
+        data-giscus-lang="zh-CN"
+        data-giscus-loading="lazy"
+      >
+        <h2 id="comments-title">评论</h2>
+        <p data-giscus-status>滚动到这里时加载评论。</p>
+      </section>
+    
+  </footer>
+
+  
+    <dialog class="toc-drawer" data-toc-dialog aria-labelledby="toc-drawer-title">
+      <div class="toc-drawer__panel">
+        <header>
+          <h2 id="toc-drawer-title">文章目录</h2>
+          <button class="icon-button" type="button" data-toc-close aria-label="关闭目录"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+        </header>
+        <nav data-mobile-toc><ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%96%87%E6%A1%A3%E8%A7%A3%E6%9E%90%E5%9C%A8-RAG-%E4%B8%AD%E8%B4%9F%E8%B4%A3%E4%BB%80%E4%B9%88"><span class="toc-text">一、文档解析在 RAG 中负责什么</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E6%88%91%E6%AF%94%E8%BE%83%E4%BA%86%E5%93%AA%E4%BA%9B%E5%90%8E%E7%AB%AF"><span class="toc-text">二、我比较了哪些后端</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E4%B8%8D%E8%83%BD%E5%8F%AA%E6%AF%94%E8%BE%83%E8%A7%A3%E6%9E%90%E8%80%97%E6%97%B6"><span class="toc-text">三、不能只比较解析耗时</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E8%A7%A3%E6%9E%90%E8%B4%A8%E9%87%8F%E6%9C%80%E5%AE%B9%E6%98%93%E5%9D%8F%E5%9C%A8%E5%93%AA%E9%87%8C"><span class="toc-text">四、解析质量最容易坏在哪里</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E8%B7%A8%E9%A1%B5%E8%A1%A8%E6%A0%BC%EF%BC%9A%E5%90%88%E5%B9%B6%E6%88%90%E5%8A%9F%E4%B8%8D%E7%AD%89%E4%BA%8E%E5%86%85%E5%AE%B9%E6%AD%A3%E7%A1%AE"><span class="toc-text">五、跨页表格：合并成功不等于内容正确</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AD%E3%80%81VLM-%E4%B8%8E-OCR-%E6%9B%B4%E9%80%82%E5%90%88%E5%81%9A%E8%A1%A5%E5%85%85%E8%B7%AF%E5%BE%84"><span class="toc-text">六、VLM 与 OCR 更适合做补充路径</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E4%B8%BA%E8%A7%A3%E6%9E%90%E5%99%A8%E5%BB%BA%E7%AB%8B%E7%BB%9F%E4%B8%80%E9%80%82%E9%85%8D%E5%B1%82"><span class="toc-text">七、为解析器建立统一适配层</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E8%BF%9B%E5%85%A5%E7%9F%A5%E8%AF%86%E5%BA%93%E5%89%8D%E7%9A%84%E8%B4%A8%E9%87%8F%E9%97%A8%E6%A7%9B"><span class="toc-text">八、进入知识库前的质量门槛</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E6%88%91%E7%9A%84%E9%80%89%E5%9E%8B%E7%BB%93%E8%AE%BA"><span class="toc-text">九、我的选型结论</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90"><span class="toc-text">相关资源</span></a></li></ol></nav>
+      </div>
+    </dialog>
+  
+</article>
+
+    </main>
+    <footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">
+      <strong>NokiaX300</strong>
+      <span>© 2026</span>
+      
+        <span class="site-footer__motto">为世界上所有的美好而战 | May all the beauty be blessed</span>
+      
+    </div>
+    <nav aria-label="页脚导航">
+      <a href="https://github.com/NokiaX300" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="/archives/">归档</a>
+      <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="license noopener noreferrer">CC BY-NC-SA 4.0</a>
+    </nav>
+  </div>
+</footer>
+
+    <dialog
+  class="search-dialog"
+  data-search-dialog
+  data-search-endpoint="/search.json"
+  data-search-max-results="8"
+  aria-labelledby="search-title"
+>
+  <div class="search-dialog__panel">
+    <header class="search-dialog__header">
+      <h2 id="search-title">搜索文章</h2>
+      <button class="icon-button" type="button" data-search-close aria-label="关闭搜索"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+    </header>
+    <form class="search-form" role="search" data-search-form>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+      <input
+        type="search"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="输入标题、正文、分类或标签"
+        aria-label="搜索文章"
+        data-search-input
+      >
+      <kbd>Esc</kbd>
+    </form>
+    <p class="search-status" data-search-status>输入关键词开始搜索</p>
+    <div class="search-results" data-search-results></div>
+  </div>
+</dialog>
+
+    <button class="back-to-top" type="button" data-back-to-top aria-label="返回顶部">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 14 6-6 6 6"/></svg>
+    </button>
+    <script src="/js/x300.js" defer></script>
+  </body>
+</html>

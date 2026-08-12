@@ -1,0 +1,382 @@
+
+<!doctype html>
+<html lang="zh-CN">
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5f5f2">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111211">
+  <meta name="color-scheme" content="light dark">
+  <title>用 ChatGPT、Codex 与 Markdown 搭建个人知识库 · NokiaX300</title>
+  <meta name="description" content="从原稿、润色 PDF 到正式 Markdown，记录一套本地优先、可追溯、可持续维护的个人知识工作流">
+  <script>
+    (() => {
+      try {
+        const selected = localStorage.getItem('x300-theme');
+        if (selected === 'light' || selected === 'dark') {
+          document.documentElement.dataset.theme = selected;
+        }
+      } catch (_) {}
+    })();
+  </script>
+  
+    <meta name="description" content="从原稿、润色 PDF 到正式 Markdown，记录一套本地优先、可追溯、可持续维护的个人知识工作流">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用 ChatGPT、Codex 与 Markdown 搭建个人知识库">
+<meta property="og:url" content="https://nokiax300.github.io/2026/01/18/ChatGPT%E4%B8%8ECodex%E4%B8%AA%E4%BA%BA%E7%9F%A5%E8%AF%86%E5%BA%93%E5%AE%9E%E8%B7%B5/">
+<meta property="og:site_name" content="NokiaX300">
+<meta property="og:description" content="从原稿、润色 PDF 到正式 Markdown，记录一套本地优先、可追溯、可持续维护的个人知识工作流">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://nokiax300.github.io/images/avatar.jpg">
+<meta property="article:published_time" content="2026-01-17T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-08-12T02:48:18.356Z">
+<meta property="article:author" content="Nokia">
+<meta property="article:tag" content="AI">
+<meta property="article:tag" content="Codex">
+<meta property="article:tag" content="Markdown">
+<meta property="article:tag" content="知识管理">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nokiax300.github.io/images/avatar.jpg">
+  
+  <link rel="stylesheet" href="/css/x300.css">
+  <link rel="shortcut icon" href="/images/%E4%B8%89%E8%8A%B1%E7%8C%AB.svg">
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+  <body class="page-post">
+    <a class="skip-link" href="#main-content">跳到正文</a>
+    <div class="reading-progress" aria-hidden="true"><span data-reading-progress></span></div>
+    
+<header class="site-header" data-site-header>
+  <div class="site-header__inner">
+    <a class="brand" href="/" aria-label="NokiaX300 首页">
+      <img src="/images/avatar.jpg" width="460" height="460" alt="">
+      <span>NokiaX300</span>
+    </a>
+
+    <nav class="primary-nav" aria-label="主导航">
+      
+        <a href="/posts/">文章</a>
+      
+        <a href="/categories/">分类</a>
+      
+        <a href="/archives/">归档</a>
+      
+    </nav>
+
+    <div class="header-actions">
+      <button class="icon-button" type="button" data-search-open aria-label="搜索">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+      </button>
+      <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="切换明暗模式">
+        <span class="theme-toggle__sun"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></span>
+        <span class="theme-toggle__moon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.5A8.5 8.5 0 0 1 8.5 4 8.5 8.5 0 1 0 20 15.5Z"/></svg></span>
+      </button>
+      <button class="icon-button nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="mobile-navigation" aria-label="打开导航">
+        <span data-nav-icon-open><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span>
+        <span data-nav-icon-close hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></span>
+      </button>
+    </div>
+  </div>
+
+  <nav class="mobile-nav" id="mobile-navigation" data-mobile-nav aria-label="移动端导航" hidden>
+    
+      <a href="/posts/">文章</a>
+    
+      <a href="/categories/">分类</a>
+    
+      <a href="/archives/">归档</a>
+    
+  </nav>
+</header>
+
+    <main class="site-main" id="main-content">
+      
+<article class="article-page">
+  <header class="article-header">
+    
+      <a class="article-header__category" href="/categories/RAG-%E4%B8%8E%E7%9F%A5%E8%AF%86%E7%B3%BB%E7%BB%9F/">RAG 与知识系统</a>
+    
+    <h1>用 ChatGPT、Codex 与 Markdown 搭建个人知识库</h1>
+    <p class="article-header__summary">从原稿、润色 PDF 到正式 Markdown，记录一套本地优先、可追溯、可持续维护的个人知识工作流</p>
+    <div class="article-meta">
+      <time datetime="2026-01-17T16:00:00.000Z">发布于 2026.01.18</time>
+      
+        <time datetime="2026-08-12T02:48:18.356Z">更新于 2026.08.12</time>
+      
+      <span>约 6 分钟</span>
+      
+        <button type="button" class="toc-trigger" data-toc-open><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4" cy="6" r=".8"/><circle cx="4" cy="12" r=".8"/><circle cx="4" cy="18" r=".8"/></svg>文章目录</button>
+      
+    </div>
+  </header>
+
+  <div class="reading-layout reading-layout--with-toc">
+    <div class="article-content"><p>我想建立的，不是一个不断堆积 PDF、网页收藏和聊天记录的资料文件夹，而是一套可以长期维护、随时检索、持续修正的个人知识系统。</p>
+<p>最初，我也考虑过向量数据库、知识图谱、自动标签、自动复习和全自动分类。真正开始实践后才发现，第一版最重要的并不是功能多少，而是能否形成一个稳定闭环：<strong>知识进得来、找得到、改得动，也能追溯它最初从哪里来。</strong></p>
+<p>最后采用的基础组合非常简单：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Markdown + 本地文件夹 + ChatGPT + Codex + Git</span><br></pre></td></tr></tbody></table></figure>
+
+<hr>
+<h4 id="一、先确定唯一的知识真源"><a href="#一、先确定唯一的知识真源" class="headerlink" title="一、先确定唯一的知识真源"></a>一、先确定唯一的知识真源</h4><p>知识系统最常见的问题，是同一内容同时存在于聊天记录、PDF、云笔记和本地文档中，久而久之却没人知道哪一份才是最新版本。</p>
+<p>我的选择是：</p>
+<blockquote>
+<p>本地 Markdown 是正式知识的权威版本；ChatGPT 负责润色和辅助理解；Codex 负责理解材料、组织知识和维护文件；脚本只承担确定性任务。</p>
+</blockquote>
+<p>这条原则解决了三个长期困扰我的问题：</p>
+<ul>
+<li>AI 对话不再承担长期存储职责；</li>
+<li>PDF 保留阅读体验，但不作为日常检索的唯一入口；</li>
+<li>每条正式知识只有一个持续维护的位置。</li>
+</ul>
+<p><strong>先确定唯一真源，再考虑检索、自动化和知识图谱。顺序反过来，系统越复杂，重复版本越难治理。</strong></p>
+<hr>
+<h4 id="二、ChatGPT、Codex-和脚本如何分工"><a href="#二、ChatGPT、Codex-和脚本如何分工" class="headerlink" title="二、ChatGPT、Codex 和脚本如何分工"></a>二、ChatGPT、Codex 和脚本如何分工</h4><p>三者都能参与知识整理，但各自擅长的工作并不相同。</p>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>适合完成的任务</th>
+<th>不应该承担的任务</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ChatGPT</td>
+<td>润色、解释概念、检查理解、辅助学习</td>
+<td>决定本地目录、维护唯一版本、直接操作 Git</td>
+</tr>
+<tr>
+<td>Codex</td>
+<td>读取材料、比较版本、检索旧知识、创建和维护文件</td>
+<td>在不确定时自动覆盖原始资料</td>
+</tr>
+<tr>
+<td>脚本</td>
+<td>哈希、索引、格式检查、链接检查和备份</td>
+<td>判断两篇知识应该合并还是拆分</td>
+</tr>
+</tbody></table>
+<p>最后，我把分工归纳成四行：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">语义工作交给 Codex</span><br><span class="line">机械工作交给脚本</span><br><span class="line">正式知识保存在 Markdown</span><br><span class="line">原始资料独立保存</span><br></pre></td></tr></tbody></table></figure>
+
+<p>文件是否存在、哈希是否一致可以机械判断；一份文档应该拆成几篇、两个观点是否冲突，则必须理解上下文。</p>
+<hr>
+<h4 id="三、为什么同时保留三种版本"><a href="#三、为什么同时保留三种版本" class="headerlink" title="三、为什么同时保留三种版本"></a>三、为什么同时保留三种版本</h4><p>对于完整知识，我保留三层内容：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">人工原始笔记</span><br><span class="line">    ↓ ChatGPT 润色</span><br><span class="line">润色后的 PDF</span><br><span class="line">    ↓ Codex 提炼</span><br><span class="line">正式 Markdown 知识</span><br></pre></td></tr></tbody></table></figure>
+
+<p><strong>人工原始笔记</strong></p>
+<p>原稿保留我最初的表达和判断。它可以用来检查 AI 是否改变了原意，也能帮助我回看自己的认知变化。</p>
+<p><strong>润色后的 PDF</strong></p>
+<p>PDF 更适合阅读和归档，可以保留图片、表格、代码、公式和图文位置。</p>
+<p><strong>正式 Markdown</strong></p>
+<p>Markdown 用于检索、关联、更新和 Git 版本管理，是日常问答优先读取的知识。</p>
+<p>三者不是简单的重复备份，而是分别承担<strong>证据、阅读和复用</strong>三种职责。正式笔记会记录原稿与 PDF 的路径及 SHA-256，以便及时发现意外覆盖或文件变化。</p>
+<hr>
+<h4 id="四、目录结构如何设计"><a href="#四、目录结构如何设计" class="headerlink" title="四、目录结构如何设计"></a>四、目录结构如何设计</h4><p>我没有一开始就按所有学科建立复杂分类，而是先按内容所处的生命周期划分：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Knowledge/</span><br><span class="line">├── Inbox/              # 尚未整理的输入</span><br><span class="line">├── Knowledge/          # 可长期复用的正式知识</span><br><span class="line">├── Learning/           # 系统学习专题与过程</span><br><span class="line">├── Projects/           # 有明确交付物的项目记录</span><br><span class="line">├── Problems/           # 问题、排查、根因与解决方案</span><br><span class="line">├── Sources/</span><br><span class="line">│   ├── PersonalRaw/    # 人工原稿</span><br><span class="line">│   └── Documents/      # PDF、Word 等原件</span><br><span class="line">├── Assets/             # 图片和附件</span><br><span class="line">├── Reviews/            # 复习和阶段总结</span><br><span class="line">├── Archive/            # 已处理或过时内容</span><br><span class="line">└── System/             # 脚本、索引、日志与备份</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这里最重要的边界是：</p>
+<ul>
+<li><code>Sources</code> 保存来源，不重复维护最终结论；</li>
+<li><code>Knowledge</code> 保存能够跨项目、跨教程复用的知识；</li>
+<li><code>Learning</code> 保存学习过程和顺序；</li>
+<li><code>Projects</code> 与 <code>Problems</code> 保存具体上下文。</li>
+</ul>
+<hr>
+<h4 id="五、三种知识入口"><a href="#五、三种知识入口" class="headerlink" title="五、三种知识入口"></a>五、三种知识入口</h4><p>输入的成熟度不同，处理方式也不应被强行塞进同一套模板。</p>
+<p><strong>入口 1：完整知识</strong></p>
+<p>我提供人工原稿和润色后的 PDF，然后只需要说「入库」。Codex 会保存原件、计算哈希、比较差异、检查图片和表格、检索旧知识，并生成正式 Markdown。</p>
+<p>如果润色版改变了结论、数字或代码，系统不会静默选择某一版，而是把差异列出来。</p>
+<p><strong>入口 2：零散知识</strong></p>
+<p>只有一两句话时，我直接说「收录」。尚不足以独立成篇的内容先进入按日记录的 <code>Inbox/Quick</code>，以后再判断是新建、合并、转为问题还是归档。</p>
+<p><strong>入口 3：系统学习</strong></p>
+<p>当我要持续学习一个主题时，系统会建立专题目录，维护路线、来源、进度、每次学习记录和章节笔记。只有能够脱离具体教程复用的结论，才会进一步提炼到 <code>Knowledge</code>。</p>
+<hr>
+<h4 id="六、PDF-入库不能只提取文本"><a href="#六、PDF-入库不能只提取文本" class="headerlink" title="六、PDF 入库不能只提取文本"></a>六、PDF 入库不能只提取文本</h4><p>复杂 PDF 中的知识经常藏在表格、架构图、题注和版面关系里。只读取文本层，得到的内容可能顺序错乱，也可能失去关键上下文。</p>
+<p>完整检查至少包括：</p>
+<ul>
+<li>渲染并查看全部页面；</li>
+<li>检查标题层级和阅读顺序；</li>
+<li>检查表格、公式、代码和图文对应；</li>
+<li>对扫描页使用 OCR，并标记识别风险；</li>
+<li>提取真正承载知识的图片；</li>
+<li>保留页码和原件定位。</li>
+</ul>
+<p>真正承载知识的原始图片会保存到独立资产目录，并由 Markdown 使用相对路径引用；装饰图、Logo、水印和重复背景默认不提取。文档页面本身不能作为配图直接贴入正文。</p>
+<p>表格应优先还原为 Markdown 或结构化数据。若版式过于复杂，就保留原始页码和定位信息，人工提炼能够确认的结构与结论，而不是用整页截图代替知识整理。</p>
+<hr>
+<h4 id="七、为什么搜索要分层"><a href="#七、为什么搜索要分层" class="headerlink" title="七、为什么搜索要分层"></a>七、为什么搜索要分层</h4><p>原稿、临时记录和正式知识的成熟度不同，也不应拥有相同的检索优先级。</p>
+<p>日常回答时，优先搜索：</p>
+<ul>
+<li><code>Knowledge</code>；</li>
+<li><code>Learning</code>；</li>
+<li><code>Projects</code>；</li>
+<li><code>Problems</code>；</li>
+<li><code>Reviews</code>。</li>
+</ul>
+<p>只有在查重、整理或追溯来源时，才扩大到 <code>PersonalRaw</code>、原始文档和 <code>Inbox</code>。</p>
+<p>这样既保留全部历史，又不会让同一知识的多个阶段在回答中互相干扰。</p>
+<hr>
+<h4 id="八、健康检查比“看起来没问题”更可靠"><a href="#八、健康检查比“看起来没问题”更可靠" class="headerlink" title="八、健康检查比“看起来没问题”更可靠"></a>八、健康检查比“看起来没问题”更可靠</h4><p>系统会主动检查：</p>
+<ul>
+<li>Markdown 元数据是否完整；</li>
+<li>笔记状态是否合法；</li>
+<li>内部链接和目标文件是否存在；</li>
+<li>原稿、PDF 及其哈希是否匹配；</li>
+<li>零散记录 ID 是否重复；</li>
+<li>学习专题结构是否缺失；</li>
+<li>索引是否需要更新。</li>
+</ul>
+<figure class="highlight powershell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 检查知识库</span></span><br><span class="line">.\System\scripts\kb.ps1 doctor</span><br><span class="line"></span><br><span class="line"><span class="comment"># 更新索引</span></span><br><span class="line">.\System\scripts\kb.ps1 index</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建本地备份</span></span><br><span class="line">.\System\scripts\kb.ps1 backup</span><br></pre></td></tr></tbody></table></figure>
+
+<p><strong>AI 负责理解，脚本负责验收。两者缺一不可。</strong></p>
+<hr>
+<h4 id="九、为什么不做无人值守的-Git-推送"><a href="#九、为什么不做无人值守的-Git-推送" class="headerlink" title="九、为什么不做无人值守的 Git 推送"></a>九、为什么不做无人值守的 Git 推送</h4><p>原始笔记和 PDF 可能包含尚未检查的个人信息、内网地址或项目配置。自动任务无法完成真正的语义审查，也会降低我对版本变化的感知。</p>
+<p>所以 Git 同步保留为手动动作。只有我明确说「同步到 Git」后，Codex 才会检查变更、敏感信息、索引和健康状态，再提交与推送。</p>
+<p>这条规则看似降低了自动化程度，实际上显著压缩了错误上传的风险面。</p>
+<hr>
+<h4 id="十、这套系统真正解决了什么"><a href="#十、这套系统真正解决了什么" class="headerlink" title="十、这套系统真正解决了什么"></a>十、这套系统真正解决了什么</h4><p>完整闭环最终变成：</p>
+<figure class="highlight text"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">捕获 → 理解 → 保留原件 → 检索旧知识</span><br><span class="line">     → 新建/合并/关联 → 正式 Markdown</span><br><span class="line">     → 索引与健康检查 → 应用与持续更新</span><br></pre></td></tr></tbody></table></figure>
+
+<p>回头看，搭建过程中最重要的并不是某个脚本或目录，而是以下几条稳定原则：</p>
+<ul>
+<li>不要在记录习惯形成前建设复杂平台；</li>
+<li>输入形式可以不同，处理原则必须稳定；</li>
+<li>原始资料负责追溯，正式知识负责复用；</li>
+<li>AI 润色不等于个人观点；</li>
+<li>同一结论只维护一个规范版本；</li>
+<li>自动化必须服从安全、确认和可回滚。</li>
+</ul>
+<blockquote>
+<p>一个真正有用的个人知识库，不是把所有信息都保存下来，而是让值得保留的知识能够被追溯、被找到、被修正，并在下一次工作中重新发挥作用。</p>
+</blockquote>
+</div>
+    
+      <aside class="desktop-toc" aria-label="文章目录">
+        <div class="desktop-toc__inner" data-desktop-toc>
+          <p>文章目录</p>
+          <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%85%88%E7%A1%AE%E5%AE%9A%E5%94%AF%E4%B8%80%E7%9A%84%E7%9F%A5%E8%AF%86%E7%9C%9F%E6%BA%90"><span class="toc-text">一、先确定唯一的知识真源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E3%80%81ChatGPT%E3%80%81Codex-%E5%92%8C%E8%84%9A%E6%9C%AC%E5%A6%82%E4%BD%95%E5%88%86%E5%B7%A5"><span class="toc-text">二、ChatGPT、Codex 和脚本如何分工</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88%E5%90%8C%E6%97%B6%E4%BF%9D%E7%95%99%E4%B8%89%E7%A7%8D%E7%89%88%E6%9C%AC"><span class="toc-text">三、为什么同时保留三种版本</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1"><span class="toc-text">四、目录结构如何设计</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E4%B8%89%E7%A7%8D%E7%9F%A5%E8%AF%86%E5%85%A5%E5%8F%A3"><span class="toc-text">五、三种知识入口</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AD%E3%80%81PDF-%E5%85%A5%E5%BA%93%E4%B8%8D%E8%83%BD%E5%8F%AA%E6%8F%90%E5%8F%96%E6%96%87%E6%9C%AC"><span class="toc-text">六、PDF 入库不能只提取文本</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88%E6%90%9C%E7%B4%A2%E8%A6%81%E5%88%86%E5%B1%82"><span class="toc-text">七、为什么搜索要分层</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5%E6%AF%94%E2%80%9C%E7%9C%8B%E8%B5%B7%E6%9D%A5%E6%B2%A1%E9%97%AE%E9%A2%98%E2%80%9D%E6%9B%B4%E5%8F%AF%E9%9D%A0"><span class="toc-text">八、健康检查比“看起来没问题”更可靠</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E5%81%9A%E6%97%A0%E4%BA%BA%E5%80%BC%E5%AE%88%E7%9A%84-Git-%E6%8E%A8%E9%80%81"><span class="toc-text">九、为什么不做无人值守的 Git 推送</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E8%BF%99%E5%A5%97%E7%B3%BB%E7%BB%9F%E7%9C%9F%E6%AD%A3%E8%A7%A3%E5%86%B3%E4%BA%86%E4%BB%80%E4%B9%88"><span class="toc-text">十、这套系统真正解决了什么</span></a></li></ol>
+        </div>
+      </aside>
+    
+  </div>
+
+  <footer class="article-footer">
+    
+      <div class="article-tags" aria-label="文章标签">
+        <a href="/tags/AI/">#AI</a><a href="/tags/%E7%9F%A5%E8%AF%86%E7%AE%A1%E7%90%86/">#知识管理</a><a href="/tags/Codex/">#Codex</a><a href="/tags/Markdown/">#Markdown</a>
+      </div>
+    
+
+    
+      <nav class="article-neighbors" aria-label="相邻文章">
+        
+          <a href="/2026/01/27/AgentSkills%E5%85%A5%E9%97%A8/"><small>上一篇</small><span>把能力封装成 Skill：Agent Skills 的结构、加载机制与边界</span></a>
+        
+        
+          <a href="/2026/01/07/%E5%85%8D%E8%B4%B9%E4%B8%AA%E4%BA%BA%E7%BD%91%E7%AB%99%E5%BF%AB%E9%80%9F%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/"><small>下一篇</small><span>从零上线个人博客：Hexo、GitHub Pages 与源码管理</span></a>
+        
+      </nav>
+    
+
+    
+      <section class="related-posts" aria-labelledby="related-title">
+        <h2 id="related-title">相关文章</h2>
+        
+          <a href="/2026/01/27/AgentSkills%E5%85%A5%E9%97%A8/"><span>把能力封装成 Skill：Agent Skills 的结构、加载机制与边界</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+        
+          <a href="/2026/07/31/GraphRAG%E4%B8%8E%E5%A4%8D%E6%9D%82%E9%97%AE%E7%AD%94%E6%9E%84%E5%BB%BA%E5%AE%9E%E8%B7%B5/"><span>从实体关系到多跳问答：GraphRAG 与复杂问答构建实践</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+        
+          <a href="/2026/06/14/%E9%95%BF%E6%96%87%E6%A1%A3%E9%97%AE%E7%AD%94%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93%E5%AE%9E%E8%B7%B5/"><span>长文档问答的正确拆法：解析、检索、多 Agent 推理与校验</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+        
+      </section>
+    
+
+    
+      <section
+        class="comments"
+        aria-labelledby="comments-title"
+        data-giscus-container
+        data-giscus-src="https://giscus.app/client.js"
+        data-giscus-repo="NokiaX300/NokiaX300.github.io"
+        data-giscus-repo-id="R_kgDOQzv_Qg"
+        data-giscus-category="Announcements"
+        data-giscus-category-id="DIC_kwDOQzv_Qs4C0lNy"
+        data-giscus-mapping="pathname"
+        data-giscus-reactions-enabled="1"
+        data-giscus-input-position="top"
+        data-giscus-lang="zh-CN"
+        data-giscus-loading="lazy"
+      >
+        <h2 id="comments-title">评论</h2>
+        <p data-giscus-status>滚动到这里时加载评论。</p>
+      </section>
+    
+  </footer>
+
+  
+    <dialog class="toc-drawer" data-toc-dialog aria-labelledby="toc-drawer-title">
+      <div class="toc-drawer__panel">
+        <header>
+          <h2 id="toc-drawer-title">文章目录</h2>
+          <button class="icon-button" type="button" data-toc-close aria-label="关闭目录"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+        </header>
+        <nav data-mobile-toc><ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%85%88%E7%A1%AE%E5%AE%9A%E5%94%AF%E4%B8%80%E7%9A%84%E7%9F%A5%E8%AF%86%E7%9C%9F%E6%BA%90"><span class="toc-text">一、先确定唯一的知识真源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E3%80%81ChatGPT%E3%80%81Codex-%E5%92%8C%E8%84%9A%E6%9C%AC%E5%A6%82%E4%BD%95%E5%88%86%E5%B7%A5"><span class="toc-text">二、ChatGPT、Codex 和脚本如何分工</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88%E5%90%8C%E6%97%B6%E4%BF%9D%E7%95%99%E4%B8%89%E7%A7%8D%E7%89%88%E6%9C%AC"><span class="toc-text">三、为什么同时保留三种版本</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1"><span class="toc-text">四、目录结构如何设计</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E4%B8%89%E7%A7%8D%E7%9F%A5%E8%AF%86%E5%85%A5%E5%8F%A3"><span class="toc-text">五、三种知识入口</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AD%E3%80%81PDF-%E5%85%A5%E5%BA%93%E4%B8%8D%E8%83%BD%E5%8F%AA%E6%8F%90%E5%8F%96%E6%96%87%E6%9C%AC"><span class="toc-text">六、PDF 入库不能只提取文本</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88%E6%90%9C%E7%B4%A2%E8%A6%81%E5%88%86%E5%B1%82"><span class="toc-text">七、为什么搜索要分层</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5%E6%AF%94%E2%80%9C%E7%9C%8B%E8%B5%B7%E6%9D%A5%E6%B2%A1%E9%97%AE%E9%A2%98%E2%80%9D%E6%9B%B4%E5%8F%AF%E9%9D%A0"><span class="toc-text">八、健康检查比“看起来没问题”更可靠</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E5%81%9A%E6%97%A0%E4%BA%BA%E5%80%BC%E5%AE%88%E7%9A%84-Git-%E6%8E%A8%E9%80%81"><span class="toc-text">九、为什么不做无人值守的 Git 推送</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E8%BF%99%E5%A5%97%E7%B3%BB%E7%BB%9F%E7%9C%9F%E6%AD%A3%E8%A7%A3%E5%86%B3%E4%BA%86%E4%BB%80%E4%B9%88"><span class="toc-text">十、这套系统真正解决了什么</span></a></li></ol></nav>
+      </div>
+    </dialog>
+  
+</article>
+
+    </main>
+    <footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">
+      <strong>NokiaX300</strong>
+      <span>© 2026</span>
+      
+        <span class="site-footer__motto">为世界上所有的美好而战 | May all the beauty be blessed</span>
+      
+    </div>
+    <nav aria-label="页脚导航">
+      <a href="https://github.com/NokiaX300" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="/archives/">归档</a>
+      <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="license noopener noreferrer">CC BY-NC-SA 4.0</a>
+    </nav>
+  </div>
+</footer>
+
+    <dialog
+  class="search-dialog"
+  data-search-dialog
+  data-search-endpoint="/search.json"
+  data-search-max-results="8"
+  aria-labelledby="search-title"
+>
+  <div class="search-dialog__panel">
+    <header class="search-dialog__header">
+      <h2 id="search-title">搜索文章</h2>
+      <button class="icon-button" type="button" data-search-close aria-label="关闭搜索"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+    </header>
+    <form class="search-form" role="search" data-search-form>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+      <input
+        type="search"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="输入标题、正文、分类或标签"
+        aria-label="搜索文章"
+        data-search-input
+      >
+      <kbd>Esc</kbd>
+    </form>
+    <p class="search-status" data-search-status>输入关键词开始搜索</p>
+    <div class="search-results" data-search-results></div>
+  </div>
+</dialog>
+
+    <button class="back-to-top" type="button" data-back-to-top aria-label="返回顶部">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 14 6-6 6 6"/></svg>
+    </button>
+    <script src="/js/x300.js" defer></script>
+  </body>
+</html>
