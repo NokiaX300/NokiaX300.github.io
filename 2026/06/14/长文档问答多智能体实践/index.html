@@ -30,7 +30,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://nokiax300.github.io/images/avatar.jpg">
 <meta property="article:published_time" content="2026-06-13T16:00:00.000Z">
-<meta property="article:modified_time" content="2026-08-12T02:48:36.144Z">
+<meta property="article:modified_time" content="2026-10-05T15:45:48.414Z">
 <meta property="article:author" content="Nokia">
 <meta property="article:tag" content="AgentScope">
 <meta property="article:tag" content="Multi-Agent">
@@ -102,9 +102,9 @@
     <div class="article-meta">
       <time datetime="2026-06-13T16:00:00.000Z">发布于 2026.06.14</time>
       
-        <time datetime="2026-08-12T02:48:36.144Z">更新于 2026.08.12</time>
+        <time datetime="2026-10-05T15:45:48.414Z">更新于 2026.10.05</time>
       
-      <span>约 5 分钟</span>
+      <span>约 6 分钟</span>
       
         <button type="button" class="toc-trigger" data-toc-open><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4" cy="6" r=".8"/><circle cx="4" cy="12" r=".8"/><circle cx="4" cy="18" r=".8"/></svg>文章目录</button>
       
@@ -187,6 +187,7 @@
 </tr>
 </tbody></table>
 <p>并不是每个角色都必须对应一个独立的大模型实例。确定性预处理、过滤和格式校验，仍应由普通代码完成。</p>
+<p>这里的角色表示逻辑职责。步骤稳定时，可以由普通函数或固定管线承担；需要动态选择工具、调整计划时，再引入模型编排。在标准审查场景中，我采用普通 RAG 与确定性审查管线并存的方式，具体取舍见 <a href="/2026/10/05/RAG%E6%B7%B7%E5%90%88%E8%B7%AF%E7%94%B1%E4%B8%8EAgent%E5%AE%A1%E6%9F%A5%E5%AE%9E%E8%B7%B5/">给 RAG 加上 Agent：混合路由与多阶段审查实践</a>。</p>
 <hr>
 <h4 id="四、消息结构决定系统能否排错"><a href="#四、消息结构决定系统能否排错" class="headerlink" title="四、消息结构决定系统能否排错"></a>四、消息结构决定系统能否排错</h4><p>Agent 之间不要只传递自然语言段落。消息至少应包含：</p>
 <figure class="highlight json"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">{</span></span><br><span class="line">  <span class="attr">"task_id"</span><span class="punctuation">:</span> <span class="string">"qa-20260614-001"</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"question"</span><span class="punctuation">:</span> <span class="string">"..."</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"evidence"</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">{</span></span><br><span class="line">      <span class="attr">"source"</span><span class="punctuation">:</span> <span class="string">"report.pdf"</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">"page"</span><span class="punctuation">:</span> <span class="number">18</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">"chunk_id"</span><span class="punctuation">:</span> <span class="string">"report-p18-c02"</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">"text"</span><span class="punctuation">:</span> <span class="string">"..."</span></span><br><span class="line">    <span class="punctuation">}</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"status"</span><span class="punctuation">:</span> <span class="string">"completed"</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"confidence"</span><span class="punctuation">:</span> <span class="number">0.82</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"warnings"</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">}</span></span><br></pre></td></tr></tbody></table></figure>
@@ -279,9 +280,16 @@
 <li><input disabled="" type="checkbox"> 使用多 Agent 的收益高于额外成本。</li>
 </ul>
 <hr>
-<h4 id="相关资源"><a href="#相关资源" class="headerlink" title="相关资源"></a>相关资源</h4><ul>
-<li><a target="_blank" rel="noopener" href="https://doc.agentscope.io/">AgentScope 官方文档</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/agentscope-ai/agentscope">AgentScope 官方仓库</a></li>
+<h4 id="相关资源"><a href="#相关资源" class="headerlink" title="相关资源"></a>相关资源</h4><p>继续阅读：</p>
+<ul>
+<li><p><a href="/2026/10/05/%E6%A0%87%E5%87%86%E6%96%87%E6%A1%A3RAG%E7%BB%93%E6%9E%84%E5%8C%96%E4%BE%9B%E7%BB%99/">标准文档 RAG：从固定切块到结构化证据供给</a>：从文件和条款层面补足证据组织。</p>
+</li>
+<li><p><a href="/2026/10/05/RAG%E6%B7%B7%E5%90%88%E8%B7%AF%E7%94%B1%E4%B8%8EAgent%E5%AE%A1%E6%9F%A5%E5%AE%9E%E8%B7%B5/">给 RAG 加上 Agent：混合路由与多阶段审查实践</a>：用具体合问案例说明路由、管线和可选补搜。</p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://doc.agentscope.io/">AgentScope 官方文档</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://github.com/agentscope-ai/agentscope">AgentScope 官方仓库</a></p>
+</li>
 </ul>
 <hr>
 <blockquote>
@@ -320,11 +328,11 @@
       <section class="related-posts" aria-labelledby="related-title">
         <h2 id="related-title">相关文章</h2>
         
+          <a href="/2026/10/05/RAG%E6%B7%B7%E5%90%88%E8%B7%AF%E7%94%B1%E4%B8%8EAgent%E5%AE%A1%E6%9F%A5%E5%AE%9E%E8%B7%B5/"><span>给 RAG 加上 Agent：混合路由与多阶段审查实践</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+        
+          <a href="/2026/10/05/%E6%A0%87%E5%87%86%E6%96%87%E6%A1%A3RAG%E7%BB%93%E6%9E%84%E5%8C%96%E4%BE%9B%E7%BB%99/"><span>标准文档 RAG：从固定切块到结构化证据供给</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+        
           <a href="/2026/07/31/GraphRAG%E4%B8%8E%E5%A4%8D%E6%9D%82%E9%97%AE%E7%AD%94%E6%9E%84%E5%BB%BA%E5%AE%9E%E8%B7%B5/"><span>从实体关系到多跳问答：GraphRAG 与复杂问答构建实践</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
-        
-          <a href="/2026/05/17/%E5%A4%9A%E6%A8%A1%E6%80%81RAG%E5%AE%9E%E8%B7%B5/"><span>多模态 RAG 不只是给图片写摘要</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
-        
-          <a href="/2026/04/19/%E4%B8%AD%E6%96%87RAG%E6%A3%80%E7%B4%A2%E5%AE%9E%E8%B7%B5/"><span>中文 RAG 检索怎么选：Embedding、Reranker 与 Qdrant</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
         
       </section>
     
